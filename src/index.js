@@ -1,10 +1,8 @@
-import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
+var h = require('react-hyperscript');
 
-var ele = React.createElement(App, { key: Math.random() });
-
-ReactDOM.render(ele, document.getElementById('root'));
+ReactDOM.render(h(App), document.getElementById('root'));
 registerServiceWorker();

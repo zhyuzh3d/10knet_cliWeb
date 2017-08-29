@@ -1,20 +1,19 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import logo from './imgs/logo.svg';
 import './App.css';
 
-var e = React.createElement;
-var k = Math.random;
-
+var h = require('react-hyperscript');
 class App extends Component {
     render() {
-        return e('div', { className: 'App', key: k() }, [
-            e('div', { className: 'App-header', key: k() }, [
-                e('img', { src: logo, className: 'App-logo', key: k() }),
-                e('h2', { key: k() }, 'Welcome to 10knet!'),
+        return h('div.App', [
+            h('div.App-header', [
+                h('img.App-logo', { src: logo }),
+                h('h2', 'Welcome to 10knet!'),
             ]),
-            e('p', { className: 'App-intro',key: k()  }, '= the next generation of web browser =')
+            h('p.App-intro', '= the next generation of web browser =')
         ]);
     }
 }
+
 
 export default App;
