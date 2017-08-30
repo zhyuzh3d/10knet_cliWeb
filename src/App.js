@@ -1,8 +1,8 @@
 import { Component } from 'react';
 import logo from './imgs/logo.svg';
 import './App.css';
-
 var h = require('react-hyperscript');
+
 class App extends Component {
     render() {
         return h('div.App', [
@@ -14,6 +14,8 @@ class App extends Component {
         ]);
     }
 }
+
+//window.electron.ipcRenderer.sendSync('run','mainWindow.setSize(200,200,true)');
 
 
 export default App;
