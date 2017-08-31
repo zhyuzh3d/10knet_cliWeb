@@ -11,6 +11,3 @@ import App from './App';
 
 ReactDOM.render(h(App), document.getElementById('root'));
 registerServiceWorker();
-
-
-

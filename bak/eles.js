@@ -1,0 +1,5 @@
+h(Button, { color: 'default', raised: true }, 'default'),
+    h(Button, { color: 'primary', raised: true }, 'primary'),
+    h(Button, { color: 'accent', raised: true }, 'accent'),
+    h(Button, { color: 'accent', disabled: true }, 'disabled'),
+    h(Icon, 'face'),
