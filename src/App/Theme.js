@@ -1,16 +1,10 @@
-import LoginPage from './pages/LoginPage';
-import h from 'react-hyperscript';
-
-
-//定制主题颜色
-import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
+import { createMuiTheme } from 'material-ui/styles';
 import createPalette from 'material-ui/styles/palette';
 import teal from 'material-ui/colors/teal';
 import pink from 'material-ui/colors/pink';
 import red from 'material-ui/colors/red';
-import Button from 'material-ui/Button';
 
-const theme = createMuiTheme({
+const Theme = createMuiTheme({
     palette: createPalette({
         primary: teal,
         accent: pink,
@@ -25,19 +19,16 @@ const theme = createMuiTheme({
             raised: {
                 borderRadius: 0,
                 boxShadow: 'none',
-            }
+            },
+        },
+        MuiDialog: {
+            paper: {
+                borderRadius: 0,
+                boxShadow: 'none',
+                minWidth: 300,
+            },
         },
     },
 });
 
-
-//载入首页
-function App() {
-    return h(MuiThemeProvider, {
-        theme: theme,
-    }, [
-        h(LoginPage, 'btn'),
-    ]);
-};
-
-export default App;
+export default Theme;

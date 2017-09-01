@@ -7,7 +7,8 @@
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "react-hyperscript": "^3.0.0",
-    "react-scripts": "1.0.11"
+    "react-scripts": "1.0.11",
+    "wilddog": "^2.5.15"
   },
   "scripts": {
     "start": "react-scripts start",
