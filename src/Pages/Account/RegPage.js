@@ -9,6 +9,10 @@ import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import TextField from 'material-ui/TextField';
+import AppBar from 'material-ui/AppBar';
+import Toolbar from 'material-ui/Toolbar';
+import Typography from 'material-ui/Typography';
+import Icon from 'material-ui/Icon';
 import Dialog, {
     DialogContent,
     DialogContentText,
@@ -89,6 +93,17 @@ class com extends Component {
         const css = that.props.classes;
 
         return h(Grid, { container: true, className: css.page }, [
+            h(AppBar, { position: 'static' }, [
+                h(Toolbar, { disableGutters: true, className: css.topBar }, [
+                    h(IconButton, {
+                        color: 'contrast',
+                        onClick: () => { global.$fn.prevPage() },
+                    }, [
+                        h(Icon, 'arrow_back')
+                    ]),
+                    h(Typography, { color: 'inherit', type: 'subheading' }, '返回'),
+                ]),
+            ]),
             h('div', { className: css.title }, [
                 h(Button, {
                     className: css.titleTab + ' opc25 imid',
@@ -100,37 +115,36 @@ class com extends Component {
                     onClick: () => { global.$fn.changePage('RegPage') },
                 }, '注册'),
             ]),
-            h(Grid, {
-                item: true,
-                className: css.container,
-            }, [
-                h(Grid, { item: true, xs: 12 }, [
-                    h(TextField, {
-                        className: css.textField,
-                        label: '手机',
-                        placeholder: '手机号码',
-                        helperText: '请输入11位手机号',
-                        autoComplete: "tel",
-                        onChange: (e) => { that.setState({ iptPhone: e.target.value }) },
-                    }),
+            h('div', { className: css.row }, [
+                h('div', { className: css.container }, [
+                    h(Grid, { item: true, xs: 12 }, [
+                        h(TextField, {
+                            className: css.textField,
+                            label: '手机',
+                            placeholder: '手机号码',
+                            helperText: '请输入11位手机号',
+                            autoComplete: "tel",
+                            onChange: (e) => { that.setState({ iptPhone: e.target.value }) },
+                        }),
+                    ]),
+                    h(Grid, { item: true, xs: 12 }, [
+                        h(TextField, {
+                            className: css.textField,
+                            label: '密码',
+                            placeholder: '您的密码',
+                            type: "password",
+                            autoComplete: "current-password",
+                            helperText: '请输入6～18位字符',
+                            onChange: (e) => { that.setState({ iptPw: e.target.value }) },
+                        })
+                    ]),
+                    h(Button, {
+                        color: 'accent',
+                        raised: true,
+                        className: css.loginBtn,
+                        onClick: () => { that.hCreateUser() },
+                    }, '注 册'),
                 ]),
-                h(Grid, { item: true, xs: 12 }, [
-                    h(TextField, {
-                        className: css.textField,
-                        label: '密码',
-                        placeholder: '您的密码',
-                        type: "password",
-                        autoComplete: "current-password",
-                        helperText: '请输入6～18位字符',
-                        onChange: (e) => { that.setState({ iptPw: e.target.value }) },
-                    })
-                ]),
-                h(Button, {
-                    color: 'accent',
-                    raised: true,
-                    className: css.loginBtn,
-                    onClick: () => { that.hCreateUser() },
-                }, '注 册'),
             ]),
             //弹窗
             h(Dialog, {

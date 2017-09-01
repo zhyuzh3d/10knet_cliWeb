@@ -28,22 +28,60 @@ const pages = {
 //App元素
 class App extends Component {
     state = {
+        pageHis: ['LoginPage'],
         curPage: LoginPage,
         successPage: HomePage,
         failedPagee: LoginPage,
+        curPageIndex: 0,
     };
 
-    //换页方法
+    //后退方法
+    prevPage = global.$fn.prevPage = () => {
+        let that = this;
+        that.state.curPageIndex -= 1;
+        if(that.state.curPageIndex < 0) {
+            that.state.curPageIndex = 0;
+            return;
+        };
+
+        if(that.state.curPageIndex < that.state.pageHis.length) {
+            let pn = that.state.pageHis[that.state.curPageIndex];
+            that.setState({ curPage: pages[pn] });
+        } else {
+            that.state.curPageIndex = that.state.pageHis.length;
+        };
+    };
+
+    //前进方法
+    nextPage = global.$fn.nextPage = () => {
+        let that = this;
+        that.state.curPageIndex += 1;
+        if(that.state.curPageIndex > that.state.pageHis.length) {
+            that.state.curPageIndex = that.state.pageHis.length;
+        } else {
+            var pn = that.state.pageHis[that.state.curPageIndex];
+            that.setState({ curPage: pages[pn] });
+        };
+    };
+
+
+    //换页方法,永远切掉后面的历史并添加新的页面,刷新的重复不计入历史
     changePage = global.$fn.changePage = (pageName, successPage, failedPagee) => {
         let that = this;
-        if(!pageName || pageName == 'sucess') {
+        if(!pageName || pageName === 'sucess') {
             that.changePage(that.successPage || 'HomePage');
             return;
-        } else if(pageName == 'failed') {
+        } else if(pageName === 'failed') {
             that.changePage(that.failedPagee || 'HomePage');
             return;
         } else {
-            this.setState({
+            let curName = that.state.pageHis[that.state.curPageIndex];
+            if(curName !== pageName) {
+                that.state.curPageIndex += 1;
+                that.state.pageHis = that.state.pageHis.slice(0, that.state.curPageIndex);
+                that.state.pageHis.push(pageName);
+            };
+            that.setState({
                 curPage: pages[pageName],
                 successPage: successPage || that.state.successPage,
                 failedPagee: failedPagee || that.state.failedPagee,

@@ -28,6 +28,9 @@ const Theme = createMuiTheme({
                 minWidth: 300,
             },
         },
+        MuiToolbar: {
+            root: {}
+        },
     },
 });
 

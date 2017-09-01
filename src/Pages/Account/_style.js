@@ -1,21 +1,31 @@
 //公用样式表
 const styles = theme => ({
     page: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
+        padding: 0,
+        margin: 0,
+        height: '100%',
+        width: '100%',
+        overflowY: 'auto',
+        display: 'block',
     },
     title: {
-        marginTop: theme.spacing.unit * 10,
+        marginTop: theme.spacing.unit * 6,
+        width: '100%',
+        textAlign: 'center',
     },
     titleTab: {
         width: 100,
-        textAlign:'center',
+        textAlign: 'center',
+    },
+    row: {
+        width: '100%',
+        textAlign: 'center',
     },
     container: {
         margin: 0,
         padding: 0,
         width: 360,
+        display: 'inline-block',
     },
     item: {
         padding: 0
@@ -46,6 +56,6 @@ const styles = theme => ({
         width: 1,
         height: '100%',
         background: '#AAA',
-    },
+    }
 });
 export default styles;
