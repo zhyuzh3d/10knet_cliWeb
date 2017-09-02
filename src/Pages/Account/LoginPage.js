@@ -45,7 +45,7 @@ class com extends Component {
     };
 
     //控制器-注册新用户
-    hCreateUser = () => {
+    hLoginUser = () => {
         let that = this;
         let phone = that.state.iptPhone;
         let pw = that.state.iptPw;
@@ -69,7 +69,7 @@ class com extends Component {
         };
 
         global.$wd.auth().signInWithPhoneAndPassword(phone, pw).then(function(user) {
-            global.$fn.changePage('HomePage');
+            global.$fn.changePage();
         }).catch(function(error) {
             that.setState({
                 dialogOpen: true,
@@ -85,7 +85,7 @@ class com extends Component {
         const css = that.props.classes;
 
         return h(Grid, { container: true, className: css.page }, [
-            h(AppBar, { position: 'static' }, [
+            h(AppBar, { position: 'static', className: css.appBar }, [
                 h(Toolbar, { disableGutters: true, className: css.topBar }, [
                     h(IconButton, {
                         color: 'contrast',
@@ -139,7 +139,7 @@ class com extends Component {
                         color: 'primary',
                         raised: true,
                         className: css.loginBtn,
-                        onClick: () => { that.hCreateUser() },
+                        onClick: () => { that.hLoginUser() },
                     }, '登 陆'),
                 ]),
             ]),

@@ -29,7 +29,19 @@ const Theme = createMuiTheme({
             },
         },
         MuiToolbar: {
-            root: {}
+            root: {
+                boxShadow: 'none',
+            }
+        },
+        MuiAppbar: {
+            root: {
+                boxShadow: 'none',
+            }
+        },
+        MuiPaper: {
+            shadow4: {
+                //boxShadow: 'none',
+            }
         },
     },
 });

@@ -93,7 +93,7 @@ class com extends Component {
         const css = that.props.classes;
 
         return h(Grid, { container: true, className: css.page }, [
-            h(AppBar, { position: 'static' }, [
+            h(AppBar, { position: 'static' ,className: css.appBar}, [
                 h(Toolbar, { disableGutters: true, className: css.topBar }, [
                     h(IconButton, {
                         color: 'contrast',

@@ -31,6 +31,8 @@ class com extends Component {
         iptPhone: null,
         iptPw: null,
         iptCode: null,
+        smsTimer: 0,
+        smsTimerId: null,
     };
 
     //界面完成后的初始化函数-退出现有账号
@@ -49,11 +51,57 @@ class com extends Component {
         }
     };
 
+    //控制器-发送改密验证码短信,禁用按钮60秒
+    hSendCode = () => {
+        var that = this;
+        let phone = that.state.iptPhone;
+        if(!global.$conf.regx.phone.test(phone)) {
+            that.setState({
+                dialogOpen: true,
+                dialogTitle: '手机格式错误',
+                dialogText: '请填写真实的11位手机数字',
+            });
+            return;
+        };
+
+        //按钮倒计时
+        that.setState({
+            smsTimer: 10,
+        });
+        that.state.smsTimerId && clearInterval(that.state.smsTimerId);
+        that.state.smsTimerId = setInterval(() => {
+            if(that.state.smsTimer === 0) {
+                clearInterval(that.state.smsTimerId)
+            } else {
+                that.setState({
+                    smsTimer: that.state.smsTimer - 1,
+                });
+            }
+        }, 1000);
+
+        //发送验证码
+        global.$wd.auth().sendPasswordResetSms(phone).then(function(user) {
+            that.setState({
+                dialogOpen: true,
+                dialogTitle: '验证码发送到:' + phone,
+                dialogText: '大约1分钟内到达，请注意查收',
+            });
+        }).catch(function(error) {
+            that.setState({
+                saveRes: false,
+                dialogOpen: true,
+                dialogTitle: '发送失败，请稍后重试',
+                dialogText: error.message,
+            });
+        });
+    };
+
     //控制器-注册新用户
-    hCreateUser = () => {
+    hSavePw = () => {
         let that = this;
         let phone = that.state.iptPhone;
         let pw = that.state.iptPw;
+        let code = that.state.iptCode;
 
         if(!global.$conf.regx.phone.test(phone)) {
             that.setState({
@@ -73,16 +121,21 @@ class com extends Component {
             return;
         };
 
-        global.$wd.auth().createUserWithPhoneAndPassword(phone, pw).then(function(user) {
+        if(!global.$conf.regx.phoneCode.test(code)) {
             that.setState({
                 dialogOpen: true,
-                dialogTitle: '注册成功',
-                dialogText: '点击确定自动跳转',
+                dialogTitle: '验证码格式错误',
+                dialogText: '请填写短信收到的6位数字',
             });
+            return;
+        };
+
+        global.$wd.auth().confirmPasswordResetSms(phone, code, pw).then(function(user) {
+            global.$fn.changePage();
         }).catch(function(error) {
             that.setState({
                 dialogOpen: true,
-                dialogTitle: '注册失败，请重试',
+                dialogTitle: '修改失败，请重试',
                 dialogText: error.message,
             });
         });
@@ -94,7 +147,7 @@ class com extends Component {
         const css = that.props.classes;
 
         return h(Grid, { container: true, className: css.page }, [
-            h(AppBar, { position: 'static' }, [
+            h(AppBar, { position: 'static', className: css.appBar }, [
                 h(Toolbar, { disableGutters: true, className: css.topBar }, [
                     h(IconButton, {
                         color: 'contrast',
@@ -131,14 +184,15 @@ class com extends Component {
                             color: 'accent',
                             raised: true,
                             className: css.btnHalf,
-                            onClick: () => { that.hCreateUser() },
-                        }, '发送验证码'),
+                            disabled: that.state.smsTimer !== 0,
+                            onClick: () => { that.hSendCode() },
+                        }, (that.state.smsTimer === 0) ? '发送验证码' : '请稍后(' + that.state.smsTimer + ')'),
                     ]),
                     h(Grid, { item: true, xs: 12 }, [
                         h(TextField, {
                             className: css.textField,
-                            label: '密码',
-                            placeholder: '您的密码',
+                            label: '新密码',
+                            placeholder: '您的新密码',
                             type: "password",
                             autoComplete: "current-password",
                             helperText: '请输入6～18位字符',
@@ -149,8 +203,8 @@ class com extends Component {
                         color: 'primary',
                         raised: true,
                         className: css.loginBtn,
-                        onClick: () => { that.hCreateUser() },
-                    }, '注 册'),
+                        onClick: () => { that.hSavePw() },
+                    }, '保 存'),
                 ]),
             ]),
             //弹窗

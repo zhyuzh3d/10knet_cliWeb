@@ -8,6 +8,9 @@ const styles = theme => ({
         overflowY: 'auto',
         display: 'block',
     },
+    appBar: {
+        boxShadow: 'none',
+    },
     title: {
         marginTop: theme.spacing.unit * 6,
         marginBottom: theme.spacing.unit * 2,

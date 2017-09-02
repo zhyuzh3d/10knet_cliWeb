@@ -5,6 +5,7 @@ export default {
     },
     regx: {
         phone: /^1\d{10}$/,
+        phoneCode: /^\d{6}$/,
         pw: /^.{6,32}$/,
     },
 }
