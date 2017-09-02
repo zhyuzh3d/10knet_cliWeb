@@ -5,10 +5,21 @@ import { withStyles } from 'material-ui/styles';
 
 import style from './_style';
 
+import Grid from 'material-ui/Grid';
+import IconButton from 'material-ui/IconButton';
+import AppBar from 'material-ui/AppBar';
+import Toolbar from 'material-ui/Toolbar';
+import Typography from 'material-ui/Typography';
+import Icon from 'material-ui/Icon';
+import Button from 'material-ui/Button';
+import Snackbar from 'material-ui/Snackbar'; //统一的底部提示
+
+
 //元件
 class com extends Component {
     state = {
-
+        snackbarText: '..tip..',
+        snackbarOpen: false,
     };
 
     //关闭弹窗
@@ -18,9 +29,24 @@ class com extends Component {
 
     //渲染实现
     render() {
-        //const css = this.props.classes;
+        let that = this;
+        const css = this.props.classes;
 
-        return h('h1', 'HomePage!');
+        return h(Grid, { container: true, className: css.page }, [
+            h(AppBar, { position: 'static', className: css.appBar }, [
+                h(Toolbar, { disableGutters: true, className: css.topBar }, [
+                    h(IconButton, {
+                        color: 'contrast',
+                    }, [
+                        h(Icon, 'home')
+                    ]),
+                    h(Typography, { color: 'inherit', type: 'subheading' }, '欢迎使用10knet'),
+                ]),
+            ]),
+            h(Button, {
+                onClick: () => { global.$fn.showSnackbar('登录成功', 2000) },
+            }, 'show'),
+        ]);
     }
 };
 

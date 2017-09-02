@@ -69,6 +69,7 @@ class com extends Component {
         };
 
         global.$wd.auth().signInWithPhoneAndPassword(phone, pw).then(function(user) {
+            global.$fn.showSnackbar('登录成功',2000);
             global.$fn.changePage();
         }).catch(function(error) {
             that.setState({

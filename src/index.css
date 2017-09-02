@@ -30,6 +30,15 @@ body {
     overflow: auto;
 }
 
+.pageContainer {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    min-width: 100%;
+    overflow: auto;
+}
+
 .imid {
     display: inline-block;
     vertical-align: middle;

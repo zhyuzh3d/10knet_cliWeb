@@ -41,11 +41,7 @@ class com extends Component {
 
     //控制器-关闭弹窗
     hCloseDialog = () => {
-        if(global.$wd.auth().currentUser) {
-            global.$fn.changePage();
-        } else {
-            this.setState({ dialogOpen: false });
-        }
+        this.setState({ dialogOpen: false });
     };
 
     //控制器-注册新用户
@@ -73,11 +69,8 @@ class com extends Component {
         };
 
         global.$wd.auth().createUserWithPhoneAndPassword(phone, pw).then(function(user) {
-            that.setState({
-                dialogOpen: true,
-                dialogTitle: '注册成功',
-                dialogText: '点击确定自动跳转',
-            });
+            global.$fn.showSnackbar('注册成功！', 2000);
+            global.$fn.changePage();
         }).catch(function(error) {
             that.setState({
                 dialogOpen: true,
@@ -93,7 +86,7 @@ class com extends Component {
         const css = that.props.classes;
 
         return h(Grid, { container: true, className: css.page }, [
-            h(AppBar, { position: 'static' ,className: css.appBar}, [
+            h(AppBar, { position: 'static', className: css.appBar }, [
                 h(Toolbar, { disableGutters: true, className: css.topBar }, [
                     h(IconButton, {
                         color: 'contrast',

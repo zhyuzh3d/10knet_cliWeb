@@ -1,3 +1,4 @@
+import React from 'react';
 import { Component } from 'react';
 import wilddog from 'wilddog';
 import h from 'react-hyperscript';
@@ -7,6 +8,7 @@ import Theme from './Theme'; //主题风格
 import Conf from './Conf'; //全局设置
 import { Pages, PConf } from './Pages'; //页面列表
 
+import MySnackbar from '../Utils/MySnackbar'; //底部统一的提示
 
 //野狗账号与数据存储
 global.$conf = Conf;
@@ -25,6 +27,9 @@ class App extends Component {
         successPageName: PConf.SucessPageName,
         failedPageName: PConf.FailedPageName,
         curPageIndex: 0,
+        snackbarOpen: false,
+        snackbarElement: null,
+        snackbarDuration: 3000,
     };
 
     //后退方法
@@ -84,11 +89,13 @@ class App extends Component {
 
     //渲染实现
     render() {
+        let that = this;
         return h(MuiThemeProvider, {
             theme: Theme,
-        }, [
-            h(Pages[this.state.curPageName]),
-        ])
+        }, h('div', [
+            h(Pages[that.state.curPageName]),
+            h(MySnackbar),
+        ]));
     };
 };
 

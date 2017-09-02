@@ -131,6 +131,7 @@ class com extends Component {
         };
 
         global.$wd.auth().confirmPasswordResetSms(phone, code, pw).then(function(user) {
+            global.$fn.showSnackbar('保存成功', 2000);
             global.$fn.changePage();
         }).catch(function(error) {
             that.setState({
