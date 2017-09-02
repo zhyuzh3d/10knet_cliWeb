@@ -12,7 +12,6 @@ import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import Icon from 'material-ui/Icon';
 import Button from 'material-ui/Button';
-import Snackbar from 'material-ui/Snackbar'; //统一的底部提示
 
 
 //元件
@@ -29,7 +28,7 @@ class com extends Component {
 
     //渲染实现
     render() {
-        let that = this;
+        //let that = this;
         const css = this.props.classes;
 
         return h(Grid, { container: true, className: css.page }, [
@@ -45,7 +44,11 @@ class com extends Component {
             ]),
             h(Button, {
                 onClick: () => { global.$fn.showSnackbar('登录成功', 2000) },
-            }, 'show'),
+            }, 'showSnackbar'),
+
+            h(Button, {
+                onClick: () => { global.$fn.showAlert('登录成功', '真的成功了') },
+            }, 'showAlert'),
         ]);
     }
 };

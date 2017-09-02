@@ -13,11 +13,6 @@ import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import Icon from 'material-ui/Icon';
-import Dialog, {
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-} from 'material-ui/Dialog';
 
 import _style from './_style';
 
@@ -25,9 +20,6 @@ import _style from './_style';
 class com extends Component {
     //数据对象
     state = {
-        dialogOpen: false,
-        dialogTitle: null,
-        dialogText: null,
         iptPhone: null,
         iptPw: null,
         iptCode: null,
@@ -42,25 +34,13 @@ class com extends Component {
         };
     };
 
-    //控制器-关闭弹窗
-    hCloseDialog = () => {
-        if(global.$wd.auth().currentUser) {
-            global.$fn.changePage();
-        } else {
-            this.setState({ dialogOpen: false });
-        }
-    };
-
     //控制器-发送改密验证码短信,禁用按钮60秒
     hSendCode = () => {
         var that = this;
         let phone = that.state.iptPhone;
+
         if(!global.$conf.regx.phone.test(phone)) {
-            that.setState({
-                dialogOpen: true,
-                dialogTitle: '手机格式错误',
-                dialogText: '请填写真实的11位手机数字',
-            });
+            global.$fn.showAlert('手机格式错误', '请填写真实的11位手机数字');
             return;
         };
 
@@ -81,18 +61,9 @@ class com extends Component {
 
         //发送验证码
         global.$wd.auth().sendPasswordResetSms(phone).then(function(user) {
-            that.setState({
-                dialogOpen: true,
-                dialogTitle: '验证码发送到:' + phone,
-                dialogText: '大约1分钟内到达，请注意查收',
-            });
+            global.$fn.showAlert('验证码发送到:' + phone, '大约1分钟内到达，请注意查收');
         }).catch(function(error) {
-            that.setState({
-                saveRes: false,
-                dialogOpen: true,
-                dialogTitle: '发送失败，请稍后重试',
-                dialogText: error.message,
-            });
+            global.$fn.showAlert('发送失败，请稍后重试', error.message);
         });
     };
 
@@ -104,29 +75,17 @@ class com extends Component {
         let code = that.state.iptCode;
 
         if(!global.$conf.regx.phone.test(phone)) {
-            that.setState({
-                dialogOpen: true,
-                dialogTitle: '手机格式错误',
-                dialogText: '请填写真实的11位手机数字',
-            });
-            return;
-        };
-
-        if(!global.$conf.regx.pw.test(pw)) {
-            that.setState({
-                dialogOpen: true,
-                dialogTitle: '密码格式错误',
-                dialogText: '请填写6～32位任意字符',
-            });
+            global.$fn.showAlert('手机格式错误', '请填写真实的11位手机数字');
             return;
         };
 
         if(!global.$conf.regx.phoneCode.test(code)) {
-            that.setState({
-                dialogOpen: true,
-                dialogTitle: '验证码格式错误',
-                dialogText: '请填写短信收到的6位数字',
-            });
+            global.$fn.showAlert('验证码格式错误', '请填写短信收到的6位数字');
+            return;
+        };
+
+        if(!global.$conf.regx.pw.test(pw)) {
+            global.$fn.showAlert('密码格式错误', '请填写6～32位任意字符');
             return;
         };
 
@@ -134,11 +93,7 @@ class com extends Component {
             global.$fn.showSnackbar('保存成功', 2000);
             global.$fn.changePage();
         }).catch(function(error) {
-            that.setState({
-                dialogOpen: true,
-                dialogTitle: '修改失败，请重试',
-                dialogText: error.message,
-            });
+            global.$fn.showAlert('修改失败，请重试', error.message);
         });
     };
 
@@ -207,24 +162,6 @@ class com extends Component {
                         onClick: () => { that.hSavePw() },
                     }, '保 存'),
                 ]),
-            ]),
-            //弹窗
-            h(Dialog, {
-                open: that.state.dialogOpen,
-                onRequestClose: that.hCloseDialog,
-                className: css.dialog,
-            }, [
-                h(DialogTitle, that.state.dialogTitle),
-                h(DialogContent, [
-                    h(DialogContentText, that.state.dialogText),
-                ]),
-                h('div', [
-                    h(Button, {
-                        raised: true,
-                        onClick: that.hCloseDialog,
-                        className: css.dialogBtn,
-                    }, '关闭'),
-                ])
             ]),
         ]);
     }

@@ -13,11 +13,6 @@ import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import Icon from 'material-ui/Icon';
-import Dialog, {
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-} from 'material-ui/Dialog';
 
 import _style from './_style';
 
@@ -25,9 +20,6 @@ import _style from './_style';
 class com extends Component {
     //数据对象
     state = {
-        dialogOpen: false,
-        dialogTitle: null,
-        dialogText: null,
         iptPhone: null,
         iptPw: null,
     };
@@ -39,11 +31,6 @@ class com extends Component {
         };
     };
 
-    //控制器-关闭弹窗
-    hCloseDialog = () => {
-        this.setState({ dialogOpen: false });
-    };
-
     //控制器-注册新用户
     hCreateUser = () => {
         let that = this;
@@ -51,20 +38,12 @@ class com extends Component {
         let pw = that.state.iptPw;
 
         if(!global.$conf.regx.phone.test(phone)) {
-            that.setState({
-                dialogOpen: true,
-                dialogTitle: '手机格式错误',
-                dialogText: '请填写真实的11位手机数字',
-            });
+            global.$fn.showAlert('手机格式错误', '请填写真实的11位手机数字');
             return;
         };
 
         if(!global.$conf.regx.pw.test(pw)) {
-            that.setState({
-                dialogOpen: true,
-                dialogTitle: '密码格式错误',
-                dialogText: '请填写6～32位任意字符',
-            });
+            global.$fn.showAlert('密码格式错误', '请填写6～32位任意字符');
             return;
         };
 
@@ -72,11 +51,7 @@ class com extends Component {
             global.$fn.showSnackbar('注册成功！', 2000);
             global.$fn.changePage();
         }).catch(function(error) {
-            that.setState({
-                dialogOpen: true,
-                dialogTitle: '注册失败，请重试',
-                dialogText: error.message,
-            });
+            global.$fn.showAlert('注册失败，请重试', error.message);
         });
     };
 
@@ -138,24 +113,6 @@ class com extends Component {
                         onClick: () => { that.hCreateUser() },
                     }, '注 册'),
                 ]),
-            ]),
-            //弹窗
-            h(Dialog, {
-                open: that.state.dialogOpen,
-                onRequestClose: that.hCloseDialog,
-                className: css.dialog,
-            }, [
-                h(DialogTitle, that.state.dialogTitle),
-                h(DialogContent, [
-                    h(DialogContentText, that.state.dialogText),
-                ]),
-                h('div', [
-                    h(Button, {
-                        raised: true,
-                        onClick: that.hCloseDialog,
-                        className: css.dialogBtn,
-                    }, '关闭'),
-                ])
             ]),
         ]);
     }

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Component } from 'react';
 import wilddog from 'wilddog';
 import h from 'react-hyperscript';
@@ -9,6 +8,7 @@ import Conf from './Conf'; //全局设置
 import { Pages, PConf } from './Pages'; //页面列表
 
 import MySnackbar from '../Utils/MySnackbar'; //底部统一的提示
+import MyAlert from '../Utils/MyAlert'; //统一的警告弹窗
 
 //野狗账号与数据存储
 global.$conf = Conf;
@@ -95,6 +95,7 @@ class App extends Component {
         }, h('div', [
             h(Pages[that.state.curPageName]),
             h(MySnackbar),
+            h(MyAlert),
         ]));
     };
 };
