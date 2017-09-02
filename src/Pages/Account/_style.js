@@ -10,6 +10,7 @@ const styles = theme => ({
     },
     title: {
         marginTop: theme.spacing.unit * 6,
+        marginBottom: theme.spacing.unit * 2,
         width: '100%',
         textAlign: 'center',
     },
@@ -32,7 +33,22 @@ const styles = theme => ({
     },
     textField: {
         width: '100%',
+        marginTop: theme.spacing.unit * 3,
+    },
+    textFieldHalf: {
+        width: '50%',
+        marginTop: theme.spacing.unit * 3,
+        paddingRight: '10%',
+    },
+    btnHalf: {
+        marginTop: theme.spacing.unit * 4,
+        width: '40%',
+    },
+    forgotPw: {
         marginTop: theme.spacing.unit * 2,
+        marginBottom: theme.spacing.unit * -2,
+        width: '100%',
+        textAlign: 'right',
     },
     loginBtn: {
         marginTop: theme.spacing.unit * 6,

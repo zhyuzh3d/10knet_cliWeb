@@ -30,6 +30,7 @@ class com extends Component {
         dialogText: null,
         iptPhone: null,
         iptPw: null,
+        iptCode: null,
     };
 
     //界面完成后的初始化函数-退出现有账号
@@ -101,20 +102,10 @@ class com extends Component {
                     }, [
                         h(Icon, 'arrow_back')
                     ]),
-                    h(Typography, { color: 'inherit', type: 'subheading' }, '新账号注册'),
+                    h(Typography, { color: 'inherit', type: 'subheading' }, '修改密码'),
                 ]),
             ]),
-            h('div', { className: css.title }, [
-                h(Button, {
-                    className: css.titleTab + ' opc25 imid',
-                    onClick: () => { global.$fn.changePage('LoginPage') },
-                }, '登录'),
-                h('div.imid', '|'),
-                h(Button, {
-                    className: css.titleTab + ' imid',
-                    onClick: () => { global.$fn.changePage('RegPage') },
-                }, '注册'),
-            ]),
+            h('div', { className: css.title }, []),
             h('div', { className: css.row }, [
                 h('div', { className: css.container }, [
                     h(Grid, { item: true, xs: 12 }, [
@@ -129,6 +120,22 @@ class com extends Component {
                     ]),
                     h(Grid, { item: true, xs: 12 }, [
                         h(TextField, {
+                            className: css.textFieldHalf,
+                            label: '验证码',
+                            placeholder: '手机短信验证码',
+                            helperText: '请输入6位数字',
+                            autoComplete: "tel",
+                            onChange: (e) => { that.setState({ iptCode: e.target.value }) },
+                        }),
+                        h(Button, {
+                            color: 'accent',
+                            raised: true,
+                            className: css.btnHalf,
+                            onClick: () => { that.hCreateUser() },
+                        }, '发送验证码'),
+                    ]),
+                    h(Grid, { item: true, xs: 12 }, [
+                        h(TextField, {
                             className: css.textField,
                             label: '密码',
                             placeholder: '您的密码',
@@ -139,7 +146,7 @@ class com extends Component {
                         })
                     ]),
                     h(Button, {
-                        color: 'accent',
+                        color: 'primary',
                         raised: true,
                         className: css.loginBtn,
                         onClick: () => { that.hCreateUser() },

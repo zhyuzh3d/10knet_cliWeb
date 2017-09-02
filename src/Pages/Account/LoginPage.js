@@ -93,7 +93,7 @@ class com extends Component {
                     }, [
                         h(Icon, 'arrow_back')
                     ]),
-                    h(Typography, { color: 'inherit', type: 'subheading' }, '返回'),
+                    h(Typography, { color: 'inherit', type: 'subheading' }, '账号登录'),
                 ]),
             ]),
             h('div', { className: css.title }, [
@@ -129,6 +129,11 @@ class com extends Component {
                             helperText: '请输入6～18位字符',
                             onChange: (e) => { that.setState({ iptPw: e.target.value }) },
                         })
+                    ]),
+                    h(Grid, { item: true, xs: 12, className: css.forgotPw }, [
+                        h(Button, {
+                            onClick: () => { global.$fn.changePage('RstPwPage') },
+                        }, '忘记密码了?'),
                     ]),
                     h(Button, {
                         color: 'primary',
