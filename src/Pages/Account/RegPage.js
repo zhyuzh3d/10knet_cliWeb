@@ -38,20 +38,20 @@ class com extends Component {
         let pw = that.state.iptPw;
 
         if(!global.$conf.regx.phone.test(phone)) {
-            global.$fn.showAlert('手机格式错误', '请填写真实的11位手机数字');
+            global.$alert.fn.show('手机格式错误', '请填写真实的11位手机数字');
             return;
         };
 
         if(!global.$conf.regx.pw.test(pw)) {
-            global.$fn.showAlert('密码格式错误', '请填写6～32位任意字符');
+            global.$alert.fn.show('密码格式错误', '请填写6～32位任意字符');
             return;
         };
 
         global.$wd.auth().createUserWithPhoneAndPassword(phone, pw).then(function(user) {
-            global.$fn.showSnackbar('注册成功！', 2000);
-            global.$fn.changePage();
+            global.$snackbar.fn.show('注册成功！', 2000);
+            global.$router.changePage();
         }).catch(function(error) {
-            global.$fn.showAlert('注册失败，请重试', error.message);
+            global.$alert.fn.show('注册失败，请重试', error.message);
         });
     };
 
@@ -65,7 +65,7 @@ class com extends Component {
                 h(Toolbar, { disableGutters: true, className: css.topBar }, [
                     h(IconButton, {
                         color: 'contrast',
-                        onClick: () => { global.$fn.prevPage() },
+                        onClick: () => { global.$router.prevPage() },
                     }, [
                         h(Icon, 'arrow_back')
                     ]),
@@ -75,12 +75,12 @@ class com extends Component {
             h('div', { className: css.title }, [
                 h(Button, {
                     className: css.titleTab + ' opc25 imid',
-                    onClick: () => { global.$fn.changePage('LoginPage') },
+                    onClick: () => { global.$router.changePage('LoginPage') },
                 }, '登录'),
                 h('div.imid', '|'),
                 h(Button, {
                     className: css.titleTab + ' imid',
-                    onClick: () => { global.$fn.changePage('RegPage') },
+                    onClick: () => { global.$router.changePage('RegPage') },
                 }, '注册'),
             ]),
             h('div', { className: css.row }, [

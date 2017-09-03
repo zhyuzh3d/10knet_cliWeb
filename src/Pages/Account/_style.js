@@ -1,6 +1,7 @@
 //公用样式表
 const styles = theme => ({
     page: {
+        position: 'absolute',
         padding: 0,
         margin: 0,
         height: '100%',

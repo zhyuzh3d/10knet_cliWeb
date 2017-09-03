@@ -5,6 +5,8 @@ import { withStyles } from 'material-ui/styles';
 
 import style from './_style';
 
+import MyUpload from '../../Utils/MyUpload';
+
 import Grid from 'material-ui/Grid';
 import IconButton from 'material-ui/IconButton';
 import AppBar from 'material-ui/AppBar';
@@ -37,21 +39,31 @@ class com extends Component {
                     h(IconButton, {
                         color: 'contrast',
                     }, [
-                        h(Icon, 'home')
+                        h(Icon, 'home'),
                     ]),
                     h(Typography, { color: 'inherit', type: 'subheading' }, '欢迎使用10knet'),
                 ]),
             ]),
             h(Button, {
-                onClick: () => { global.$fn.showSnackbar('登录成功', 2000) },
+                onClick: () => { global.$snackbar.fn.show('登录成功', 2000) },
             }, 'showSnackbar'),
 
             h(Button, {
-                onClick: () => { global.$fn.showAlert('登录成功', '真的成功了') },
+                onClick: () => { global.$alert.fn.show('登录成功', '真的成功了') },
             }, 'showAlert'),
+            h(Button, {
+                onClick: () => { MyUpload.focus() },
+            }, 'test'),
+            h(MyUpload, { type: 'image', nameRegx: '^.+(?:\.png|\.jpg)$' }),
+            h(MyUpload, { type: 'doc' }),
+            h(MyUpload, { type: 'zip' }),
+            h(MyUpload, { type: 'video' }),
+            h(MyUpload),
         ]);
     }
 };
+
+
 
 com.propTypes = {
     classes: PropTypes.object.isRequired,

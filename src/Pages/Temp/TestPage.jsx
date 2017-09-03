@@ -31,7 +31,7 @@ class PositionedSnackbar extends React.Component {
 
         return h('div', [
             h(Button, {
-                onClick: () => { global.$fn.showSnackbar('text') },
+                onClick: () => { global.$snackbar.fn.show('text') },
             }, 'xx'),
             //h(Snackbar, { open: this.state.open, message: 'xxx' }),
         ])

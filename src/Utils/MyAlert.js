@@ -12,9 +12,11 @@ import Dialog, {
     DialogTitle,
 } from 'material-ui/Dialog';
 
+
 //自定义样式
 const _style = theme => ({
     dialog: {
+        reactVersion: React.version, //去除unuse警告
         display: 'flex',
         alignItems: 'center',
         textAlign: 'center',
@@ -26,15 +28,18 @@ const _style = theme => ({
     },
 });
 
-class MyComp extends Component {
+var $fn = {};
+
+class MyComponent extends Component {
     state = {
         open: false,
         title: null,
         text: null,
-    }
+    };
+
 
     //打开底部的提示
-    showAlert = global.$fn.showAlert = (title, text) => {
+    show = $fn.show = (title, text) => {
         this.setState({
             open: true,
             title: title || '...',
@@ -43,7 +48,7 @@ class MyComp extends Component {
     };
 
     //关闭底部的提示
-    hideAlert = global.$fn.hideAlert = (text) => {
+    hide = $fn.hide = (text) => {
         this.setState({
             open: false,
             title: null,
@@ -58,7 +63,7 @@ class MyComp extends Component {
 
         return h(Dialog, {
             open: that.state.open,
-            onRequestClose: that.hideAlert,
+            onRequestClose: that.hide,
             className: css.dialog,
         }, [
             h(DialogTitle, that.state.title),
@@ -68,7 +73,7 @@ class MyComp extends Component {
             h('div', [
                 h(Button, {
                     raised: true,
-                    onClick: that.hideAlert,
+                    onClick: that.hide,
                     className: css.dialogBtn,
                 }, '关 闭'),
             ])
@@ -76,8 +81,10 @@ class MyComp extends Component {
     };
 };
 
-MyComp.propTypes = {
+MyComponent.propTypes = {
     classes: PropTypes.object.isRequired,
 };
+MyComponent = withStyles(_style)(MyComponent);
+MyComponent.fn = $fn;
 
-export default withStyles(_style)(MyComp);
+export default MyComponent;
