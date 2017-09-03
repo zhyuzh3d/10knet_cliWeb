@@ -11,7 +11,6 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { Component } from 'react';
 import h from 'react-hyperscript';
 

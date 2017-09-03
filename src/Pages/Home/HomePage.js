@@ -54,7 +54,7 @@ class com extends Component {
             h(Button, {
                 onClick: () => { MyUpload.focus() },
             }, 'test'),
-            h(MyUpload, { type: 'image', nameRegx: '^.+(?:\.png|\.jpg)$' }),
+            h(MyUpload, { type: 'image', nameRegx: '^.+(?:.png|.jpg)$' }),
             h(MyUpload, { type: 'doc' }),
             h(MyUpload, { type: 'zip' }),
             h(MyUpload, { type: 'video' }),
