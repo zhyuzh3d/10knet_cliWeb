@@ -7,6 +7,7 @@
  *  icon:'insert_drive_file',按钮的图标
  *  nameRegx:'^\.+$',对文件名进行验证的正则表达式
  *  accept:'',接受的文件MIME类型（仅browser有效）
+ *  children:'上传文件',按钮文字，可以是任何dom元素或数组如[h(HomeIcon),h('span','上传home')]
  * },
  */
 
@@ -54,6 +55,11 @@ class MyComponent extends Component {
 
     };
 
+    //按钮被点击
+    onClick = () => {
+        this.state.inputDom && this.state.inputDom.click();
+    };
+
     //文件被选择，选择文件改变
     onChange = (files) => {
         let that = this;
@@ -96,12 +102,9 @@ class MyComponent extends Component {
                 color: that.props.color || 'inherit',
                 raised: that.props.raised || false,
                 onClick: () => {
-                    that.state.inputDom.click();
+                    this.onClick();
                 },
-            }, [
-                h(Icon, { className: css.label }, that.props.icon || 'insert_drive_file'),
-                h('span', that.props.label || '上传文件')
-            ]),
+            }, that.props.children || h('span', '上传文件')),
             that.state.inputDom, //实际输入，每次自动重新生成
         ]);
     };

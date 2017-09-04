@@ -43,6 +43,12 @@ const Theme = createMuiTheme({
                 //boxShadow: 'none',
             }
         },
+        MuiSvgIcon:{
+            root:{
+                width:20,
+                height:20,
+            }
+        }
     },
 });
 

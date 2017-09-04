@@ -12,8 +12,9 @@ import IconButton from 'material-ui/IconButton';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
-import Icon from 'material-ui/Icon';
 import Button from 'material-ui/Button';
+
+import HomeIcon from 'material-ui-icons/Home';
 
 
 //元件
@@ -39,7 +40,7 @@ class com extends Component {
                     h(IconButton, {
                         color: 'contrast',
                     }, [
-                        h(Icon, 'home'),
+                        h(HomeIcon),
                     ]),
                     h(Typography, { color: 'inherit', type: 'subheading' }, '欢迎使用10knet'),
                 ]),
@@ -54,7 +55,11 @@ class com extends Component {
             h(Button, {
                 onClick: () => { MyUpload.focus() },
             }, 'test'),
-            h(MyUpload, { type: 'image', nameRegx: '^.+(?:.png|.jpg)$' }),
+            h(MyUpload, {
+                type: 'image',
+                nameRegx: '^.+(?:.png|.jpg)$',
+                children: [h(HomeIcon),h('span','上传home')],
+            }),
             h(MyUpload, { type: 'doc' }),
             h(MyUpload, { type: 'zip' }),
             h(MyUpload, { type: 'video' }),

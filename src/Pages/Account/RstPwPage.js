@@ -12,7 +12,7 @@ import TextField from 'material-ui/TextField';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
-import Icon from 'material-ui/Icon';
+import ArrowBackIcon from 'material-ui-icons/ArrowBack';
 
 import _style from './_style';
 
@@ -109,7 +109,7 @@ class com extends Component {
                         color: 'contrast',
                         onClick: () => { global.$router.prevPage() },
                     }, [
-                        h(Icon, 'arrow_back')
+                        h(ArrowBackIcon),
                     ]),
                     h(Typography, { color: 'inherit', type: 'subheading' }, '修改密码'),
                 ]),
