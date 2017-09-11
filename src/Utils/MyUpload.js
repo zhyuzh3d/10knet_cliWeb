@@ -12,6 +12,7 @@
  */
 
 import React from 'react';
+import Request from 'superagent';
 import { Component } from 'react';
 import h from 'react-hyperscript';
 
@@ -45,12 +46,14 @@ class MyComponent extends Component {
         inputDom: this.genInputDom(),
     };
 
-    //打开底部的提示
+    //请求token发起上传
     start = $fn.start = (file) => {
-        console.log('start...', file);
+        Request('localhost:3300/api/qiniu/uploadTokenRand', function(err, res) {
+            console.log('>>>', res);
+        });
     };
 
-    //关闭底部的提示
+    //取消上传
     cancel = $fn.cancel = (ele) => {
 
     };
@@ -73,7 +76,7 @@ class MyComponent extends Component {
         }, 100);
 
         //检查文件格式
-        var regx = new RegExp(this.props.nameRegx || '^\.+$');
+        var regx = new RegExp(this.props.nameRegx || '^.+$');
         if(!regx.test(file.name)) {
             if(global.$alert) {
                 global.$alert.fn.show('文件格式错误', '上传被取消，请重新选择');

@@ -58,11 +58,11 @@ class com extends Component {
             h(MyUpload, {
                 type: 'image',
                 nameRegx: '^.+(?:.png|.jpg)$',
-                children: [h(HomeIcon),h('span','上传home')],
+                children: [h(HomeIcon), h('span', '上传home')],
             }),
-            h(MyUpload, { type: 'doc' }),
-            h(MyUpload, { type: 'zip' }),
-            h(MyUpload, { type: 'video' }),
+            h(MyUpload),
+            h(MyUpload),
+            h(MyUpload),
             h(MyUpload),
         ]);
     }
