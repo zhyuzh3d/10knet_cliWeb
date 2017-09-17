@@ -11,7 +11,7 @@
  *  raised:false|true,按钮样式
  *  label:'上传文件',按钮的文字
  *  icon:'insert_drive_file',按钮的图标
- *  nameRegx:'^\.+$',对文件名进行验证的正则表达式
+ *  nameRegx:'^\.+$',对文件名进行验证的正则表达式，例如'^.+(?:.png|.jpg)$'
  *  accept:'',接受的文件MIME类型（仅browser有效）
  *  children:'上传文件',按钮文字，可以是任何dom元素h('div',{},[h(HomeIcon),h('span','上传home')]}
  *  start(file):开始前运行的函数，可以利用它获取file，用file.abort()随时取消上传，也可以用它生成缩略图
@@ -35,7 +35,6 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Button from 'material-ui/Button';
-import Icon from 'material-ui/Icon';
 import BackupIcon from 'material-ui-icons/Backup';
 
 var $fn = {};
@@ -231,11 +230,6 @@ class MyComponent extends Component {
     render() {
         let that = this;
         let css = that.props.classes;
-
-        let ipt = h('input#ipt', {
-            type: 'file',
-            textInput: null,
-        });
 
         return h('div', {}, [
             h(Button, {

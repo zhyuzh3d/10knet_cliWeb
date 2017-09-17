@@ -62,17 +62,9 @@ class com extends Component {
             h(Button, {
                 onClick: () => { global.$alert.fn.show('登录成功', '真的成功了') },
             }, 'showAlert'),
-            h(Button, {
-                onClick: () => { MyUpload.focus() },
-            }, 'test'),
-//            h(MyUpload, {
-//                type: 'image',
-//                nameRegx: '^.+(?:.png|.jpg)$',
-//                children: [h(HomeIcon), h('span', '上传home')],
-//            }),
             h(MyUpload, {
                 file: that.state.file,
-                freeze:10,
+                freeze: 10,
                 success: (file, err, res) => {
                     console.log('>>ok file', file);
                 }
