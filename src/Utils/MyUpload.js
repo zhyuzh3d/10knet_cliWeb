@@ -8,6 +8,11 @@
  *  nameRegx:'^\.+$',对文件名进行验证的正则表达式
  *  accept:'',接受的文件MIME类型（仅browser有效）
  *  children:'上传文件',按钮文字，可以是任何dom元素或数组如[h(HomeIcon),h('span','上传home')]
+ *  start(file):开始前运行的函数，可以利用它获取file，用file.abort()随时取消上传，也可以用它生成缩略图
+ *  success(file,err,res):上传成功后的函数
+ *  error(file,err,res):上传失败后的函数
+ *  complete(file,err,res):上传完成后的函数，与成功失败同时执行
+ *  progress(file,event):上传过程中执行的函数，{direction，percent，total，loaded},
  * },
  */
 
@@ -21,15 +26,40 @@ import { withStyles } from 'material-ui/styles';
 
 import Button from 'material-ui/Button';
 import Icon from 'material-ui/Icon';
+import BackupIcon from 'material-ui-icons/Backup';
 
 var $fn = {};
 const _style = theme => ({
     label: {
         fontSize: 18,
+    },
+    overlay: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '0',
+        height: '5px',
+        opacity: 0.75,
+    },
+    finput: {
+        display: 'none',
+    },
+    vmid: {
+        verticalAlign: 'middle'
     }
 });
 
+const colors = ['#962800', '#ba7a02', '#d1c200', '#01a340', '#009688', '#004cb4', '#4b00a2', '#b200b2']; //随机overlay颜色
+
 class MyComponent extends Component {
+    state = {
+        reactVersion: React.version, //去除unuse警告
+        file: [],
+        inputDom: undefined,
+        overlay: 0,
+        overlayColor: '#009688',
+    };
+
     genInputDom = () => {
         let that = this;
         return h('input', {
@@ -40,22 +70,83 @@ class MyComponent extends Component {
         })
     };
 
-    state = {
-        reactVersion: React.version, //去除unuse警告
-        file: [],
-        inputDom: this.genInputDom(),
+    //请求token并发起上传
+    start = $fn.start = async(file, successFn, errorFn) => {
+        let that = this;
+
+        //外部利用start函数获得文件对象，便于生成缩略图或取消上传
+        that.props.start && that.props.start(file);
+
+        Request.post('http://10knet.com/api/qiniu/uploadTokenRand')
+            .send({ fileName: file.name })
+            .end((err, res) => {
+                if(err || res.body.code !== 1) {
+                    errorFn && errorFn(err, res);
+                } else {
+                    let data = res.body.data;
+                    for(var k in data) {
+                        file[k] = data[k];
+                    };
+                    that.upload(file, data);
+                };
+            });
     };
 
-    //请求token发起上传
-    start = $fn.start = (file) => {
-        Request('localhost:3300/api/qiniu/uploadTokenRand', function(err, res) {
-            console.log('>>>', res);
+    //正式发起上传
+    upload = $fn.upload = async(file, tokenObj) => {
+        var that = this;
+
+        file.colorTag = colors[Math.floor(Math.random() * colors.length)];
+        that.setState({
+            overlay: 0,
+            file: file,
         });
-    };
 
-    //取消上传
-    cancel = $fn.cancel = (ele) => {
+        var formdata = new FormData();
+        formdata.append('token', tokenObj.token);
+        formdata.append('file', file);
+        formdata.append('key', tokenObj.key);
+        var req = Request.post("http://up.qiniu.com")
+            .send(formdata)
+            .on('progress', event => {
+                //更新数据
+                if(!file.aborted) {
+                    that.setState({
+                        file: {
+                            direction: event.direction,
+                            percent: event.percent,
+                            total: event.total,
+                            loaded: event.loaded,
+                            colorTag: file.colorTag,
+                        },
+                        overlay: event.percent,
+                    });
+                };
 
+                //自定义进程处理函数
+                that.props.progress && that.props.progress(file, event);
+            })
+            .end((err, res) => {
+                that.setState({ overlay: 0 });
+                that.props.complete && that.props.complete(file, err, res);
+                if(err) {
+                    that.props.error && that.props.error(file, err, res);
+                } else {
+                    that.props.success && that.props.success(file, err, res);
+                };
+            });
+
+        //request放到file内备用
+        file.req = req;
+
+        //取消函数
+        file.abort = () => {
+            that.setState({
+                overlay: 0,
+            });
+            file.aborted = true;
+            req.abort();
+        };
     };
 
     //按钮被点击
@@ -86,8 +177,10 @@ class MyComponent extends Component {
             return;
         };
 
-        //启动上传动作
-        that.start(file);
+        //启动获取token的操作然后自动上传
+        that.start(file, that.upload, (err, res) => {
+            alert(`获取上传权限失败:${err||res.message}`);
+        });
     };
 
     //渲染实现
@@ -100,6 +193,7 @@ class MyComponent extends Component {
             textInput: null,
         });
 
+
         return h('div', {}, [
             h(Button, {
                 color: that.props.color || 'inherit',
@@ -107,9 +201,27 @@ class MyComponent extends Component {
                 onClick: () => {
                     this.onClick();
                 },
-            }, that.props.children || h('span', '上传文件')),
-            that.state.inputDom, //实际输入，每次自动重新生成
-        ]);
+            }, [
+                that.props.children || h('div', {}, [
+                    h(BackupIcon, { className: css.vmid }),
+                    h('span', { className: css.vmid }, ' 上传文件'),
+                ]),
+                h('div', {
+                    className: css.overlay,
+                    style: {
+                        width: `${that.state.overlay}%`,
+                        background: that.props.overlayColor || that.state.file.colorTag,
+                    }
+                })
+            ]),
+                    h('input', {
+                className: css.finput,
+                type: "file",
+                accept: (that.props.accept || ''),
+                ref: (dom) => { that.state.inputDom = dom },
+                onChange: (event) => { that.onChange(event.target.files) },
+            }) //实际输入，每次自动重新生成
+                    ]);
     };
 };
 

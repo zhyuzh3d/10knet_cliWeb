@@ -55,15 +55,16 @@ class com extends Component {
             h(Button, {
                 onClick: () => { MyUpload.focus() },
             }, 'test'),
+//            h(MyUpload, {
+//                type: 'image',
+//                nameRegx: '^.+(?:.png|.jpg)$',
+//                children: [h(HomeIcon), h('span', '上传home')],
+//            }),
             h(MyUpload, {
-                type: 'image',
-                nameRegx: '^.+(?:.png|.jpg)$',
-                children: [h(HomeIcon), h('span', '上传home')],
+                success: () => {
+                    alert('xx');
+                }
             }),
-            h(MyUpload),
-            h(MyUpload),
-            h(MyUpload),
-            h(MyUpload),
         ]);
     }
 };

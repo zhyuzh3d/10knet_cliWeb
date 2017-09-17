@@ -1,4 +1,7 @@
-export default {
+const Conf = {
+    hostName: '',
+    hostUrl: '',
+    api: (apiPath) => {},
     wd: {
         authDomain: "10knet.wilddog.com",
         syncURL: "https://10knet.wilddogio.com"
@@ -8,4 +11,10 @@ export default {
         phoneCode: /^\d{6}$/,
         pw: /^.{6,32}$/,
     },
-}
+};
+
+
+
+
+
+export default Conf;
