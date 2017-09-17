@@ -1,5 +1,7 @@
 /**
- * 上传文件到七牛的控件
+ * 上传文件到七牛的控件,每次发起上传生成新的file对象，可以用file.abort方法取消
+ * 并不直接管理上传文件列表或缩略图，需要外部利用回调函数自行处理
+ * 多个文件上传进度条将多种颜色交替显示，也可以overlayColor使用单一颜色
  * props:{
  *  color:'inherit'|'primary'|'accent'...按钮颜色
  *  raised:false|true,按钮样式
@@ -7,12 +9,13 @@
  *  icon:'insert_drive_file',按钮的图标
  *  nameRegx:'^\.+$',对文件名进行验证的正则表达式
  *  accept:'',接受的文件MIME类型（仅browser有效）
- *  children:'上传文件',按钮文字，可以是任何dom元素或数组如[h(HomeIcon),h('span','上传home')]
+ *  children:'上传文件',按钮文字，可以是任何dom元素h('div',{},[h(HomeIcon),h('span','上传home')]}
  *  start(file):开始前运行的函数，可以利用它获取file，用file.abort()随时取消上传，也可以用它生成缩略图
  *  success(file,err,res):上传成功后的函数
  *  error(file,err,res):上传失败后的函数
  *  complete(file,err,res):上传完成后的函数，与成功失败同时执行
  *  progress(file,event):上传过程中执行的函数，{direction，percent，total，loaded},
+ *  overlayColor:字符串颜色，如果不指定则使用文件随机颜色colorTag值
  * },
  */
 
@@ -192,7 +195,6 @@ class MyComponent extends Component {
             type: 'file',
             textInput: null,
         });
-
 
         return h('div', {}, [
             h(Button, {
