@@ -1,7 +1,11 @@
 /**
- * 上传文件到七牛的控件,每次发起上传生成新的file对象，可以用file.abort方法取消
+ * 上传文件到七牛的控件,目前只支持随机地址上传，格式／RANDKEY/test.html
+ * 每次发起上传生成新的file对象，可以用file.abort方法取消
  * 并不直接管理上传文件列表或缩略图，需要外部利用回调函数自行处理
+ * 如果props.file存在那么直接上传，用此方法可以实现借blob上传文字为文件，见下
+ * 使用props.freeze和freezeTime实现上传过程中冻结按钮，实现单一上传
  * 多个文件上传进度条将多种颜色交替显示，也可以overlayColor使用单一颜色
+ *
  * props:{
  *  color:'inherit'|'primary'|'accent'...按钮颜色
  *  raised:false|true,按钮样式
@@ -16,6 +20,9 @@
  *  complete(file,err,res):上传完成后的函数，与成功失败同时执行
  *  progress(file,event):上传过程中执行的函数，{direction，percent，total，loaded},
  *  overlayColor:字符串颜色，如果不指定则使用文件随机颜色colorTag值
+ *  file:file对象，具有name和lastModifiedDate属性的new blob(['...',{}])
+ *  freeze:上传过程是否冻结按钮，限定只能逐个上传
+ *  freezeTime:冻结毫秒，超过此时间按钮自动重新激活,默认3秒
  * },
  */
 
@@ -52,6 +59,7 @@ const _style = theme => ({
     }
 });
 
+const freezeDefault = 3000;
 const colors = ['#962800', '#ba7a02', '#d1c200', '#01a340', '#009688', '#004cb4', '#4b00a2', '#b200b2']; //随机overlay颜色
 
 class MyComponent extends Component {
@@ -61,6 +69,8 @@ class MyComponent extends Component {
         inputDom: undefined,
         overlay: 0,
         overlayColor: '#009688',
+        freeze: false,
+        freezeTimerId: undefined,
     };
 
     genInputDom = () => {
@@ -105,6 +115,26 @@ class MyComponent extends Component {
             file: file,
         });
 
+        //支持冻结freeze属性
+        if(that.props.freeze) {
+            that.state.freezeTimerId && clearTimeout(that.state.freezeTimerId);
+            let sec = that.props.freezeTime || freezeDefault;
+
+            //启动倒计时重新激活按钮，防止僵死
+            let timerId = setTimeout(() => {
+                that.setState({
+                    freeze: false,
+                });
+            }, sec);
+
+            //保存倒计时，冻结按钮
+            that.setState({
+                freeze: true,
+                freezeTimerId: timerId,
+            });
+
+        };
+
         var formdata = new FormData();
         formdata.append('token', tokenObj.token);
         formdata.append('file', file);
@@ -130,7 +160,10 @@ class MyComponent extends Component {
                 that.props.progress && that.props.progress(file, event);
             })
             .end((err, res) => {
-                that.setState({ overlay: 0 });
+                that.setState({
+                    overlay: 0,
+                    freeze: false
+                });
                 that.props.complete && that.props.complete(file, err, res);
                 if(err) {
                     that.props.error && that.props.error(file, err, res);
@@ -146,15 +179,23 @@ class MyComponent extends Component {
         file.abort = () => {
             that.setState({
                 overlay: 0,
+                reeze: false,
             });
             file.aborted = true;
             req.abort();
         };
     };
 
-    //按钮被点击
+    //按钮被点击,如果props.file存在那么直接上传它，否则就使用隐身的input
     onClick = () => {
-        this.state.inputDom && this.state.inputDom.click();
+        let that = this;
+        if(that.props.file) {
+            that.start(that.props.file, that.upload, (err, res) => {
+                alert(`获取上传权限失败:${err||res.message}`);
+            });
+        } else {
+            this.state.inputDom && this.state.inputDom.click();
+        }
     };
 
     //文件被选择，选择文件改变
@@ -203,6 +244,7 @@ class MyComponent extends Component {
                 onClick: () => {
                     this.onClick();
                 },
+                disabled: that.props.freeze ? that.state.freeze : false,
             }, [
                 that.props.children || h('div', {}, [
                     h(BackupIcon, { className: css.vmid }),
@@ -211,19 +253,19 @@ class MyComponent extends Component {
                 h('div', {
                     className: css.overlay,
                     style: {
-                        width: `${that.state.overlay}%`,
+                        width: that.props.freeze ? 0 : `${that.state.overlay}%`,
                         background: that.props.overlayColor || that.state.file.colorTag,
                     }
                 })
             ]),
-                    h('input', {
+            h('input', {
                 className: css.finput,
                 type: "file",
                 accept: (that.props.accept || ''),
                 ref: (dom) => { that.state.inputDom = dom },
                 onChange: (event) => { that.onChange(event.target.files) },
             }) //实际输入，每次自动重新生成
-                    ]);
+        ]);
     };
 };
 

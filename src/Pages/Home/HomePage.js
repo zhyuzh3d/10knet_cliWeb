@@ -22,6 +22,16 @@ class com extends Component {
     state = {
         snackbarText: '..tip..',
         snackbarOpen: false,
+        file: null,
+    };
+
+    //界面完成后的初始化函数-退出现有账号
+    componentDidMount = async function() {
+        let that = this;
+        var blob = new Blob([`<h2>hello world!!</h2><br>@${new Date()}`], { type: 'text/html' });
+        blob.name = 'test.html';
+        blob.lastModifiedDate = new Date();
+        that.setState({ file: blob });
     };
 
     //关闭弹窗
@@ -31,7 +41,7 @@ class com extends Component {
 
     //渲染实现
     render() {
-        //let that = this;
+        let that = this;
         const css = this.props.classes;
 
         return h(Grid, { container: true, className: css.page }, [
@@ -61,8 +71,10 @@ class com extends Component {
 //                children: [h(HomeIcon), h('span', '上传home')],
 //            }),
             h(MyUpload, {
-                success: () => {
-                    alert('xx');
+                file: that.state.file,
+                freeze:10,
+                success: (file, err, res) => {
+                    console.log('>>ok file', file);
                 }
             }),
         ]);
