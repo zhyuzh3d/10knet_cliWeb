@@ -269,4 +269,5 @@ MyComponent.propTypes = {
 MyComponent = withStyles(_style)(MyComponent);
 MyComponent.fn = $fn;
 
+
 export default MyComponent;
