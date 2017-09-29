@@ -9,13 +9,7 @@ import MyUpload from '../../Utils/MyUpload';
 import MyEditor from '../../Utils/MyEditor'
 
 import Grid from 'material-ui/Grid';
-import IconButton from 'material-ui/IconButton';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
-import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
-import HomeIcon from 'material-ui-icons/Home';
-
 
 
 //元件
@@ -24,6 +18,9 @@ class com extends Component {
         snackbarText: '..tip..',
         snackbarOpen: false,
         code: '<h1>I ♥ react-codemirror2</h1>',
+        fontSize: 14,
+        lineWrapping: false,
+        lineNumbers: true,
     };
 
     //界面完成后的初始化函数-退出现有账号
@@ -41,10 +38,40 @@ class com extends Component {
 
         return h(Grid, { container: true, className: css.page }, [
             h(MyEditor, {
+                ref: (dom) => { this.dom = dom },
+                fontSize: this.state.fontSize,
                 options: {
-                    fontSize: 12,
+                    lineWrapping: this.state.lineWrapping,
+                    lineNumbers: this.state.lineNumbers,
+                    useBtns: 'fontSize'
                 }
-            })
+            }),
+            h(Button, {
+                className: css.straitBtn,
+                onClick: () => {
+                    that.setState({ fontSize: that.state.fontSize += 1 });
+                },
+            }, 'A+'),
+            h(Button, {
+                className: css.straitBtn,
+                onClick: () => {
+                    that.setState({ fontSize: that.state.fontSize -= 1 });
+                },
+            }, 'A-'),
+            h(Button, {
+                className: css.straitBtn,
+                onClick: () => {
+                    that.state.lineWrapping = !that.state.lineWrapping;
+                    that.setState({ lineWrapping: that.state.lineWrapping });
+                },
+            }, 'line'),
+            h(Button, {
+                className: css.straitBtn,
+                onClick: () => {
+                    that.state.lineNumbers = !that.state.lineNumbers;
+                    that.setState({ lineNumbers: that.state.lineNumbers });
+                },
+            }, '123'),
         ]);
     }
 };
@@ -57,5 +84,6 @@ class com extends Component {
 com.propTypes = {
     classes: PropTypes.object.isRequired,
 };
+
 
 export default withStyles(style)(com);

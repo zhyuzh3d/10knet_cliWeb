@@ -10,6 +10,10 @@ const styles = theme => ({
     appBar: {
         boxShadow: 'none',
     },
+    straitBtn: {
+        width: 32,
+        minWidth:32,
+    }
 
 });
 export default styles;
