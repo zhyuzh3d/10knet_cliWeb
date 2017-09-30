@@ -38,7 +38,7 @@ class com extends Component {
         const css = this.props.classes;
 
         return h(Grid, { container: true, className: css.page }, [
-            h(MyEditor, {
+            h(MyCoder, {
                 ref: (dom) => { this.dom = dom },
                 fontSize: this.state.fontSize,
                 options: {

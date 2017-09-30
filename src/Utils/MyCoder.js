@@ -1,5 +1,6 @@
 /*
 基于codemirror的代码编辑器
+默认支持js,css,html基础代码提示，其他语言的提示需要传入hintEngine属性
 props:{
     value,//待编辑的代码字符串
     fontSize://显示文字大小，可动态调整
@@ -9,10 +10,13 @@ props:{
         theme,//主题，仅支持'default'和'monokai'
         lineWrapping,//是否换行
         lineNumbers,//是否显示左侧行数字
+        hintEngine(editor, opts),//代码提示引擎，参见codemirror官方文档addon:hint
     },
     onChange(editor, metadata, value),//value文字变化事件回调函数
 }
-自动注册快捷键
+自动注册搜索相关快捷键
+Ctrl-/ / Cmd-/ 注释掉选择行，开关
+Ctrl-Alt-/ / / Cmd-Alt-/ 注释掉选择块，需手工恢复
 Ctrl-F / Cmd-F Start searching
 Ctrl-G / Cmd-G Find next
 Shift-Ctrl-G / Shift-Cmd-G Find previous
@@ -58,6 +62,7 @@ import 'codemirror/addon/edit/closebrackets.js';
 import 'codemirror/addon/edit/matchtags.js';
 import 'codemirror/addon/edit/closetag.js';
 import 'codemirror/addon/selection/active-line.js';
+import 'codemirror/addon/comment/comment.js';
 
 import 'codemirror/addon/dialog/dialog.css';
 import 'codemirror/addon/search/matchesonscrollbar.css';
@@ -117,7 +122,7 @@ class MyComponent extends Component {
             options = Object.assign(that.state.optionsDefault, options);
             CodeMirror.showHint(editor, (edtr, opts) => {
                 let hintMod = that.state.hintMaps[options.mode];
-                let hint = CodeMirror.hint[hintMod];
+                let hint = that.props.hintEngine || CodeMirror.hint[hintMod];
                 let res = hint ? hint(edtr, opts) : undefined;
 
                 res = CodeMirror.hint.anyword(edtr, {
@@ -149,9 +154,36 @@ class MyComponent extends Component {
             },
             editorDidMount: (editor) => {
                 that.setState({ editor: editor });
+                //添加注释快捷键
+                editor.addKeyMap({
+                    'Ctrl-/': that.toggleComment,
+                    'Cmd-/': that.toggleComment,
+                    'Ctrl-Alt-/': that.blockComment,
+                    'Cmd-Alt-/': that.blockComment,
+                });
             },
         });
     };
+
+    //注释掉当前行
+    toggleComment = (editor) => {
+        var range = {
+            from: editor.getCursor(true),
+            to: editor.getCursor(false)
+        };
+        editor.toggleComment(range.from, range.to);
+    };
+
+    //注释掉选择块
+    blockComment = (editor) => {
+        //检查开始行是否/*开头
+        var range = {
+            from: editor.getCursor(true),
+            to: editor.getCursor(false)
+        };
+        editor.blockComment(range.from, range.to);
+    };
+
 
 
     //渲染每次都刷新全部options
