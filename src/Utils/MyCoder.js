@@ -4,12 +4,20 @@ props:{
     value,//待编辑的代码字符串
     fontSize://显示文字大小，可动态调整
     options:{//编辑器设置项，参照codemirror官方文档
-        mode, //编码模式，可选以下htmlmixed,javascript,text/jsx,text/css,text/html,text/html,text/x-go,text/x-csrc,text/x-c++src,text/x-java,text/x-objectivec,text/x-swift,python,markdown
+        mode, //编码模式，可选以下
+        htmlmixed,javascript,text/jsx,text/css,text/html,text/html,text/x-go,text/x-csrc,text/x-c++src,text/x-java,text/x-objectivec,text/x-swift,python,markdown
+        theme,//主题，仅支持'default'和'monokai'
         lineWrapping,//是否换行
         lineNumbers,//是否显示左侧行数字
     },
     onChange(editor, metadata, value),//value文字变化事件回调函数
 }
+自动注册快捷键
+Ctrl-F / Cmd-F Start searching
+Ctrl-G / Cmd-G Find next
+Shift-Ctrl-G / Shift-Cmd-G Find previous
+Shift-Ctrl-F / Cmd-Option-F Replace
+Shift-Ctrl-R / Shift-Cmd-Option-F Replace all
 */
 
 import React from 'react';
@@ -25,7 +33,6 @@ import ReactCodeMirror from 'react-codemirror2';
 
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
-import 'codemirror/addon/hint/show-hint.css';
 
 import 'codemirror/mode/xml/xml';
 import 'codemirror/mode/javascript/javascript';
@@ -38,6 +45,7 @@ import 'codemirror/mode/jsx/jsx.js';
 import 'codemirror/mode/python/python.js';
 import 'codemirror/mode/markdown/markdown.js';
 
+import 'codemirror/addon/hint/show-hint.css';
 import 'codemirror/addon/hint/show-hint.js';
 import 'codemirror/addon/hint/javascript-hint.js';
 import 'codemirror/addon/hint/xml-hint.js';
@@ -49,6 +57,16 @@ import 'codemirror/addon/edit/matchbrackets.js';
 import 'codemirror/addon/edit/closebrackets.js';
 import 'codemirror/addon/edit/matchtags.js';
 import 'codemirror/addon/edit/closetag.js';
+import 'codemirror/addon/selection/active-line.js';
+
+import 'codemirror/addon/dialog/dialog.css';
+import 'codemirror/addon/search/matchesonscrollbar.css';
+import 'codemirror/addon/dialog/dialog.js';
+import 'codemirror/addon/search/searchcursor.js';
+import 'codemirror/addon/search/search.js';
+import 'codemirror/addon/search/matchesonscrollbar.js';
+import 'codemirror/addon/scroll/annotatescrollbar.js';
+import 'codemirror/addon/search/jump-to-line.js';
 
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
@@ -73,7 +91,8 @@ class MyComponent extends Component {
             autoCloseBrackets: true, //addon,自动输入封闭的括号
             matchTags: true, //addon,高亮对应的tag，仅在text／html模式有效
             autoCloseTags: true, //addon,自动输入封闭的tag
-            extraKeys: { "Ctrl-Space": "autocomplete" },
+            styleActiveLine: true, //addon,高亮显示当前行
+            extraKeys: {},
         },
         fontSize: 14, //字体大小
         hintMaps: {
@@ -85,6 +104,7 @@ class MyComponent extends Component {
             'text/xml': 'xml',
         }
     };
+
 
     //自动完成提示
     autoHint = (editor, event) => {
@@ -156,6 +176,7 @@ MyComponent.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 MyComponent = withStyles(_style)(MyComponent);
+MyComponent.CodeMirror = CodeMirror;
 MyComponent.fn = $fn;
 
 
