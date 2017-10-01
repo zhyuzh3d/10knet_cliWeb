@@ -25,7 +25,6 @@ Shift-Ctrl-R / Shift-Cmd-Option-F Replace all
 */
 
 import React from 'react';
-import Request from 'superagent';
 import { Component } from 'react';
 import h from 'react-hyperscript';
 
@@ -75,7 +74,6 @@ import 'codemirror/addon/search/jump-to-line.js';
 
 import formatEngine from 'beautify';
 
-import Button from 'material-ui/Button';
 
 var $fn = {};
 const _style = theme => ({
@@ -92,7 +90,6 @@ class MyComponent extends Component {
             theme: 'default',
             lineNumbers: true,
             lineWrapping: true,
-            lineNumbers: true,
             matchBrackets: true, //addon,自动高亮对应的括号
             autoCloseBrackets: true, //addon,自动输入封闭的括号
             matchTags: true, //addon,高亮对应的tag，仅在text／html模式有效
@@ -121,7 +118,7 @@ class MyComponent extends Component {
     autoHint = (editor, event) => {
         let that = this;
         let char = String.fromCharCode(event.keyCode);
-        let keyValid = /[0-9A-Za-z\.\¾]/.test(char) && !event.altKey && !event.ctrlKey;
+        let keyValid = /[0-9A-Za-z]/.test(char) && !event.altKey && !event.ctrlKey;
 
         if(!editor.state.completionActive && keyValid) {
             let options = that.props.options || {};
@@ -147,7 +144,7 @@ class MyComponent extends Component {
         let that = this;
         let options = that.props.options || {};
         options = Object.assign(that.state.optionsDefault, options);
-        let editorDom = that.state.editorDom = h(ReactCodeMirror, {
+        that.state.editorDom = h(ReactCodeMirror, {
             value: that.props.value ? that.props.value : '',
             options: options,
             optionChange: (editor, str) => {},
