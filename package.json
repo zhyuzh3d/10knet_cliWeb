@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "beautify": "0.0.8",
     "codemirror": "^5.30.0",
     "material-ui": "^1.0.0-beta.6",
     "material-ui-icons": "^1.0.0-beta.5",

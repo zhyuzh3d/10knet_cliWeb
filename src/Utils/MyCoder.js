@@ -73,7 +73,8 @@ import 'codemirror/addon/search/matchesonscrollbar.js';
 import 'codemirror/addon/scroll/annotatescrollbar.js';
 import 'codemirror/addon/search/jump-to-line.js';
 
-import Grid from 'material-ui/Grid';
+import formatEngine from 'beautify';
+
 import Button from 'material-ui/Button';
 
 var $fn = {};
@@ -107,9 +108,14 @@ class MyComponent extends Component {
             'text/html': 'html',
             'htmlmixed': 'html',
             'text/xml': 'xml',
-        }
+        },
+        formatMaps: {
+            'javascript': 'js',
+            'text/css': 'css',
+            'text/html': 'html',
+            'text/xml': 'xml',
+        },
     };
-
 
     //自动完成提示
     autoHint = (editor, event) => {
@@ -160,9 +166,26 @@ class MyComponent extends Component {
                     'Cmd-/': that.toggleComment,
                     'Ctrl-Alt-/': that.blockComment,
                     'Cmd-Alt-/': that.blockComment,
+                    'Ctrl-B': that.beautifyCode,
+                    'Cmd-B': that.beautifyCode,
                 });
             },
         });
+    };
+
+    //自动格式化，默认格式化所有代码，如果未指定就使用默认引擎
+    beautifyCode = (editor) => {
+        let that = this;
+        let code = editor.getValue();
+        if(that.props.formatEngine) {
+            code = that.props.formatEngine(code);
+        } else {
+            let options = that.props.options || {};
+            options = Object.assign(that.state.optionsDefault, options);
+            var mod = that.state.formatMaps[options.mode];
+            code = formatEngine(code, { format: mod});
+        };
+        editor.setValue(code);
     };
 
     //注释掉当前行
@@ -183,8 +206,6 @@ class MyComponent extends Component {
         };
         editor.blockComment(range.from, range.to);
     };
-
-
 
     //渲染每次都刷新全部options
     render() {
