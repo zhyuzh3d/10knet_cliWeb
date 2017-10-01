@@ -5,7 +5,7 @@ import { withStyles } from 'material-ui/styles';
 
 import style from './_style';
 
-import MyUpload from '../../Utils/MyUpload';
+//import MyUpload from '../../Utils/MyUpload';
 import MyCoder from '../../Utils/MyCoder'
 
 import Grid from 'material-ui/Grid';
@@ -38,7 +38,7 @@ class com extends Component {
         const css = this.props.classes;
 
         return h(Grid, { container: true, className: css.page }, [
-            h(MyEditor, {
+            h(MyCoder, {
                 ref: (dom) => { this.dom = dom },
                 fontSize: this.state.fontSize,
                 options: {
@@ -76,7 +76,7 @@ class com extends Component {
             h(Button, {
                 className: css.straitBtn,
                 onClick: () => {
-                    var theme = that.state.theme == 'default' ? 'monokai' : 'default';
+                    var theme = that.state.theme === 'default' ? 'monokai' : 'default';
                     that.setState({ theme: theme });
                 },
             }, 'UI'),

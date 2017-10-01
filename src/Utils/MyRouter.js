@@ -1,6 +1,8 @@
-import { conf, pages } from '../App/Pages';
+/*
+实现基本的换页方法prevPage,nextPage,changePage;
+需要导入Pages.js作为设置
 
-/* Pages.js应当导出conf和pages两个属性，范例如下:
+Pages.js应当导出conf和pages两个属性，范例如下:
 import HomePage from '../Pages/Home/HomePage';
 const conf = {
     DefaultPageName: 'HomePage', //默认起始页面
@@ -13,6 +15,7 @@ const pages = {
 export { conf, pages }
 */
 
+import { conf, pages } from '../App/Pages';
 
 //初始化
 let app = null;

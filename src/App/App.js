@@ -2,6 +2,7 @@ import { Component } from 'react';
 import wilddog from 'wilddog';
 import h from 'react-hyperscript';
 import { MuiThemeProvider } from 'material-ui/styles';
+import urlParser from 'urlparser';
 
 import Theme from './Theme'; //主题风格
 import Conf from './Conf'; //全局设置
@@ -29,10 +30,12 @@ class App extends Component {
         currentPage: 'div',
     };
 
-    //初始化页面，切换到首页
+    //初始化页面，自动根据地址栏pageName判断切换到首页
     componentDidMount = async function() {
         global.$router.init(this);
-        global.$router.changePage();
+        var urlObj = urlParser.parse(window.location.href);
+        var pName = urlObj.query ? urlObj.query.params['pageName'] : undefined;
+        global.$router.changePage(pName);
     };
 
     //渲染实现

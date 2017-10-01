@@ -5,6 +5,9 @@ import RstPwPage from '../Pages/Account/RstPwPage';
 
 import HomePage from '../Pages/Home/HomePage';
 
+import MainHomePage from '../Pages/MainHome/MainHomePage';
+import SlaveHomePage from '../Pages/SlaveHome/SlaveHomePage';
+
 //import TestPage from '../Pages/Temp/TestPage.jsx';
 
 //默认页面的设置
@@ -21,6 +24,8 @@ const pages = {
     RegPage,
     RstPwPage,
     HomePage,
+    SlaveHomePage,
+    MainHomePage,
     //TestPage,
 };
 
