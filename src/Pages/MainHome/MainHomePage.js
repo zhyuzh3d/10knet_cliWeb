@@ -2,20 +2,20 @@ import { Component } from 'react';
 import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
-import urlParser from 'urlparser';
 
 import style from './_style';
 
-
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
-
+import FontA from 'react-fa';
+import Tooltip from 'material-ui/Tooltip';
 
 //元件
 class com extends Component {
     state = {
         snackbarText: '..tip..',
         snackbarOpen: false,
+        title: '控制台',
     };
 
     //界面完成后的初始化函数-退出现有账号
@@ -28,25 +28,20 @@ class com extends Component {
         const css = this.props.classes;
 
         return h(Grid, { container: true, className: css.page }, [
-           h(Button, {
-                onClick: () => {
-                    var send = global.$electron.ipcRenderer.sendSync;
-                    send('run', `if(!slaveWindow)initSlave();`);
-                    send('run', `slaveWindow.restore()`);
+            h(Grid, {
+                container: true,
+                className: css.titleBar
+            }, [
+                h(Tooltip, { title: 'lelel',placement:"bottom" }, [
+                    h(Button, {
+                        className: css.barLeftBtn,
+                        onClick: () => { that.setState({ open: !that.state.open }) },
+                    }, [
+                        h(FontA, { name: 'spinner' }),
+                    ]),
+                ]),
+            ]),
 
-                    //打开从属页首页
-                    var urlObj = urlParser.parse(window.location.href);
-                    if(!urlObj.query) urlObj.query = { parts: [] };
-                    urlObj.query.parts.push('pageName=SlaveHomePage');
-                    send('run', `slaveWindow.loadURL('${urlObj.toString()}')`);
-                },
-            }, '显示大窗口'),
-            h(Button, {
-                onClick: () => {
-                    var send = global.$electron.ipcRenderer.sendSync;
-                    send('run', `slaveWindow.hide()`);
-                },
-            }, '隐藏大窗口'),
         ]);
     }
 };

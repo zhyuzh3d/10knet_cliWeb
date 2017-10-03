@@ -1,15 +1,15 @@
 import { createMuiTheme } from 'material-ui/styles';
-import createPalette from 'material-ui/styles/palette';
+//import createPalette from 'material-ui/styles/palette';
 import teal from 'material-ui/colors/teal';
 import pink from 'material-ui/colors/pink';
 import red from 'material-ui/colors/red';
 
 const Theme = createMuiTheme({
-    palette: createPalette({
+    palette: {
         primary: teal,
         accent: pink,
         error: red,
-    }),
+    },
     overrides: {
         MuiButton: {
             root: {

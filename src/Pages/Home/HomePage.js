@@ -2,7 +2,6 @@ import { Component } from 'react';
 import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
-import urlParser from 'urlparser';
 
 import style from './_style';
 
@@ -27,7 +26,7 @@ class com extends Component {
         const css = this.props.classes;
 
         return h(Grid, { container: true, className: css.page }, [
-
+            h(Button,'hell world!')
         ]);
     }
 };
