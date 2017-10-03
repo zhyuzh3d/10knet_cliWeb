@@ -5,10 +5,8 @@ import { withStyles } from 'material-ui/styles';
 
 import style from './_style';
 
-
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
-
 
 //元件
 class com extends Component {
@@ -22,7 +20,6 @@ class com extends Component {
 
     //渲染实现
     render() {
-        let that = this;
         const css = this.props.classes;
 
         return h(Grid, { container: true, className: css.page }, [

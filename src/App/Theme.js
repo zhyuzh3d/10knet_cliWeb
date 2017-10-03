@@ -9,6 +9,28 @@ const Theme = createMuiTheme({
         primary: teal,
         accent: pink,
         error: red,
+        default: {
+            "50": "#fafafa",
+            "100": "#f9f9f9",
+            "200": "#f6f6f6",
+            "300": "#f3f3f3",
+            "400": "#f0f0f0",
+            "500": "#efefef",
+            "600": "#eaeaea",
+            "700": "#e6e6e6",
+            "800": "#e0e0e0",
+            "900": "#dddddd",
+            "A100": "#eeeeee",
+            "A200": "#dddddd",
+            "A400": "#cccccc",
+            "A700": "#aaaaaa",
+            "contrastDefaultColor": "dark"
+        },
+    },
+    typography: {
+        title: {
+            fontSize: 18,
+        }
     },
     overrides: {
         MuiButton: {
@@ -19,6 +41,11 @@ const Theme = createMuiTheme({
             raised: {
                 borderRadius: 0,
                 boxShadow: 'none',
+            },
+        },
+        MuiIconButton: {
+            root: {
+                fontSize: 16,
             },
         },
         MuiDialog: {
@@ -36,17 +63,17 @@ const Theme = createMuiTheme({
         MuiAppbar: {
             root: {
                 boxShadow: 'none',
-            }
+            },
         },
         MuiPaper: {
             shadow4: {
                 //boxShadow: 'none',
             }
         },
-        MuiSvgIcon:{
-            root:{
-                width:20,
-                height:20,
+        MuiSvgIcon: {
+            root: {
+                width: 20,
+                height: 20,
             }
         }
     },

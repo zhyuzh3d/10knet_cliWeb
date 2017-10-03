@@ -2,11 +2,12 @@
 import LoginPage from '../Pages/Account/LoginPage';
 import RegPage from '../Pages/Account/RegPage';
 import RstPwPage from '../Pages/Account/RstPwPage';
+import ProfilePage from '../Pages/Account/ProfilePage';
 
 import HomePage from '../Pages/Home/HomePage';
 
-import MainHomePage from '../Pages/MainHome/MainHomePage';
-import SlaveHomePage from '../Pages/SlaveHome/SlaveHomePage';
+import MainHomePage from '../Pages/CliHome/MainHomePage';
+import SlaveHomePage from '../Pages/CliHome/SlaveHomePage';
 
 //import TestPage from '../Pages/Temp/TestPage.jsx';
 
@@ -23,6 +24,7 @@ const pages = {
     LoginPage,
     RegPage,
     RstPwPage,
+    ProfilePage,
     HomePage,
     SlaveHomePage,
     MainHomePage,

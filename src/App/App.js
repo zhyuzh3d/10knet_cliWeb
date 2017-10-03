@@ -1,6 +1,3 @@
-import React from 'react';
-import { render } from 'react-dom';
-
 import { Component } from 'react';
 import wilddog from 'wilddog';
 import h from 'react-hyperscript';

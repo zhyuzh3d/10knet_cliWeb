@@ -1,4 +1,4 @@
-const Conf = {
+let ConfBase = {
     hostName: '',
     hostUrl: '',
     api: (apiPath) => {},
@@ -13,6 +13,10 @@ const Conf = {
     },
 };
 
+//需要拼接的设定
+const Conf = Object.assign(ConfBase, {
+    defaultIcon: ConfBase.hostUrl + '/imgs/img.png',
+});
 
 
 

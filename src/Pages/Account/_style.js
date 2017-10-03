@@ -76,6 +76,11 @@ const styles = theme => ({
         width: 1,
         height: '100%',
         background: '#AAA',
+    },
+    avatarLarge: {
+        width: 200,
+        height: 200,
+        borderRadius: 200,
     }
 });
 export default styles;
