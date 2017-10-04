@@ -29,7 +29,8 @@ const Theme = createMuiTheme({
     },
     typography: {
         title: {
-            fontSize: 18,
+            fontSize: 16,
+            lineHeight: -4,
         }
     },
     overrides: {
