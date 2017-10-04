@@ -12,9 +12,9 @@ const styles = theme => ({
         padding: 0,
         boxShadow: 'none',
         borderBottom: '1px solid #EEE',
-        minHeight:48,
+        minHeight: 48,
     },
-    content:{
+    content: {
 
     },
     straitBtn: {
@@ -35,6 +35,15 @@ const styles = theme => ({
         minWidth: 30,
         width: 30,
     },
-
+    uname: {
+        width: 60,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    },
+    appAvatar: {
+        height: 28,
+        width: 28,
+    },
 });
 export default styles;
