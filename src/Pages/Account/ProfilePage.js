@@ -17,42 +17,58 @@ import ArrowBackIcon from 'material-ui-icons/ArrowBack';
 import MyUpload from '../../Utils/MyUpload';
 import _style from './_style';
 
+
 //元件
 class com extends Component {
     //数据对象
     state = {
         file: null,
-        nick: null,
+        nick: '',
     };
 
-    //界面完成后的初始化函数-退出现有账号
-    componentDidMount = async function() {
-        if(global.$wd.auth().currentUser) {
-            await global.$wd.auth().signOut();
-        };
+    //界面完成后的初始化函数-更新用户已有图标到file
+    componentWillMount = async function() {
+        let that = this;
+        global.$wd.auth().onAuthStateChanged(function(user) {
+            var cuser = global.$wd.auth().currentUser;
+            if(cuser && cuser.photoURL && !that.state.file) {
+                that.setState({ file: { url: cuser.photoURL } });
+            };
+            if(cuser && cuser.displayName && !that.state.nick) {
+                that.setState({ nick: cuser.displayName });
+            };
+        });
     };
 
     //控制器-注册新用户
-    hLoginUser = () => {
+    updateProfile = () => {
         let that = this;
-        let phone = that.state.iptPhone;
-        let pw = that.state.iptPw;
+        let nick = that.state.nick;
+        let url = that.state.file ? that.state.file.url : undefined;
 
-        if(!global.$conf.regx.phone.test(phone)) {
-            global.$alert.fn.show('手机格式错误', '请填写真实的11位手机数字');
+        if(!global.$wd.auth().currentUser) {
+            global.$alert.fn.show('您还没有登录', '请点击下面的文字跳转到登录注册页面');
             return;
         };
 
-        if(!global.$conf.regx.pw.test(pw)) {
-            global.$alert.fn.show('密码格式错误', '请填写6～32位任意字符');
+        if(!global.$conf.regx.nick.test(nick)) {
+            global.$alert.fn.show('昵称格式错误', '请填写1～16位非空字符');
             return;
         };
 
-        global.$wd.auth().signInWithPhoneAndPassword(phone, pw).then(function(user) {
-            global.$snackbar.fn.show('登录成功', 2000);
+        if(!url) {
+            global.$alert.fn.show('图片还没上传', '请先上传图片');
+            return;
+        };
+
+        global.$wd.auth().currentUser.updateProfile({
+            'photoURL': url,
+            'displayName': nick,
+        }).then(function(user) {
+            global.$snackbar.fn.show('保存成功', 2000);
             global.$router.changePage();
         }).catch(function(error) {
-            global.$alert.fn.show('登录失败，请重试', error.message);
+            global.$alert.fn.show('保存失败，请重试', error.message);
         });
     };
 
@@ -86,32 +102,31 @@ class com extends Component {
                             }),
                             success: (file, err, res) => {
                                 that.setState({ file: file });
-                                console.log('>>ok file1', that.state.file);
-                                console.log('>>ok file2', that.state.file.url);
-                            }
+                            },
                         }),
-                        h('div', { style: { fontSize: 12, color: '#AAA' } }, '点击上传新头像'),
+                        h('div', { style: { fontSize: 12, color: '#AAA' } }, '点击图片上传新头像'),
                     ]),
                     h(Grid, { item: true, xs: 12 }, [
                         h(TextField, {
                             className: css.textField,
                             label: '昵称',
                             placeholder: '昵称',
-                            helperText: '特殊字符以外的任意字符，不超过24个',
+                            helperText: '非空字符，不超过16个',
                             autoComplete: "tel",
+                            value: that.state.nick,
                             onChange: (e) => { that.setState({ nick: e.target.value }) },
                         }),
                     ]),
                     h(Grid, { item: true, xs: 12, className: css.forgotPw }, [
                         h(Button, {
-                            onClick: () => { global.$router.changePage('LoginPage') },
+                            onClick: () => { global.$router.changePage('LoginPage', 'ProfilePage') },
                         }, '还没有登录？'),
                     ]),
                     h(Button, {
                         color: 'primary',
                         raised: true,
                         className: css.loginBtn,
-                        onClick: () => { that.hLoginUser() },
+                        onClick: () => { that.updateProfile() },
                     }, '保 存'),
                 ]),
             ]),

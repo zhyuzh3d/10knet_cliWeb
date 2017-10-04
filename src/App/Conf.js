@@ -9,7 +9,8 @@ let ConfBase = {
     regx: {
         phone: /^1\d{10}$/,
         phoneCode: /^\d{6}$/,
-        pw: /^.{6,32}$/,
+        pw: /^[\S]{6,32}$/,
+        nick:/^[\S]{1,16}$/,
     },
 };
 

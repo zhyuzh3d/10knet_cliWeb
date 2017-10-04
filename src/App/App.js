@@ -21,6 +21,7 @@ global.$conf = Conf;
 global.$wd = wilddog;
 global.$wd.initializeApp(global.$conf.wd);
 
+
 //所有公用函数
 global.$fn = {};
 
