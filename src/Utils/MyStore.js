@@ -5,17 +5,13 @@
 
 import merge from 'deepmerge';
 
-//初始化数据
-let xdata = {};
-
 //获取或者设置
 const data = (targetKey, key, val) => {
     let res = JSON.parse(localStorage.getItem(targetKey));
     if(key) {
         if(!val) {
-            res = res[key];
+            res = res ? res[key] : undefined;
         } else {
-            var obj = {};
             res = merge(res, {
                 [key]: val,
             });

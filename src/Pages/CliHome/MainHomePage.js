@@ -55,6 +55,13 @@ class com extends Component {
                     global.$router.changePage('AssetAddPage');
                 },
             }, '增加一个资源'),
+            h(Button, {
+                raised: true,
+                color: 'primary',
+                onClick: () => {
+                    global.$router.changePage('AssetListPage');
+                },
+            }, '我的资源列表'),
         ]);
 
         //最终拼合

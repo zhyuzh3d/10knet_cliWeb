@@ -5,10 +5,10 @@ import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
 //import Button from 'material-ui/Button';
-import List, { ListItem, ListItemText } from 'material-ui/List';
-import Divider from 'material-ui/Divider';
-import FontA from 'react-fa';
-import Moment from 'react-moment';
+//import List, { ListItem, ListItemText } from 'material-ui/List';
+//import Divider from 'material-ui/Divider';
+//import FontA from 'react-fa';
+//import Moment from 'react-moment';
 
 import ModalBar from '../../Units/ModalBar/ModalBar';
 import style from './_style';

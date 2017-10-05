@@ -41,7 +41,7 @@ class com extends Component {
 
     //渲染实现
     render() {
-        let that = this;
+//        let that = this;
         const css = this.props.classes;
 
         return h(Grid, { container: true, className: css.page }, [

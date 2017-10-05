@@ -13,7 +13,7 @@ let ConfBase = {
         nick: /^[\S]{1,16}$/,
         assetUrl: /^https?:\/\//,
         assetTitle: /^.{3,64}/,
-        assetDesc: /^[\s\S]{0,512}/,
+        assetDesc: /^[\s\S]{0,256}/,
     },
     assetTypes: {
         link: {

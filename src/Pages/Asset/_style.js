@@ -47,6 +47,9 @@ const styles = theme => ({
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         padding: `${theme.spacing.unit}px 0`,
+    },
+    nav: {
+        fontSize: '1rem',
     }
 });
 

@@ -6,7 +6,6 @@ import { withStyles } from 'material-ui/styles';
 import style from './_style';
 import ModalBar from '../../Units/ModalBar/ModalBar';
 import MyUpload from '../../Utils/MyUpload';
-import Conf from '../../App/Conf';
 
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
@@ -45,7 +44,7 @@ class com extends Component {
             return;
         };
         if(!global.$conf.regx.assetTitle.test(that.state.assetTitle)) {
-            global.$alert.fn.show('标题格式错误', '请确认字符数量<512个');
+            global.$alert.fn.show('标题格式错误', '请确认字符数量<256个');
             return;
         };
 
@@ -225,7 +224,7 @@ class com extends Component {
                     label: '简介',
                     multiline: true,
                     placeholder: '简单介绍此素材的内容、作用或特征',
-                    helperText: '不超过512个字符',
+                    helperText: '不超过256个字符',
                     value: that.state.assetDesc,
                     onChange: (e) => { that.setState({ assetDesc: e.target.value }) },
                 }),

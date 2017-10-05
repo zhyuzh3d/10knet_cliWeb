@@ -1,12 +1,16 @@
+/*
+根据用户uid获取其资源列表
+props:{
+    userId:如果为空则自动调取当前用户的uid使用
+}
+*/
 import { Component } from 'react';
 import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
-//import Button from 'material-ui/Button';
-import List, { ListItem, ListItemText } from 'material-ui/List';
-import Divider from 'material-ui/Divider';
+import List, { ListItem } from 'material-ui/List';
 import FontA from 'react-fa';
 import Moment from 'react-moment';
 
@@ -58,17 +62,24 @@ class com extends Component {
     //界面生成之前，读取数据
     componentWillMount = async function() {
         let that = this;
-        const uid = that.props.uid;
+        let userId = that.props.userId;
 
         global.$wd.auth().onAuthStateChanged((user) => {
             let curUser = global.$wd.auth().currentUser;
-            if(curUser) {
-                let ref = global.$wd.sync().ref('asset')
-                let query = ref.orderByChild('author').equalTo(uid || curUser.uid);
-                query.on('value', (shot) => {
-                    that.setState({ assets: shot.val() });
-                });
-            }
+            if(curUser && !userId) {
+                userId = curUser.uid;
+            };
+            if(userId) that.getAssets(userId);
+        });
+    };
+
+    //根据uid获取资源列表
+    getAssets = (userId) => {
+        let that = this;
+        let ref = global.$wd.sync().ref('asset')
+        let query = ref.orderByChild('author').equalTo(userId).limitToFirst(100);
+        query.on('value', (shot) => {
+            that.setState({ assets: shot.val() });
         });
     };
 
@@ -93,6 +104,9 @@ class com extends Component {
                 assets[key].id = key;
                 assetsArr.push(assets[key])
             };
+
+            //排序
+            assetsArr = assetsArr.sort((a, b) => { return b.ts - a.ts });
             assetsArr.forEach((item, index) => {
                 let el = h(ListItem, {
                     className: css.asset,
