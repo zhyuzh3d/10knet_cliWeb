@@ -36,15 +36,48 @@ const AssetTypes = {
 //元件
 class com extends Component {
     state = {
-        snackbarText: '..tip..',
-        snackbarOpen: false,
-        title: '新建资源',
+        title: '新建素材',
         contentHeight: window.innerHeight - 48,
-        curType: AssetTypes.video,
+        curType: AssetTypes.link,
         file: null,
         assetUrl: '', //http开头的完整地址
         assetTitle: '',
         assetDesc: '',
+    };
+
+
+    //保存素材到asset
+    saveAsset = () => {
+        let that = this;
+
+        if(!global.$wd.auth().currentUser) {
+            global.$alert.fn.show('您还没有登录', '请点右上角图标进行登录或注册');
+            return;
+        };
+        if(!global.$conf.regx.assetUrl.test(that.state.assetUrl)) {
+            global.$alert.fn.show('链接格式错误', '请检查确认以http开头的完整链接');
+            return;
+        };
+        if(!global.$conf.regx.assetTitle.test(that.state.assetTitle)) {
+            global.$alert.fn.show('标题格式错误', '请确认字符数量3～64个');
+            return;
+        };
+        if(!global.$conf.regx.assetTitle.test(that.state.assetTitle)) {
+            global.$alert.fn.show('标题格式错误', '请确认字符数量<512个');
+            return;
+        };
+
+        let curUser = global.$wd.auth().currentUser;
+        global.$wd.sync().ref('asset').push({
+            url: that.state.assetUrl,
+            title: that.state.assetTitle,
+            desc: that.state.assetDesc,
+            author: curUser.uid,
+            type: that.state.curType.id,
+        }).then((res) => {
+            global.$snackbar.fn.show('创建成功，自动返回', 2000);
+            global.$router.prevPage();
+        });
     };
 
     //界面初始化之前的函数
@@ -55,6 +88,9 @@ class com extends Component {
         let that = this;
         window.addEventListener('resize', () => {
             that.setState({ contentHeight: window.innerHeight - 48 });
+        });
+        global.$wd.auth().onAuthStateChanged(function(user) {
+            if(global.$wd.auth().currentUser) that.setState({ hasLogin: true })
         });
     };
 
@@ -129,6 +165,7 @@ class com extends Component {
                h(MyUpload, {
                     freeze: 10,
                     style: { padding: 1, background: '#FAFAFA' },
+                    nameRegx: '^.+(?:.[pP][nN][gG]|.[jJ][pP][eE]?[gG]|.[gG][iI][fF])$',
                     children: h('img', {
                         className: css.img,
                         src: that.state.file ? `${that.state.assetUrl}-scale512` : global.$conf.defaultIcon,
@@ -137,7 +174,7 @@ class com extends Component {
                         that.setState({ file: file, assetUrl: `http://${file.url}` });
                     },
                 }),
-                h('div', { style: { fontSize: 12, color: '#AAA' } }, '点击图片上传'),
+                h('div', { style: { fontSize: 12, color: '#AAA' } }, '点击图片上传png,jpg或gif文件'),
             ]) : undefined,
 
             //上传文件
@@ -149,9 +186,10 @@ class com extends Component {
                h(MyUpload, {
                     freeze: 10,
                     raised: true,
-                    children: [h(FontA, { name: 'cloud-upload' }), h('span', {
-                        style: { margin: '0 8px' },
-                    }, '上传文件')],
+                    children: h('div', {}, [
+                        h(FontA, { name: 'cloud-upload' }),
+                        h('span', { style: { margin: '0 8px' } }, '上传文件'),
+                    ]),
                     success: (file, err, res) => {
                         that.setState({ file: file, assetUrl: `http://${file.url}` });
                     },
@@ -170,9 +208,12 @@ class com extends Component {
                h(MyUpload, {
                     freeze: 10,
                     raised: true,
-                    children: [h(FontA, { name: 'cloud-upload' }), h('span', {
-                        style: { margin: '0 8px' },
-                    }, '上传mp4视频文件')],
+                    nameRegx: '^.+(?:.[mM][pP]4)$',
+                    children: h('div', {}, [
+                        h(FontA, { name: 'cloud-upload' }),
+                        h('span', {
+                            style: { margin: '0 8px' },
+                        }, '上传mp4视频文件')]),
                     success: (file, err, res) => {
                         that.setState({ file: file, assetUrl: `http://${file.url}` });
                     },
@@ -187,8 +228,8 @@ class com extends Component {
                 h(TextField, {
                     className: css.textField,
                     label: '标题',
-                    placeholder: '为您的资源设定标题',
-                    helperText: '不超过128个字符',
+                    placeholder: '为您的素材设定标题',
+                    helperText: '不超过64个字符',
                     value: that.state.assetTitle,
                     onChange: (e) => { that.setState({ assetTitle: e.target.value }) },
                 }),
@@ -199,18 +240,20 @@ class com extends Component {
                 h(TextField, {
                     className: css.textField,
                     label: '简介',
-                    placeholder: '简单介绍此资源的内容、作用或特征',
-                    helperText: '不超过256个字符',
+                    multiline: true,
+                    placeholder: '简单介绍此素材的内容、作用或特征',
+                    helperText: '不超过512个字符',
                     value: that.state.assetDesc,
                     onChange: (e) => { that.setState({ assetDesc: e.target.value }) },
                 }),
             ]),
 
             h(Button, {
+                disabled: !that.state.hasLogin,
                 color: 'primary',
                 raised: true,
                 className: css.longBtn,
-                onClick: () => { that.updateProfile() },
+                onClick: () => { that.saveAsset() },
             }, '完 成'),
         ];
 

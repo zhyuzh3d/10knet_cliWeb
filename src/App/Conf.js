@@ -10,7 +10,10 @@ let ConfBase = {
         phone: /^1\d{10}$/,
         phoneCode: /^\d{6}$/,
         pw: /^[\S]{6,32}$/,
-        nick:/^[\S]{1,16}$/,
+        nick: /^[\S]{1,16}$/,
+        assetUrl: /^https?:\/\//,
+        assetTitle: /^.{3,64}/,
+        assetDesc: /^[\s\S]{0,512}/,
     },
 };
 
