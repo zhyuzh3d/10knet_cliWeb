@@ -6,39 +6,21 @@ import { withStyles } from 'material-ui/styles';
 import style from './_style';
 import ModalBar from '../../Units/ModalBar/ModalBar';
 import MyUpload from '../../Utils/MyUpload';
+import Conf from '../../App/Conf';
 
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 import Menu, { MenuItem } from 'material-ui/Menu';
-import IconButton from 'material-ui/IconButton';
 import FontA from 'react-fa';
 
-const AssetTypes = {
-    link: {
-        name: '链接',
-        icon: 'link',
-    },
-    image: {
-        name: '图片',
-        icon: 'file-photo-o',
-    },
-    file: {
-        name: '文件',
-        icon: 'file-zip-o',
-    },
-    video: {
-        name: '视频',
-        icon: 'file-video-o',
-    },
-};
 
 //元件
 class com extends Component {
     state = {
         title: '新建素材',
         contentHeight: window.innerHeight - 48,
-        curType: AssetTypes.link,
+        curType: global.$conf.assetTypes.link,
         file: null,
         assetUrl: '', //http开头的完整地址
         assetTitle: '',
@@ -74,6 +56,7 @@ class com extends Component {
             desc: that.state.assetDesc,
             author: curUser.uid,
             type: that.state.curType.id,
+            ts: global.$wd.sync().ServerValue.TIMESTAMP,
         }).then((res) => {
             global.$snackbar.fn.show('创建成功，自动返回', 2000);
             global.$router.prevPage();
@@ -98,13 +81,13 @@ class com extends Component {
     render() {
         let that = this;
         const css = this.props.classes;
-        let cuser = that.state.currentUser;
+        const AssetTypes = global.$conf.assetTypes;
 
         //类型下拉菜单
         let typeMenuArr = [];
         let typesArr = [];
         for(var key in AssetTypes) typesArr.push(AssetTypes[key]);
-        typesArr.map(function(item, index) {
+        typesArr.forEach(function(item, index) {
             var menuItem = h(MenuItem, {
                 onClick: (evt) => {
                     that.setState({
@@ -145,7 +128,7 @@ class com extends Component {
             ]),
 
             //粘贴输入连接
-            that.state.curType == AssetTypes.link ? h(Grid, { item: true, xs: 12 }, [
+            that.state.curType === AssetTypes.link ? h(Grid, { item: true, xs: 12 }, [
                 h(TextField, {
                     className: css.textField,
                     label: '链接',
@@ -157,7 +140,7 @@ class com extends Component {
             ]) : undefined,
 
             //上传图片
-            that.state.curType == AssetTypes.image ? h(Grid, {
+            that.state.curType === AssetTypes.image ? h(Grid, {
                 item: true,
                 xs: 12,
                 className: css.imgBox,
@@ -178,7 +161,7 @@ class com extends Component {
             ]) : undefined,
 
             //上传文件
-            that.state.curType == AssetTypes.file ? h(Grid, {
+            that.state.curType === AssetTypes.file ? h(Grid, {
                 item: true,
                 xs: 12,
                 className: css.fileBox,
@@ -200,7 +183,7 @@ class com extends Component {
             ]) : undefined,
 
             //上传视频
-            that.state.curType == AssetTypes.video ? h(Grid, {
+            that.state.curType === AssetTypes.video ? h(Grid, {
                 item: true,
                 xs: 12,
                 className: css.fileBox,

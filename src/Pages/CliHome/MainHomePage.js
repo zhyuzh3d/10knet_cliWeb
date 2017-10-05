@@ -52,7 +52,7 @@ class com extends Component {
                 raised: true,
                 color: 'primary',
                 onClick: () => {
-                    global.$router.changePage('AddAssetPage');
+                    global.$router.changePage('AssetAddPage');
                 },
             }, '增加一个资源'),
         ]);

@@ -15,7 +15,31 @@ let ConfBase = {
         assetTitle: /^.{3,64}/,
         assetDesc: /^[\s\S]{0,512}/,
     },
+    assetTypes: {
+        link: {
+            id: 'link',
+            name: '链接',
+            icon: 'link',
+        },
+        image: {
+            id: 'image',
+            name: '图片',
+            icon: 'file-photo-o',
+        },
+        file: {
+            id: 'file',
+            name: '文件',
+            icon: 'file-zip-o',
+        },
+        video: {
+            id: 'video',
+            name: '视频',
+            icon: 'file-video-o',
+        },
+    }
 };
+
+
 
 //需要拼接的设定
 const Conf = Object.assign(ConfBase, {

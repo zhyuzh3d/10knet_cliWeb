@@ -8,11 +8,13 @@ import Theme from './Theme'; //主题风格
 import Conf from './Conf'; //全局设置
 
 import MyRouter from '../Utils/MyRouter'; //全局页面路由
+import MyStore from '../Utils/MyStore'; //全局设置存储
 import MySnackbar from '../Utils/MySnackbar'; //底部统一的提示
 import MyAlert from '../Utils/MyAlert'; //统一的警告弹窗
 
 //全局使用
 global.$router = MyRouter;
+global.$store = MyStore;
 global.$alert = MyAlert;
 global.$snackbar = MySnackbar;
 
@@ -21,9 +23,9 @@ global.$conf = Conf;
 global.$wd = wilddog;
 global.$wd.initializeApp(global.$conf.wd);
 
-
 //所有公用函数
 global.$fn = {};
+global.$xdata = {};//穿越
 
 //App元素
 class App extends Component {

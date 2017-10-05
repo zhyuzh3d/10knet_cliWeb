@@ -20,9 +20,11 @@ import { conf, pages } from '../App/Pages';
 //初始化
 let app = null;
 
+
 function init(appComponent) {
     app = appComponent;
 };
+
 
 //导航变量
 let nav = {
