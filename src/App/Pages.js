@@ -8,8 +8,9 @@ import HomePage from '../Pages/Home/HomePage';
 
 import MainHomePage from '../Pages/CliHome/MainHomePage';
 import SlaveHomePage from '../Pages/CliHome/SlaveHomePage';
+import AddAssetPage from '../Pages/Asset/AddAssetPage';
 
-//import TestPage from '../Pages/Temp/TestPage.jsx';
+import TestPage from '../Pages/Temp/TestPage.jsx';
 
 //默认页面的设置
 const conf = {
@@ -28,7 +29,8 @@ const pages = {
     HomePage,
     SlaveHomePage,
     MainHomePage,
-    //TestPage,
+    AddAssetPage,
+    TestPage,
 };
 
 export { conf, pages }

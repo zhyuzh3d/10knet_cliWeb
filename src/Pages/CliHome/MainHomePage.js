@@ -6,8 +6,8 @@ import { withStyles } from 'material-ui/styles';
 import style from './_style';
 
 import Grid from 'material-ui/Grid';
+import Button from 'material-ui/Button';
 //import Toolbar from 'material-ui/Toolbar';
-//import Button from 'material-ui/Button';
 //import IconButton from 'material-ui/IconButton';
 //import FontA from 'react-fa';
 //import Tooltip from 'material-ui/Tooltip';
@@ -22,9 +22,7 @@ class com extends Component {
     state = {
         snackbarText: '..tip..',
         snackbarOpen: false,
-        hasLogin: false,
-        title: '控制中心',
-        currentUser: null,
+        title: '资源管理中心',
         contentHeight: window.innerHeight - 48,
     };
 
@@ -37,13 +35,6 @@ class com extends Component {
         window.addEventListener('resize', () => {
             that.setState({ contentHeight: window.innerHeight - 48 });
         });
-        global.$wd.auth().onAuthStateChanged(function(user) {
-            if(global.$wd.auth().currentUser) {
-                that.setState({ currentUser: user });
-            } else {
-                that.setState({ currentUser: null });
-            };
-        });
     };
 
     //渲染实现
@@ -51,17 +42,24 @@ class com extends Component {
         document.getElementsByTagName('title')[0].innerHTML = '控制台';
         let that = this;
         const css = this.props.classes;
-        let cuser = that.state.currentUser;
 
-        //内容区：使用webview
+        //内容区
         let content = h(Grid, {
             container: true,
             className: css.content,
-        }, 'hello world!');
+        }, [
+            h(Button, {
+                raised: true,
+                color: 'primary',
+                onClick: () => {
+                    global.$router.changePage('AddAssetPage');
+                },
+            }, '增加一个资源'),
+        ]);
 
         //最终拼合
         return h(Grid, { container: true, className: css.page }, [
-            h(MainAppBar, { title: '资源控制中心' }),
+            h(MainAppBar, { title: that.state.title }),
             h('div', { style: { height: 48 } }),
             content,
         ]);

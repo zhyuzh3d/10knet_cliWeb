@@ -63,7 +63,7 @@ class com extends Component {
                 onClick: () => { global.$alert.fn.show('登录成功', '真的成功了') },
             }, 'showAlert'),
             h(MyUpload, {
-                file: that.state.file,
+                //file: that.state.file,
                 freeze: 10,
                 success: (file, err, res) => {
                     console.log('>>ok file', file);

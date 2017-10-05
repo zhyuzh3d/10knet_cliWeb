@@ -23,6 +23,7 @@
  *  file:file对象，具有name和lastModifiedDate属性的new blob(['...',{}])
  *  freeze:上传过程是否冻结按钮，限定只能逐个上传
  *  freezeTime:冻结毫秒，超过此时间按钮自动重新激活,默认3秒
+ *  style:指定按钮的css样式对象
  * },
  */
 
@@ -141,7 +142,7 @@ class MyComponent extends Component {
         var req = Request.post("http://up.qiniu.com")
             .send(formdata)
             .on('progress', event => {
-                //更新数据
+                //更新数据,更新进度条
                 if(!file.aborted) {
                     that.setState({
                         file: {
@@ -235,6 +236,7 @@ class MyComponent extends Component {
             h(Button, {
                 color: that.props.color || 'inherit',
                 raised: that.props.raised || false,
+                style: that.props.style,
                 onClick: () => {
                     this.onClick();
                 },
@@ -247,7 +249,7 @@ class MyComponent extends Component {
                 h('div', {
                     className: css.overlay,
                     style: {
-                        width: that.props.freeze ? 0 : `${that.state.overlay}%`,
+                        width: `${that.state.overlay}%`,
                         background: that.props.overlayColor || that.state.file.colorTag,
                     }
                 })

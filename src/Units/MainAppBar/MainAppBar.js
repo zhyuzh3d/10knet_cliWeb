@@ -1,3 +1,11 @@
+/*
+Main窗口专用顶部导航，包含左侧的菜单下来按钮和右侧的用户头像下拉按钮。
+用于顶级页面。
+props:{
+    title:导航栏显示的标题，默认 资源管理中心
+    winTitle:窗口的标题，默认 控制台
+}
+*/
 import { Component } from 'react';
 import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
@@ -10,7 +18,6 @@ import Toolbar from 'material-ui/Toolbar';
 import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import FontA from 'react-fa';
-//import Tooltip from 'material-ui/Tooltip';
 import Typography from 'material-ui/Typography';
 import Menu, { MenuItem } from 'material-ui/Menu';
 import Avatar from 'material-ui/Avatar';
@@ -42,11 +49,13 @@ class com extends Component {
 
     //渲染实现
     render() {
-        document.getElementsByTagName('title')[0].innerHTML = '控制台';
         let that = this;
         const css = that.props.classes;
         const title = that.props.title || that.state.title;
+        const winTitle = that.props.winTitle || '控制台';
         let cuser = that.state.currentUser;
+
+        document.getElementsByTagName('title')[0].innerHTML = winTitle;
 
         //用户头像
         let userIconArr = [

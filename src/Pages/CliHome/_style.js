@@ -10,6 +10,7 @@ const styles = theme => ({
     content: {
         margin: 0,
         flex: 1,
+        padding:16,
     },
 });
 
