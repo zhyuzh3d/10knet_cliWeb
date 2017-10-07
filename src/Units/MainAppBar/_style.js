@@ -40,19 +40,6 @@ const styles = theme => ({
         flex: 1,
         fontSize: '0.9rem',
     },
-    uname: {
-        width: 60,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-    },
-    appAvatar: {
-        height: 28,
-        width: 28,
-    },
-    appUserBtn: {
-
-    },
 });
 
 export default styles;

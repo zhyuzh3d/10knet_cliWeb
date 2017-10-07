@@ -1,7 +1,7 @@
 /*
-根据用户uid获取其资源列表
+Asset资源详情页面
 props:{
-    userId:如果为空则自动调取当前用户的uid使用
+    assetId:
 }
 */
 import { Component } from 'react';
@@ -15,7 +15,7 @@ import FontA from 'react-fa';
 import Moment from 'react-moment';
 
 import style from './_style';
-import UserMini from '../../Units/User/UserMini';
+import UserButton from '../../Units/User/UserButton';
 
 //元件
 class com extends Component {
@@ -26,7 +26,7 @@ class com extends Component {
     };
 
     //界面生成之前，读取数据
-    componentWillMount = async function() {
+    componentDidMount = async function() {
         let that = this;
         let assetId = that.props.assetId;
         if(assetId) that.getAsset(assetId);
@@ -44,6 +44,7 @@ class com extends Component {
         let ref = global.$wd.sync().ref(`asset/${assetId}`);
         ref.on('value', (shot) => {
             let asset = shot.val();
+            if(!asset) return;
             that.setState({ asset: asset });
             global.$wd.sync().ref(`user/${asset.author}`).once('value', (shot) => {
                 that.setState({ author: shot.val() || {} });
@@ -51,8 +52,25 @@ class com extends Component {
         });
     };
 
-    //界面完成后的初始化函数-退出现有账号
-    componentDidMount = async function() {};
+    //取消野狗监听
+    componentWillUnmount = () => {
+        let that = this;
+        let assetId = that.props.assetId;
+        if(assetId) global.$wd.sync().ref(`asset/${assetId}`).off('value');
+    };
+
+    //删除asset，然后返回上一页
+    removeAsset = (assetId) => {
+        let that = this;
+        let ref = global.$wd.sync().ref(`asset/${assetId}`);
+        ref.remove().then(() => {
+            global.$wd.sync().ref(`asset/${assetId}`).off('value');
+            global.$snackbar.fn.show('删除成功', 2000);
+            global.$router.prevPage();
+        }).catch((err) => {
+            global.$alert.fn.show('删除失败，请重试', err.message);
+        });
+    };
 
     //渲染实现
     render() {
@@ -61,6 +79,7 @@ class com extends Component {
         const css = that.props.classes;
         const AssetTypes = global.$conf.assetTypes;
         const asset = that.state.asset || {};
+        let assetId = that.props.assetId;
 
         let isAuthor = false;
         const curUser = that.state.currentUser;
@@ -75,7 +94,7 @@ class com extends Component {
                 h('span', { style: { marginLeft: 12 } }, asset.title || '未知的标题...'),
             ]),
             h(Grid, { item: true, xs: 12, style: { paddingTop: 0, paddingBottom: 0 } }, [
-                h(UserMini, { userId: asset.author }),
+                h(UserButton, { userId: asset.author, size: 'sm' }),
                 h(Moment, {
                     className: css.assetTime,
                     format: 'YY.MMDD.hhmm'
@@ -86,18 +105,21 @@ class com extends Component {
                 h(Button, {
                     raised: true,
                     color: 'accent',
-                    className: css.contentBtn
-                }, '显示内容'),
+                    className: css.contentBtn,
+                    onClick: () => {
+                        window.open(asset.url);
+                    },
+                }, '打开链接'),
                 isAuthor ? h(Button, {
                     className: css.contentBtn,
                     onClick: () => {
-
+                        global.$router.changePage('AssetAddPage', { assetId: assetId });
                     },
                 }, '编辑') : undefined,
                 isAuthor ? h(Button, {
                     className: css.contentBtn,
                     onClick: () => {
-
+                        that.removeAsset(assetId);
                     },
                 }, '删除') : undefined,
             ]),

@@ -13,4 +13,12 @@ const store = (targetKey, objOrKey) => {
     }
     return res;
 };
-export default { store };
+//彻底清理某个本地存储，如果清理单个子属性可以store({key:undefined})
+const storeRemove = (targetKey) => {
+    localStorage.removeItem(targetKey);
+};
+
+export default {
+    store,
+    storeRemove,
+};

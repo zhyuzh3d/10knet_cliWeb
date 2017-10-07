@@ -1,7 +1,7 @@
 /*
-根据用户uid获取其资源列表
+顶部导航右上角头像和菜单
 props:{
-    userId:如果为空则自动调取当前用户的uid使用
+    无参数，固定显示当前用户信息
 }
 */
 import { Component } from 'react';

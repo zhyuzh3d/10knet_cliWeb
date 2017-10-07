@@ -52,6 +52,7 @@ class com extends Component {
                 raised: true,
                 color: 'primary',
                 onClick: () => {
+                    global.$storeRemove('AssetAddPage', 'assetId');
                     global.$router.changePage('AssetAddPage');
                 },
             }, '增加一个资源'),

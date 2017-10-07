@@ -29,7 +29,7 @@ const styles = theme => ({
         fontSize: 8,
         fontWeight: 200,
         color: '#AAA',
-        verticalAlign:'middle',
+        verticalAlign: 'middle',
     },
     divider: {
         width: '100%',
@@ -45,9 +45,12 @@ const styles = theme => ({
     },
     detailDesc: {
         marginBottom: theme.spacing.unit,
-        fontSize: '0.9rem',
+        fontSize: '0.8rem',
+        lineHeight:'1.4rem',
         color: '#666',
+        textAlign:'justify',
         letterSpacing: '0.05rem',
+        fontWeight: 200,
     },
     detailInfo: {
         paddingBottom: 0,

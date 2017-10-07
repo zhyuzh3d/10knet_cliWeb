@@ -32,11 +32,6 @@ function init(appComponent, Pages) {
     pages = Pages;
 };
 
-//彻底清理某个本地存储，如果清理单个子属性可以store({key:undefined})
-const clearStore = (targetKey) => {
-    localStorage.removeItem(targetKey);
-};
-
 //换页方法,自动合并页面状态到本地存储，这些数据将在跳转后被使用
 //pageName支持$storeKey分隔符变量，默认跳转到$successPage
 const goPage = (pageName, state) => {
@@ -75,7 +70,6 @@ const MyRouter = {
     pages,
     init,
     app,
-    clearStore,
     currentPage,
     goPage,
     changePage,

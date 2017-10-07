@@ -17,6 +17,7 @@ import FontA from 'react-fa';
 //元件
 class com extends Component {
     state = {
+        assetId: null,
         title: '新建素材',
         contentHeight: window.innerHeight - 48,
         curType: global.$conf.assetTypes.link,
@@ -49,20 +50,29 @@ class com extends Component {
         };
 
         let curUser = global.$wd.auth().currentUser;
-        global.$wd.sync().ref('asset').push({
+        let assetId = that.state.assetId;
+        let newAsset = {
             url: that.state.assetUrl,
             title: that.state.assetTitle,
             desc: that.state.assetDesc,
             author: curUser.uid,
             type: that.state.curType.id,
             ts: global.$wd.sync().ServerValue.TIMESTAMP,
-        }).then((res) => {
-            global.$snackbar.fn.show('创建成功，自动返回', 2000);
-            global.$router.prevPage();
-        });
+        };
+
+        if(assetId) {
+            global.$wd.sync().ref(`asset/${assetId}`).update(newAsset).then((res) => {
+                global.$snackbar.fn.show('保存成功', 2000);
+            });
+        } else {
+            global.$wd.sync().ref('asset').push(newAsset).then((res) => {
+                that.state.assetId = res.key();
+                global.$snackbar.fn.show('创建成功，可继续编辑或返回', 2000);
+            });
+        }
     };
 
-    //界面初始化之前的函数
+    //界面初始化之前的函数:
     componentWillMount = async function() {};
 
     //界面完成后的初始化函数:判断用户是否登录，创建userMenu
@@ -74,6 +84,30 @@ class com extends Component {
         global.$wd.auth().onAuthStateChanged(function(user) {
             if(global.$wd.auth().currentUser) that.setState({ hasLogin: true })
         });
+
+        //编辑状态读取asset信息
+        const assetId = global.$store('AssetAddPage', 'assetId');
+        if(!assetId) return;
+        that.setState({ assetId: assetId });
+
+        global.$wd.sync().ref(`asset/${assetId}`).once('value', (shot) => {
+            var asset = shot.val();
+            that.setState({
+                assetTitle: asset.title,
+                assetUrl: asset.url,
+                assetDesc: asset.desc,
+                curType: global.$conf.assetTypes[asset.type],
+                file: { name: asset.url },
+            });
+        });
+
+    };
+
+    //检查url是否可以显示的图片
+    isImageUrl = (str) => {
+        if(!str) return false;
+        let regx = /^.+(?:.[pP][nN][gG]|.[jJ][pP][eE]?[gG]|.[gG][iI][fF])$/;
+        return regx.test(str);
     };
 
     //渲染实现
@@ -150,13 +184,15 @@ class com extends Component {
                     nameRegx: '^.+(?:.[pP][nN][gG]|.[jJ][pP][eE]?[gG]|.[gG][iI][fF])$',
                     children: h('img', {
                         className: css.img,
-                        src: that.state.file ? `${that.state.assetUrl}-scale512` : global.$conf.defaultIcon,
+                        src: that.state.assetUrl && that.isImageUrl(that.state.assetUrl) ? `${that.state.assetUrl}-scale512` : global.$conf.defaultIcon,
                     }),
                     success: (file, err, res) => {
                         that.setState({ file: file, assetUrl: `http://${file.url}` });
                     },
                 }),
-                h('div', { style: { fontSize: 12, color: '#AAA' } }, '点击图片上传png,jpg或gif文件'),
+                h('div', {
+                    className: css.fileLink,
+                }, that.state.assetUrl ? that.state.assetUrl : '点击图片上传png,jpg或gif文件'),
             ]) : undefined,
 
             //上传文件
@@ -176,9 +212,9 @@ class com extends Component {
                         that.setState({ file: file, assetUrl: `http://${file.url}` });
                     },
                 }),
-                that.state.file ? h('div', {
+                that.state.assetUrl ? h('div', {
                     className: css.fileLink,
-                }, that.state.file.name) : undefined,
+                }, that.state.assetUrl) : undefined,
             ]) : undefined,
 
             //上传视频
@@ -200,9 +236,9 @@ class com extends Component {
                         that.setState({ file: file, assetUrl: `http://${file.url}` });
                     },
                 }),
-                that.state.file ? h('div', {
+                that.state.assetUrl ? h('div', {
                     className: css.fileLink,
-                }, that.state.file.name) : undefined,
+                }, that.state.assetUrl) : undefined,
             ]) : undefined,
 
             //标题
@@ -236,7 +272,7 @@ class com extends Component {
                 raised: true,
                 className: css.longBtn,
                 onClick: () => { that.saveAsset() },
-            }, '完 成'),
+            }, '保 存'),
         ];
 
         //最终拼合

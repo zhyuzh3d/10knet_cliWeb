@@ -1,7 +1,8 @@
 /*
-根据用户uid获取其资源列表
+任意用户头像和名称按钮，点击跳转到用户详情页面
 props:{
-    userId:如果为空则自动调取当前用户的uid使用
+    userId:不能为空，
+    size:'xs,sm,md,lg'
 }
 */
 import { Component } from 'react';
@@ -18,22 +19,37 @@ const style = theme => ({
         paddingLeft: 0,
     },
     userImg: {
-        width: theme.spacing.unit * 2,
-        height: theme.spacing.unit * 2,
-        borderRadius: theme.spacing.unit * 2,
         background: '#EEE',
         border: '1px solid #CCC',
         verticalAlign: 'middle',
         marginRight: theme.spacing.unit,
     },
     userName: {
-        fontSize: 8,
         fontWeight: 200,
         color: '#888',
         display: 'inline-block',
         marginRight: theme.spacing.unit,
     },
 });
+
+const varSize = {
+    xs: {
+        img: 8,
+        font: 5,
+    },
+    sm: {
+        img: 16,
+        font: 8,
+    },
+    md: {
+        img: 24,
+        font: 12,
+    },
+    lg: {
+        img: 32,
+        font: 16,
+    },
+};
 
 //元件
 class com extends Component {
@@ -58,6 +74,7 @@ class com extends Component {
     render() {
         let that = this;
         const css = that.props.classes;
+        let size = varSize[that.props.size || 'sm'];
         let user = that.state.user;
 
         return h(ButtonBase, {
@@ -69,8 +86,18 @@ class com extends Component {
             h('img', {
                 src: user.photoURL ? `http://${user.photoURL}-thumb64` : global.$conf.defaultIcon,
                 className: css.userImg,
+                style: {
+                    width: size.img,
+                    height: size.img,
+                    borderRadius: size.img,
+                },
             }),
-            h('span', { className: css.userName }, user.displayName || '无名'),
+            h('span', {
+                className: css.userName,
+                style: {
+                    fontSize: size.font,
+                },
+            }, user.displayName || '无名'),
         ]);
     }
 };

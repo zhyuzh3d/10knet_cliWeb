@@ -16,6 +16,7 @@ import MyAlert from '../Utils/MyAlert'; //统一的警告弹窗
 //全局使用
 global.$router = MyRouter;
 global.$store = MyStore.store;
+global.$storeRemove = MyStore.storeRemove;
 global.$alert = MyAlert;
 global.$snackbar = MySnackbar;
 

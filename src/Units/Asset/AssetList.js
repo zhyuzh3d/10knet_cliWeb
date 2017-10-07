@@ -23,7 +23,7 @@ class com extends Component {
     };
 
     //界面生成之前，读取数据
-    componentWillMount = async function() {
+    componentDidMount = async function() {
         let that = this;
         let userId = that.props.userId;
 
@@ -36,6 +36,7 @@ class com extends Component {
         });
     };
 
+
     //根据uid获取资源列表
     getAssets = (userId) => {
         let that = this;
@@ -46,8 +47,13 @@ class com extends Component {
         });
     };
 
-    //界面完成后的初始化函数-退出现有账号
-    componentDidMount = async function() {};
+
+    //取消野狗监听
+    componentWillUnmount = () => {
+        let ref = global.$wd.sync().ref('asset')
+        ref.off('value');
+    };
+
 
     //渲染实现
     render() {
