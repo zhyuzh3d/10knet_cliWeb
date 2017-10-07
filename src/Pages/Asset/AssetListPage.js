@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
-import ButtonBase from 'material-ui/ButtonBase';
 
 import NavBar from '../../Units/MainAppBar/NavBar';
 import AssetList from '../../Units/Asset/AssetList';

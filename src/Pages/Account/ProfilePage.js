@@ -16,6 +16,7 @@ import ArrowBackIcon from 'material-ui-icons/ArrowBack';
 
 import MyUpload from '../../Utils/MyUpload';
 import _style from './_style';
+import merge from 'deepmerge';
 
 
 //元件
@@ -31,12 +32,17 @@ class com extends Component {
         let that = this;
         global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
-            if(cuser && cuser.photoURL && !that.state.file) {
-                that.setState({ file: { url: cuser.photoURL } });
-            };
-            if(cuser && cuser.displayName && !that.state.nick) {
-                that.setState({ nick: cuser.displayName });
-            };
+            if(!cuser) return;
+            //合并user字段数据
+            global.$wd.sync().ref(`user/${cuser.uid}`).once('value', (shot) => {
+                cuser = merge(cuser, shot.val());
+                if(cuser && cuser.photoURL && !that.state.file) {
+                    that.setState({ file: { url: cuser.photoURL } });
+                };
+                if(cuser && cuser.displayName && !that.state.nick) {
+                    that.setState({ nick: cuser.displayName });
+                };
+            });
         });
     };
 
@@ -61,7 +67,9 @@ class com extends Component {
             return;
         };
 
-        global.$wd.auth().currentUser.updateProfile({
+        //保存到user字段下
+        var uid = global.$wd.auth().currentUser.uid;
+        global.$wd.sync().ref(`user/${uid}`).update({
             'photoURL': url,
             'displayName': nick,
         }).then(function(user) {
@@ -94,7 +102,6 @@ class com extends Component {
                 h('div', { className: css.container }, [
                     h(Grid, { item: true, xs: 12 }, [
                        h(MyUpload, {
-                            file: that.state.file,
                             freeze: 10,
                             children: h('img', {
                                 className: css.avatarLarge,

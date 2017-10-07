@@ -75,7 +75,7 @@ class com extends Component {
                     className: css.asset,
                     button: true,
                     onClick: () => {
-                        window.open(item.url);
+                        //window.open(item.url);
                         global.$router.changePage('AssetDetailPage', { assetId: item.id });
                     },
                 }, [

@@ -50,7 +50,10 @@ const styles = theme => ({
     },
     nav: {
         fontSize: '1rem',
-    }
+    },
+    contentBox: {
+        padding: theme.spacing.unit,
+    },
 });
 
 export default styles;

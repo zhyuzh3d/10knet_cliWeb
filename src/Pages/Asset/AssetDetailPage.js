@@ -4,13 +4,9 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
-//import Button from 'material-ui/Button';
-//import List, { ListItem, ListItemText } from 'material-ui/List';
-//import Divider from 'material-ui/Divider';
-//import FontA from 'react-fa';
-//import Moment from 'react-moment';
 
-import ModalBar from '../../Units/MainAppBar/ModalBar';
+import NavBar from '../../Units/MainAppBar/NavBar';
+import AssetDetail from '../../Units/Asset/AssetDetail';
 import style from './_style';
 
 //元件
@@ -33,10 +29,14 @@ class com extends Component {
 
         //最终拼合
         return h(Grid, { container: true, className: css.page }, [
-            h(ModalBar, { title: that.state.title }),
+            h(NavBar, {
+                title: '素材详情',
+            }),
             h('div', { style: { height: 48 } }),
             h(Grid, { container: true, justify: 'center' }, [
-                h('h1', `assetId:${assetId}`),
+                h(Grid, { item: true, xs: 12, md: 10, lg: 8 }, [
+                    h(AssetDetail, { assetId: assetId }),
+                ]),
             ]),
         ]);
     }
@@ -48,4 +48,3 @@ com.propTypes = {
 };
 
 export default withStyles(style)(com);
-

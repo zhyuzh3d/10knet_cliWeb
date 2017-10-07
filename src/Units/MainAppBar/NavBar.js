@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import style from './_style';
+import merge from 'deepmerge';
 
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
@@ -38,11 +39,12 @@ class com extends Component {
     componentDidMount = async function() {
         let that = this;
         global.$wd.auth().onAuthStateChanged(function(user) {
-            if(global.$wd.auth().currentUser) {
-                that.setState({ currentUser: user });
-            } else {
-                that.setState({ currentUser: null });
-            };
+            var cuser = global.$wd.auth().currentUser;
+            if(!cuser) return;
+            global.$wd.sync().ref(`user/${cuser.uid}`).once('value', (shot) => {
+                cuser = merge(cuser, shot.val());
+                that.setState({ currentUser: cuser });
+            });
         });
     };
 

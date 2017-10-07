@@ -27,15 +27,18 @@ const styles = theme => ({
         marginRight: 20,
     },
     baseButton: {
-        fontSize: '1rem',
+        fontSize: '0.9rem',
     },
     dividerV: {
         marginRight: theme.spacing.unit * 2,
         marginLeft: theme.spacing.unit,
     },
+    title:{
+       flex: 1,
+    },
     flex: {
         flex: 1,
-        userSelect: false,
+        fontSize: '0.9rem',
     },
     uname: {
         width: 60,
