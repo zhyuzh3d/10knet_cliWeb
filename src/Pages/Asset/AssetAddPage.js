@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import style from './_style';
-import ModalBar from '../../Units/ModalBar/ModalBar';
+import ModalBar from '../../Units/MainAppBar/ModalBar';
 import MyUpload from '../../Utils/MyUpload';
 
 import Grid from 'material-ui/Grid';

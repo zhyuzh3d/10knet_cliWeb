@@ -14,44 +14,7 @@ import List, { ListItem } from 'material-ui/List';
 import FontA from 'react-fa';
 import Moment from 'react-moment';
 
-const style = {
-    loading: {
-        width: '100%',
-        textAlign: 'center',
-        fontSize: 18,
-        color: '#AAA',
-        marginTop: 64,
-    },
-    asset: {
-        padding: '8px 16px',
-    },
-    assetIcon: {
-        margin: 8,
-    },
-    assetIcon2: {
-        fontSize: 8,
-        color: '#AAA',
-    },
-    assetText: {
-        margin: 8,
-        flex: 1,
-    },
-    assetTitle: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#333'
-    },
-    assetTime: {
-        fontSize: 8,
-        fontWeight: 200,
-        color: '#AAA'
-    },
-    divider: {
-        width: '100%',
-        height: 1,
-        background: '#EEE',
-    },
-}
+import style from './_style';
 
 //元件
 class com extends Component {
@@ -128,7 +91,7 @@ class com extends Component {
                             h('div', { className: css.assetTitle }, item.title),
                             h(Moment, {
                                 className: css.assetTime,
-                                format: 'YYYY/MM/DD hh:mm'
+                                format: 'YY.MMDD.hhmm'
                             }, item.ts),
                         ]),
                         h(Grid, {

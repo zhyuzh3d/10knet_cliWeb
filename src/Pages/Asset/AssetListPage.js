@@ -6,7 +6,7 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import ButtonBase from 'material-ui/ButtonBase';
 
-import ModalBar from '../../Units/ModalBar/ModalBar';
+import NavBar from '../../Units/MainAppBar/NavBar';
 import AssetList from '../../Units/Asset/AssetList';
 import style from './_style';
 
@@ -30,17 +30,8 @@ class com extends Component {
 
         //最终拼合
         return h(Grid, { container: true, className: css.page }, [
-            h(ModalBar, {
-                title: [
-                    h(ButtonBase, {
-                        className: css.nav,
-                        onClick: () => {
-                            global.$router.changePage('MainHomePage');
-                        },
-                    }, '资源管理中心'),
-                    h('span', '|'),
-                    h(ButtonBase, { className: css.nav }, '素材列表'),
-                ]
+            h(NavBar, {
+                title: '素材列表',
             }),
             h('div', { style: { height: 48 } }),
             h(Grid, { container: true, justify: 'center' }, [

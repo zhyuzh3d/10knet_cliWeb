@@ -26,8 +26,16 @@ const styles = theme => ({
         marginLeft: -12,
         marginRight: 20,
     },
+    baseButton: {
+        fontSize: '1rem',
+    },
+    dividerV: {
+        marginRight: theme.spacing.unit * 2,
+        marginLeft: theme.spacing.unit,
+    },
     flex: {
-        flex: 1
+        flex: 1,
+        userSelect: false,
     },
     uname: {
         width: 60,

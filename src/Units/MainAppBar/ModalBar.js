@@ -49,7 +49,7 @@ class com extends Component {
                     onClick: (evt) => {
                         global.$router.prevPage();
                     }
-                }, h(FontA, { name: 'chevron-left' })),
+                }, h(FontA, { name: 'close' })),
                 h(Typography, { type: 'title', className: css.flex }, title),
             ]),
         ]);

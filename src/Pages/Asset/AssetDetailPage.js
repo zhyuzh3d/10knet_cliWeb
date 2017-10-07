@@ -10,7 +10,7 @@ import Grid from 'material-ui/Grid';
 //import FontA from 'react-fa';
 //import Moment from 'react-moment';
 
-import ModalBar from '../../Units/ModalBar/ModalBar';
+import ModalBar from '../../Units/MainAppBar/ModalBar';
 import style from './_style';
 
 //元件
