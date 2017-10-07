@@ -9,11 +9,13 @@ import Conf from './Conf'; //全局设置
 import Pages from './Pages'; //全局设置
 
 import MyRouter from '../Utils/MyRouter'; //全局页面路由
+import MyStore from '../Utils/MyStore'; //全局页面路由
 import MySnackbar from '../Utils/MySnackbar'; //底部统一的提示
 import MyAlert from '../Utils/MyAlert'; //统一的警告弹窗
 
 //全局使用
 global.$router = MyRouter;
+global.$store = MyStore.store;
 global.$alert = MyAlert;
 global.$snackbar = MySnackbar;
 

@@ -17,11 +17,12 @@ pages 所有页面的设置对象{MainPage:reactComponent,}
 
 //import createHistory from 'history/createMemoryHistory';
 import createHistory from 'history/createBrowserHistory';
-import merge from 'deepmerge';
+import MyStore from './MyStore';
 
 //初始化
 let app = null;
 let pages = null;
+let store = MyStore.store;
 let currentPage = 'MainHomePage';
 let history = createHistory();
 
@@ -29,20 +30,6 @@ let history = createHistory();
 function init(appComponent, Pages) {
     app = appComponent;
     pages = Pages;
-};
-
-//利用本地存储JSON结构的数据，分为单独的targetKey避免整个ls读取压力
-const store = (targetKey, objOrKey) => {
-    var lsdata = localStorage.getItem(targetKey);
-    let res = lsdata ? JSON.parse(lsdata) : undefined;
-
-    if(objOrKey && objOrKey.constructor === String) {
-        res = res ? res[objOrKey] : undefined;
-    } else {
-        res = merge(res || {}, objOrKey || {});
-        localStorage.setItem(targetKey, JSON.stringify(res));
-    }
-    return res;
 };
 
 //彻底清理某个本地存储，如果清理单个子属性可以store({key:undefined})
@@ -88,7 +75,6 @@ const MyRouter = {
     pages,
     init,
     app,
-    store,
     clearStore,
     currentPage,
     goPage,

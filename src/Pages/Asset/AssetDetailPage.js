@@ -29,7 +29,7 @@ class com extends Component {
     render() {
         let that = this;
         const css = that.props.classes;
-        var assetId = global.$store.data('AssetDetailPage', 'assetId');
+        var assetId = global.$store('AssetDetailPage', 'assetId');
 
         //最终拼合
         return h(Grid, { container: true, className: css.page }, [
