@@ -62,7 +62,7 @@ class com extends Component {
                     global.$router.changePage('AssetListPage');
                 },
             }, '我的资源列表'),
-        ]);
+          ]);
 
         //最终拼合
         return h(Grid, { container: true, className: css.page }, [

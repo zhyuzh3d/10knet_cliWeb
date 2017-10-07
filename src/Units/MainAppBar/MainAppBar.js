@@ -71,7 +71,9 @@ class com extends Component {
             h(MenuItem, {
                 disabled: !that.state.currentUser,
                 onClick: () => {
-                    global.$router.changePage('ProfilePage', 'MainHomePage');
+                    global.$router.changePage('ProfilePage', {
+                        successPage: global.$router.currentPage,
+                    });
                 },
             }, '修改资料'),
             h(MenuItem, {

@@ -6,15 +6,14 @@ import urlParser from 'urlparser';
 
 import Theme from './Theme'; //主题风格
 import Conf from './Conf'; //全局设置
+import Pages from './Pages'; //全局设置
 
 import MyRouter from '../Utils/MyRouter'; //全局页面路由
-import MyStore from '../Utils/MyStore'; //全局设置存储
 import MySnackbar from '../Utils/MySnackbar'; //底部统一的提示
 import MyAlert from '../Utils/MyAlert'; //统一的警告弹窗
 
 //全局使用
 global.$router = MyRouter;
-global.$store = MyStore;
 global.$alert = MyAlert;
 global.$snackbar = MySnackbar;
 
@@ -25,7 +24,7 @@ global.$wd.initializeApp(global.$conf.wd);
 
 //所有公用函数
 global.$fn = {};
-global.$xdata = {};//穿越
+global.$xdata = {}; //穿越
 
 //App元素
 class App extends Component {
@@ -33,11 +32,11 @@ class App extends Component {
         currentPage: 'div',
     };
 
-    //初始化页面，自动根据地址栏pageName判断切换到首页
+    //初始化页面，自动根据地址栏路径判断切换到首页
     componentDidMount = async function() {
-        global.$router.init(this);
+        global.$router.init(this, Pages);
         var urlObj = urlParser.parse(window.location.href);
-        var pName = urlObj.query ? urlObj.query.params['pageName'] : undefined;
+        var pName = urlObj.path ? urlObj.path.base : '/MainHomePage';
         global.$router.changePage(pName);
     };
 

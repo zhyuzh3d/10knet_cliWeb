@@ -243,6 +243,8 @@ class com extends Component {
         return h(Grid, { container: true, className: css.page }, [
             h(ModalBar, { title: that.state.title }),
             h('div', { style: { height: 48 } }),
+
+
             h(Grid, { container: true, justify: 'center' }, [
                 h(Grid, { item: true, xs: 10, sm: 8 }, content),
             ]),

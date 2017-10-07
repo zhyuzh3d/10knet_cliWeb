@@ -66,7 +66,7 @@ class com extends Component {
             'displayName': nick,
         }).then(function(user) {
             global.$snackbar.fn.show('保存成功', 2000);
-            global.$router.changePage();
+            global.$router.changePage('ProfilePage$successPage');
         }).catch(function(error) {
             global.$alert.fn.show('保存失败，请重试', error.message);
         });
@@ -119,7 +119,11 @@ class com extends Component {
                     ]),
                     h(Grid, { item: true, xs: 12, className: css.forgotPw }, [
                         h(Button, {
-                            onClick: () => { global.$router.changePage('LoginPage', 'ProfilePage') },
+                            onClick: () => {
+                                global.$router.changePage('LoginPage', {
+                                    successPage: global.$router.currentPage,
+                                });
+                            },
                         }, '还没有登录？'),
                     ]),
                     h(Button, {

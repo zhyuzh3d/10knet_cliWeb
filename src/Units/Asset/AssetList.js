@@ -26,7 +26,7 @@ const style = {
         padding: '8px 16px',
     },
     assetIcon: {
-        margin: '0 8px 8px 8px',
+        margin: 8,
     },
     assetIcon2: {
         fontSize: 8,
@@ -113,8 +113,7 @@ class com extends Component {
                     button: true,
                     onClick: () => {
                         window.open(item.url);
-                        global.$store.data('AssetDetailPage', 'assetId', item.id);
-                        global.$router.changePage('AssetDetailPage');
+                        global.$router.changePage('AssetDetailPage', { assetId: item.id });
                     },
                 }, [
                     h(Grid, { container: true, align: 'center' }, [

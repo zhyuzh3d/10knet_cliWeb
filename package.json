@@ -6,6 +6,7 @@
     "beautify": "0.0.8",
     "codemirror": "^5.30.0",
     "deepmerge": "^1.5.2",
+    "history": "^4.7.2",
     "material-ui": "^1.0.0-beta.13",
     "material-ui-icons": "^1.0.0-beta.5",
     "moment": "^2.18.1",

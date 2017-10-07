@@ -14,14 +14,6 @@ import AssetListPage from '../Pages/Asset/AssetListPage';
 
 import TestPage from '../Pages/Temp/TestPage.jsx';
 
-//默认页面的设置
-const conf = {
-    DefaultPageName: 'HomePage', //默认起始页面
-    DefaultSucessPageName: 'HomePage', //默认成功跳转页面
-    DefaultFailedPageName: 'HomePage', //默认失败跳转页面
-};
-conf.DefaultSucessPageName = conf.DefaultPageName;
-
 //全部页面列表
 const pages = {
     LoginPage,
@@ -37,4 +29,4 @@ const pages = {
     TestPage,
 };
 
-export { conf, pages }
+export default pages;
