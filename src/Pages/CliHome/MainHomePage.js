@@ -16,7 +16,6 @@ import Button from 'material-ui/Button';
 //import Avatar from 'material-ui/Avatar';
 
 import MainAppBar from '../../Units/MainAppBar/MainAppBar';
-import PostList from '../../Units/Post/PostList';
 
 //元件
 class com extends Component {
@@ -49,16 +48,17 @@ class com extends Component {
             container: true,
             style: { height: that.state.contentHeight, overflow: 'auto' },
         }, [
-            h(PostList,{wdRef:'asset/-KvrUBUztaRDOOcugei4/post'}),
-            /*h(Button, {
-                raised: true,
-                color: 'primary',
-                onClick: () => {
-                    global.$router.changePage('AssetListPage');
-                },
-            }, '我的资源列表'),*/
-//            h('div'),
-          ]);
+
+            h(Grid, { item: true }, [
+                h(Button, {
+                    raised: true,
+                    color: 'primary',
+                    onClick: () => {
+                        global.$router.changePage('AssetListPage');
+                    },
+                }, '我的资源列表'),
+            ]),
+        ]);
 
         //最终拼合
         return h(Grid, { container: true }, [

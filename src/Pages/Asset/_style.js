@@ -54,6 +54,11 @@ const styles = theme => ({
     contentBox: {
         padding: theme.spacing.unit,
     },
+    postsLabel: {
+        fontSize: '0.8rem',
+        color: '#888',
+        margin: theme.spacing.unit,
+    },
 });
 
 export default styles;

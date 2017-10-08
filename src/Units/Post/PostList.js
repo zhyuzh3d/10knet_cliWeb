@@ -78,9 +78,9 @@ class com extends Component {
         if(!wdRef) return;
 
         //读取跟帖数据
-        let ref = this.wdDataListen = global.$wd.sync().ref(wdRef);
+        let ref = global.$wd.sync().ref(wdRef);
         let query = ref.orderByChild('ts').limitToFirst(10);
-        query.on('value', (shot) => {
+        that.wdDataListen = query.on('value', (shot) => {
             let posts = shot.val();
             that.setState({ posts: shot.val() });
         });
@@ -95,13 +95,14 @@ class com extends Component {
 
     componentWillUnmount = () => {
         this.wdAuthListen && this.wdAuthListen();
-        this.wdDataListen && this.wdDataListen();
+        this.wdDataListen && this.wdDataListen.off('value');
     };
 
 
     //创建新帖子
     addPost = () => {
         let that = this;
+
 
         if(!global.$wd.auth().currentUser) {
             global.$alert.fn.show('您还没有登录', '请点右上角图标进行登录或注册');
@@ -119,6 +120,12 @@ class com extends Component {
         let curUser = global.$wd.auth().currentUser;
         const wdRef = that.props.wdRef;
         if(!wdRef) return;
+
+        //屏蔽按钮避免重复发送
+        that.setState({ sending: true });
+        setTimeout(() => {
+            that.setState({ sending: false });
+        }, 3000);
 
         let newPost = {
             url: that.state.newPostUrl,
@@ -201,11 +208,11 @@ class com extends Component {
                 }),
                  h(Button, {
                     raised: true,
-                    disabled: !that.state.currentUser,
+                    disabled: !that.state.currentUser || that.state.sending,
                     color: 'primary',
                     className: css.newPostBtn,
                     onClick: () => {
-                        that.addPost()
+                        that.addPost();
                     },
                 }, '发布'),
             ]),

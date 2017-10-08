@@ -79,7 +79,7 @@ class com extends Component {
                 h(UserButton, { userId: post ? post.author : null }),
                 h(Moment, {
                     className: css.time,
-                    format: 'YY.MMDD.hhmm'
+                    format: 'YYYY-MM-DD hh:mm:ss'
                 }, post.ts),
             ]),
             h(Grid, { item: true, xs: 12, className: css.txtLine }, [

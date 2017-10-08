@@ -7,6 +7,9 @@ import Grid from 'material-ui/Grid';
 
 import NavBar from '../../Units/MainAppBar/NavBar';
 import AssetDetail from '../../Units/Asset/AssetDetail';
+import PostList from '../../Units/Post/PostList';
+
+
 import style from './_style';
 
 //元件
@@ -37,6 +40,10 @@ class com extends Component {
                 h(Grid, { item: true, xs: 12, md: 10, lg: 8 }, [
                     h(AssetDetail, { assetId: assetId }),
                 ]),
+            ]),
+            h('div', { className: css.postsLabel }, '最近跟帖'),
+            h(Grid, { style: { marginLeft: -16 } }, [
+                h(PostList, { wdRef: `asset/${assetId}/post` }),
             ]),
         ]);
     }
