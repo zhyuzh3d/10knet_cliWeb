@@ -18,6 +18,9 @@ import MyUpload from '../../Utils/MyUpload';
 import _style from './_style';
 import merge from 'deepmerge';
 
+import ModalBar from '../../Units/MainAppBar/ModalBar';
+
+
 
 //元件
 class com extends Component {
@@ -25,6 +28,12 @@ class com extends Component {
     state = {
         file: null,
         nick: '',
+        title: '修改资料',
+        contentHeight: window.innerHeight - 48,
+    };
+
+    setContentSize = () => {
+        this.setState({ contentHeight: window.innerHeight });
     };
 
     wdAuthListen = null;
@@ -32,6 +41,8 @@ class com extends Component {
     //界面完成后的初始化函数-更新用户已有图标到file
     componentWillMount = async function() {
         let that = this;
+        window.addEventListener('resize', this.setContentSize);
+
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
             if(!cuser) return;
@@ -49,6 +60,7 @@ class com extends Component {
     };
     componentWillUnmount = async function() {
         this.wdAuthListen && this.wdAuthListen();
+        window.removeEventListener('resize', this.setContentSize);
     };
 
 
@@ -91,18 +103,7 @@ class com extends Component {
         let that = this;
         const css = that.props.classes;
 
-        return h(Grid, { container: true, className: css.page }, [
-            h(AppBar, { position: 'static', className: css.appBar }, [
-                h(Toolbar, { disableGutters: true, className: css.topBar }, [
-                    h(IconButton, {
-                        color: 'contrast',
-                        onClick: () => { global.$router.prevPage() },
-                    }, [
-                        h(ArrowBackIcon),
-                    ]),
-                    h(Typography, { color: 'inherit', type: 'subheading' }, '资料设置'),
-                ]),
-            ]),
+        let content = h(Grid, { container: true, className: css.page }, [
             h('div', { style: { height: 24 } }),
             h('div', { className: css.row }, [
                 h('div', { className: css.container }, [
@@ -147,6 +148,20 @@ class com extends Component {
                     }, '保 存'),
                 ]),
             ]),
+        ]);
+
+        let contentStyle = {
+            padding: 16,
+            height: that.state.contentHeight,
+            overflowY: 'auto',
+            paddingBottom: 128,
+        };
+        return h(Grid, { container: true, }, [
+            h(ModalBar, { title: that.state.title }),
+            h(Grid, { container: true, style: { height: 64 } }),
+            h(Grid, { container: true, justify: 'center' },
+                h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),
+            ),
         ]);
     }
 };

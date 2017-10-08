@@ -7,14 +7,11 @@ import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
-import IconButton from 'material-ui/IconButton';
 import TextField from 'material-ui/TextField';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
-import Typography from 'material-ui/Typography';
-import ArrowBackIcon from 'material-ui-icons/ArrowBack';
 
 import _style from './_style';
+import ModalBar from '../../Units/MainAppBar/ModalBar';
+
 
 //元件
 class com extends Component {
@@ -22,14 +19,25 @@ class com extends Component {
     state = {
         iptPhone: null,
         iptPw: null,
+        title: '账号注册',
+        contentHeight: window.innerHeight - 48,
     };
 
-    //界面完成后的初始化函数-退出现有账号
     componentDidMount = async function() {
+        window.addEventListener('resize', this.setContentSize);
         if(global.$wd.auth().currentUser) {
             await global.$wd.auth().signOut();
         };
     };
+
+    setContentSize = () => {
+        this.setState({ contentHeight: window.innerHeight });
+    };
+
+    componentWillUnmount = () => {
+        window.removeEventListener('resize', this.setContentSize);
+    };
+
 
     //控制器-注册新用户
     hCreateUser = () => {
@@ -60,18 +68,7 @@ class com extends Component {
         let that = this;
         const css = that.props.classes;
 
-        return h(Grid, { container: true, className: css.page }, [
-            h(AppBar, { position: 'static', className: css.appBar }, [
-                h(Toolbar, { disableGutters: true, className: css.topBar }, [
-                    h(IconButton, {
-                        color: 'contrast',
-                        onClick: () => { global.$router.prevPage() },
-                    }, [
-                        h(ArrowBackIcon)
-                    ]),
-                    h(Typography, { color: 'inherit', type: 'subheading' }, '新账号注册'),
-                ]),
-            ]),
+        let content = h(Grid, { container: true }, [
             h('div', { className: css.title }, [
                 h(Button, {
                     className: css.titleTab + ' opc25 imid',
@@ -114,6 +111,20 @@ class com extends Component {
                     }, '注 册'),
                 ]),
             ]),
+        ]);
+
+        let contentStyle = {
+            padding: 16,
+            height: that.state.contentHeight,
+            overflowY: 'auto',
+            paddingBottom: 128,
+        };
+        return h(Grid, { container: true, }, [
+            h(ModalBar, { title: that.state.title }),
+            h(Grid, { container: true, style: { height: 64 } }),
+            h(Grid, { container: true, justify: 'center' },
+                h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),
+            ),
         ]);
     }
 };

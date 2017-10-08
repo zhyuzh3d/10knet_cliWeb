@@ -16,6 +16,7 @@ import style from './_style';
 class com extends Component {
     state = {
         assets: null,
+        title:'素材详情',
         contentHeight: window.innerHeight - 48,
     };
 
