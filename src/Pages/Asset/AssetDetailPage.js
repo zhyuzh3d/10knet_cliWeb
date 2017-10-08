@@ -40,34 +40,37 @@ class com extends Component {
 
         let content = h(Grid, {
             container: true,
-            style: { height: that.state.contentHeight, margin: 16, },
+            style: { height: that.state.contentHeight },
         }, [
-            h(Grid, {
-                container: true,
-                justify: 'center',
-                style: {
-                    height: that.state.contentHeight,
-                    overflowY: 'auto',
-                }
-            }, [
-                h(Grid, { item: true, xs: 12, md: 10, lg: 8 }, [
-                    h(AssetDetail, { assetId: assetId }),
-                ]),
-                h(Grid, { item: true, xs: 12, md: 10, lg: 8 }, [
-                    h('div', { className: css.postsLabel }, '最近跟帖'),
-                    h(PostList, { wdRef: `asset/${assetId}/post` }),
-                ]),
-            ]),
+            h(AssetDetail, { assetId: assetId }),
+            h('div', { className: css.postsLabel }, '最近跟帖'),
+            h(PostList, { wdRef: `asset/${assetId}/post` }),
         ]);
 
         //最终拼合
-        return h(Grid, { container: true }, [
-            h(NavBar, {
-                title: '素材详情',
-            }),
-            h(Grid, { container: true, style: { height: 64 } }),
-            content,
+        /*        return h(Grid, { container: true }, [
+                    h(NavBar, {
+                        title: '素材详情',
+                    }),
+                    h(Grid, { container: true, style: { height: 64 } }),
+                    content,
+                ]);*/
+
+        let contentStyle = {
+            padding: 16,
+            height: that.state.contentHeight,
+            overflowY: 'auto',
+            paddingBottom: 128,
+        };
+        return h(Grid, { container: true, }, [
+            h(NavBar, { title: that.state.title }),
+            h(Grid, { container: true, style: { height: 80 } }),
+            h(Grid, { container: true, justify: 'center' },
+                h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),
+            ),
         ]);
+
+
     }
 };
 

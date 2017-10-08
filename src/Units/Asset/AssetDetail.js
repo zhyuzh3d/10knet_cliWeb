@@ -40,15 +40,13 @@ class com extends Component {
         });
     };
 
-    componentWillUnmount = async function() {
-        this.wdAuthListen && this.wdAuthListen();
-    };
-
     //根据uid获取资源列表
+    wdDataRef = null;
+    wdDataListen = null;
     getAsset = (assetId) => {
         let that = this;
-        let ref = global.$wd.sync().ref(`asset/${assetId}`);
-        ref.on('value', (shot) => {
+        let ref = that.wdDataRef = global.$wd.sync().ref(`asset/${assetId}`);
+        that.wdDataListen = ref.on('value', (shot) => {
             let asset = shot.val();
             if(!asset) return;
             that.setState({ asset: asset });
@@ -60,16 +58,16 @@ class com extends Component {
 
     //取消野狗监听
     componentWillUnmount = () => {
-        let that = this;
-        let assetId = that.props.assetId;
-        if(assetId) global.$wd.sync().ref(`asset/${assetId}`).off('value');
+        try {
+            this.wdAuthListen && this.wdAuthListen();
+            this.wdDataListen && this.wdDataRef.off('value', this.wdDataListen);
+        } catch(err) {};
     };
 
     //删除asset，然后返回上一页
     removeAsset = (assetId) => {
         let ref = global.$wd.sync().ref(`asset/${assetId}`);
         ref.remove().then(() => {
-            global.$wd.sync().ref(`asset/${assetId}`).off('value');
             global.$snackbar.fn.show('删除成功', 2000);
             global.$router.prevPage();
         }).catch((err) => {
@@ -90,7 +88,7 @@ class com extends Component {
         const curUser = that.state.currentUser;
         if(curUser && curUser.uid === asset.author) isAuthor = true;
 
-        return h(Grid, { container: true, style: { padding: '0 16px' } }, [
+        return h(Grid, { container: true, style: { padding: '16px 32px' } }, [
             h(Grid, { item: true, xs: 12, className: css.detailTitle }, [
                 h(FontA, {
                     name: AssetTypes[asset.type || 'link'].icon,
@@ -129,7 +127,6 @@ class com extends Component {
                             text: '删除后将无法恢复',
                             okHandler: () => {
                                 that.removeAsset(assetId);
-                                global.$router.prevPage();
                             },
                         });
                     },

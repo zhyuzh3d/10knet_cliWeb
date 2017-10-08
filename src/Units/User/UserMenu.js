@@ -41,8 +41,13 @@ class com extends Component {
         let that = this;
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
-            if(!cuser) return;
-            global.$wd.sync().ref(`user/${cuser.uid}`).once('value', (shot) => {
+            if(!cuser) {
+                that.setState({ currentUser: null });
+                return;
+            };
+
+            let ref = global.$wd.sync().ref(`user/${cuser.uid}`);
+            ref.once('value', (shot) => {
                 cuser = merge(cuser, shot.val());
                 that.setState({ currentUser: cuser });
             });
@@ -50,7 +55,9 @@ class com extends Component {
     };
 
     componentWillUnmount = async function() {
-        this.wdAuthListen && this.wdAuthListen();
+        try {
+            this.wdAuthListen && this.wdAuthListen();
+        } catch(err) {};
     };
 
 
@@ -74,6 +81,13 @@ class com extends Component {
 
         //用户头像下拉菜单
         let userMenuArr = [
+            !that.state.currentUser ? h(MenuItem, {
+                onClick: () => {
+                    global.$router.changePage('LoginPage', {
+                        successPage: global.$router.currentPage,
+                    });
+                },
+            }, '登录注册') : undefined,
             h(MenuItem, {
                 disabled: !that.state.currentUser,
                 onClick: () => {

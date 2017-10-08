@@ -37,7 +37,6 @@ const styles = theme => ({
         background: '#EEE',
     },
     detailTitle: {
-        marginTop: theme.spacing.unit * 2,
         flex: 1,
         fontSize: '1rem',
         lineHeight: '1.5rem',

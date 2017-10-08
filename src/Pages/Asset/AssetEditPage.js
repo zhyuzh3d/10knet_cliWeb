@@ -4,15 +4,14 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import style from './_style';
-import ModalBar from '../../Units/MainAppBar/ModalBar';
 import MyUpload from '../../Utils/MyUpload';
+import NavBar from '../../Units/MainAppBar/NavBar';
 
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 import Menu, { MenuItem } from 'material-ui/Menu';
 import FontA from 'react-fa';
-
 
 //元件
 class com extends Component {
@@ -63,11 +62,13 @@ class com extends Component {
         if(assetId) {
             global.$wd.sync().ref(`asset/${assetId}`).update(newAsset).then((res) => {
                 global.$snackbar.fn.show('保存成功', 2000);
+                global.$router.prevPage();
             });
         } else {
             global.$wd.sync().ref('asset').push(newAsset).then((res) => {
                 that.state.assetId = res.key();
                 global.$snackbar.fn.show('创建成功，可继续编辑或返回', 2000);
+                global.$router.prevPage();
             });
         }
     };
@@ -77,9 +78,8 @@ class com extends Component {
     //界面完成后的初始化函数:判断用户是否登录，创建userMenu
     componentDidMount = async function() {
         let that = this;
-        window.addEventListener('resize', () => {
-            that.setState({ contentHeight: window.innerHeight - 48 });
-        });
+        window.addEventListener('resize', this.setContentSize);
+
         that.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             if(global.$wd.auth().currentUser) that.setState({ hasLogin: true })
         });
@@ -101,8 +101,13 @@ class com extends Component {
         });
     };
 
+    setContentSize = () => {
+        this.setState({ contentHeight: window.innerHeight });
+    };
+
     componentWillUnmount = async function() {
         this.wdAuthListen && this.wdAuthListen();
+        window.removeEventListener('resize', this.setContentSize);
     };
 
     //检查url是否可以显示的图片
@@ -278,13 +283,20 @@ class com extends Component {
         ];
 
         //最终拼合
-        return h(Grid, { container: true, className: css.page }, [
-            h(ModalBar, { title: that.state.title }),
-            h('div', { style: { height: 48 } }),
-            h(Grid, { container: true, justify: 'center' }, [
-                h(Grid, { item: true, xs: 10, sm: 8 }, content),
-            ]),
+        let contentStyle = {
+            padding: 32,
+            height: that.state.contentHeight,
+            overflowY: 'auto',
+            paddingBottom: 128,
+        };
+        return h(Grid, { container: true, }, [
+            h(NavBar, { title: that.state.title }),
+            h(Grid, { container: true, style: { height: 64 } }),
+            h(Grid, { container: true, justify: 'center' },
+                h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),
+            ),
         ]);
+
     }
 };
 

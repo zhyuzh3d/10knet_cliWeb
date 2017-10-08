@@ -18,19 +18,18 @@ import UserButton from '../../Units/User/UserButton';
 const style = theme => ({
     post: {
         borderBottom: '1px solid #EEE',
-        padding: '0 8px',
-        margin: '0 8px',
+        padding: 0,
+        margin: 0,
+        paddingBottom: 16,
     },
     infoLine: {
         paddingBottom: 0,
     },
     txtLine: {
-        marginTop: -12,
         fontSize: '0.9rem',
         color: '#333',
     },
     urlLine: {
-        marginTop: -12,
         position: 'relative',
     },
     img: {
@@ -75,17 +74,39 @@ class com extends Component {
         let post = that.props.post || {};
 
         return h(Grid, { container: true, className: css.post }, [
-            h(Grid, { item: true, xs: 12, className: css.infoLine }, [
+            h(Grid, {
+                item: true,
+                xs: 12,
+                className: css.infoLine,
+                style: {
+                    padding: '8px 40px 8px 40px',
+                }
+            }, [
                 h(UserButton, { userId: post ? post.author : null }),
                 h(Moment, {
                     className: css.time,
                     format: 'YYYY-MM-DD hh:mm:ss'
                 }, post.ts),
             ]),
-            h(Grid, { item: true, xs: 12, className: css.txtLine }, [
+            h(Grid, {
+                item: true,
+                xs: 12,
+                className: css.txtLine,
+                style: {
+                    padding: '4px 40px',
+                }
+            }, [
                 h('div', {}, post.text || '他什么也没写...'),
             ]),
-            post.url ? h(Grid, { item: true, xs: 12, className: css.urlLine }, [
+            post.url ? h(Grid, {
+                item: true,
+                xs: 12,
+                className: css.urlLine,
+                style: {
+                    padding: '4px 40px',
+                    marginBottom:-4,
+                }
+            }, [
                 global.$conf.regx.imgFile.test(post.url) ? h('img', {
                     className: css.img,
                     src: post.url,

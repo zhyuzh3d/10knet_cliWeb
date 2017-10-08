@@ -7,13 +7,6 @@ import style from './_style';
 
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
-//import Toolbar from 'material-ui/Toolbar';
-//import IconButton from 'material-ui/IconButton';
-//import FontA from 'react-fa';
-//import Tooltip from 'material-ui/Tooltip';
-//import Typography from 'material-ui/Typography';
-//import Menu, { MenuItem } from 'material-ui/Menu';
-//import Avatar from 'material-ui/Avatar';
 
 import MainAppBar from '../../Units/MainAppBar/MainAppBar';
 

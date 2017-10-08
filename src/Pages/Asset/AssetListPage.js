@@ -12,32 +12,45 @@ import style from './_style';
 //元件
 class com extends Component {
     state = {
+        title: '素材列表',
         assets: null,
+        contentHeight: window.innerHeight - 48,
     };
 
-    //界面生成之前，读取数据
-    componentWillMount = async function() {};
+    componentDidMount = async function() {
+        window.addEventListener('resize', this.setContentSize);
+    };
 
-    //界面完成后的初始化函数-退出现有账号
-    componentDidMount = async function() {};
+    setContentSize = () => {
+        this.setState({ contentHeight: window.innerHeight });
+    };
+
+    componentWillUnmount = () => {
+        window.removeEventListener('resize', this.setContentSize);
+    };
+
 
     //渲染实现
     render() {
         let that = this;
-        const css = that.props.classes;
         var userId = global.$store('AssetListPage', 'userId');
 
-        //最终拼合
-        return h(Grid, { container: true, className: css.page }, [
-            h(NavBar, {
-                title: '素材列表',
-            }),
-            h('div', { style: { height: 48 } }),
-            h(Grid, { container: true, justify: 'center' }, [
-                h(Grid, { item: true, xs: 12, md: 10, lg: 8 }, h(AssetList, {
-                    uid: userId,
-                })),
-            ]),
+        let content = h(AssetList, {
+            uid: userId,
+        });
+
+        let contentStyle = {
+            padding: 16,
+            height: that.state.contentHeight,
+            overflowY: 'auto',
+            paddingBottom: 128,
+        };
+        return h(Grid, { container: true, }, [
+            h(NavBar, { title: that.state.title }),
+            h(Grid, { container: true, style: { height: 64 } }),
+            h(Grid, { container: true, justify: 'center' },
+                h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),
+            ),
         ]);
     }
 };

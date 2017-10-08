@@ -57,7 +57,7 @@ const styles = theme => ({
     postsLabel: {
         fontSize: '0.8rem',
         color: '#888',
-        margin:16,
+        margin:'16px 32px',
     },
 });
 

@@ -31,15 +31,16 @@ class com extends Component {
         currentUser: null,
     };
 
-    wdAuthListen = null;
 
     //界面完成后的初始化函数:判断用户是否登录，创建userMenu
+    wdAuthListen = null;
     componentDidMount = async function() {
         let that = this;
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
             if(!cuser) return;
-            global.$wd.sync().ref(`user/${cuser.uid}`).once('value', (shot) => {
+            let ref = global.$wd.sync().ref(`user/${cuser.uid}`)
+            ref.once('value', (shot) => {
                 cuser = merge(cuser, shot.val());
                 that.setState({ currentUser: cuser });
             });
@@ -47,7 +48,9 @@ class com extends Component {
     };
 
     componentWillUnmount = async function() {
-        this.wdAuthListen && this.wdAuthListen();
+        try {
+            this.wdAuthListen && this.wdAuthListen();
+        } catch(err) {};
     };
 
     //渲染实现
@@ -69,7 +72,7 @@ class com extends Component {
                         onClick: (evt) => {
                             global.$router.prevPage();
                         }
-                    }, h(FontA, { name: 'chevron-left' })),
+                    }, h(FontA, { name: 'angle-left' })),
                     h(ButtonBase, {
                         className: css.baseButton,
                         onClick: (evt) => {

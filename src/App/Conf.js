@@ -12,7 +12,7 @@ let ConfBase = {
         pw: /^[\S]{6,32}$/,
         nick: /^[\S]{1,16}$/,
         assetUrl: /^https?:\/\//,
-        assetTitle: /^.{3,64}/,
+        assetTitle: /^.{0,64}/,
         assetDesc: /^[\s\S]{0,256}/,
         imgFile: /^.+(?:.[pP][nN][gG]|.[jJ][pP][eE]?[gG]|.[gG][iI][fF])$/,
         videoFile: /^.+(?:.[mM][pP]4)$/,

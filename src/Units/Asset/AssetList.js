@@ -102,7 +102,7 @@ class com extends Component {
                             item: true,
                             className: css.assetText,
                         }, [
-                            h('div', { className: css.assetTitle }, item.title),
+                            h('div', { className: css.assetTitle }, item.title||'未标题...'),
                             h(Moment, {
                                 className: css.assetTime,
                                 format: 'YY.MMDD.hhmm'
