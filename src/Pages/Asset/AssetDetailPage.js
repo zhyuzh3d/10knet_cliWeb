@@ -36,23 +36,6 @@ class com extends Component {
         const css = that.props.classes;
         var assetId = global.$store('AssetDetailPage', 'assetId');
 
-        //最终拼合
-        let aa = h(Grid, { container: true }, [
-            h(NavBar, {
-                title: '素材详情',
-            }),
-            h('div', { style: { height: 48 } }),
-            h(Grid, { container: true, justify: 'center' }, [
-                h(Grid, { item: true, xs: 12, md: 10, lg: 8 }, [
-                    h(AssetDetail, { assetId: assetId }),
-                ]),
-                h(Grid, { item: true, xs: 12, md: 10, lg: 8, style: { marginLeft: -30 } }, [
-                    h('div', { className: css.postsLabel }, '最近跟帖'),
-                    h(PostList, { wdRef: `asset/${assetId}/post` }),
-                ]),
-            ]),
-        ]);
-
         let content = h(Grid, {
             container: true,
             style: { height: that.state.contentHeight, margin: 16, },

@@ -45,7 +45,7 @@ const styles = theme => ({
     },
     detailDesc: {
         marginBottom: theme.spacing.unit,
-        fontSize: '0.8rem',
+        fontSize: '0.9rem',
         lineHeight: '1.4rem',
         color: '#666',
         textAlign: 'justify',

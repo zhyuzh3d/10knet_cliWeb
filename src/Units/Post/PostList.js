@@ -11,12 +11,7 @@ import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
-import Toolbar from 'material-ui/Toolbar';
-import TextField from 'material-ui/TextField';
-import ButtonBase from 'material-ui/ButtonBase';
-import List, { ListItem } from 'material-ui/List';
 import FontA from 'react-fa';
-import Moment from 'react-moment';
 
 import Post from '../../Units/Post/Post';
 import MyUpload from '../../Utils/MyUpload';
@@ -73,30 +68,31 @@ class com extends Component {
 
     wdAuthListen = null;
     wdDataListen = null;
+    wdDataRef = null;
     componentDidMount = async function() {
         let that = this;
         const wdRef = that.props.wdRef;
         if(!wdRef) return;
 
         //读取跟帖数据
-        let ref = global.$wd.sync().ref(wdRef);
+        let ref = that.wdDataRef = global.$wd.sync().ref(wdRef);
         let query = ref.orderByChild('ts').limitToFirst(10);
         that.wdDataListen = query.on('value', (shot) => {
             let posts = shot.val();
-            that.setState({ posts: shot.val() });
+            that.setState({ posts: posts });
         });
-
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
             if(!cuser) return;
             that.setState({ currentUser: cuser });
         });
-
     };
 
     componentWillUnmount = () => {
-        this.wdAuthListen && this.wdAuthListen();
-        this.wdDataListen && this.wdDataListen.off('value');
+        try {
+            this.wdAuthListen();
+            this.wdDataRef.off('value', this.wdDataListen);
+        } catch(err) {};
     };
 
 
@@ -151,7 +147,6 @@ class com extends Component {
     render() {
         let that = this;
         const css = that.props.classes;
-        let ref = that.props.ref;
 
         let itemArr = [];
         let posts = that.state.posts || {};
