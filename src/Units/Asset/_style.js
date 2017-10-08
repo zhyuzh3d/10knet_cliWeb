@@ -50,7 +50,7 @@ const styles = theme => ({
         color: '#666',
         textAlign: 'justify',
         letterSpacing: '0.05rem',
-        fontWeight: 200,
+        fontWeight: 400,
     },
     detailInfo: {
         paddingBottom: 0,

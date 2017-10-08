@@ -90,7 +90,7 @@ class com extends Component {
         const curUser = that.state.currentUser;
         if(curUser && curUser.uid === asset.author) isAuthor = true;
 
-        return h(Grid, { container: true, style: { padding: 16 } }, [
+        return h(Grid, { container: true, style: { padding: '0 16px' } }, [
             h(Grid, { item: true, xs: 12, className: css.detailTitle }, [
                 h(FontA, {
                     name: AssetTypes[asset.type || 'link'].icon,

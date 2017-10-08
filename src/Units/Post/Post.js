@@ -18,8 +18,8 @@ import UserButton from '../../Units/User/UserButton';
 const style = theme => ({
     post: {
         borderBottom: '1px solid #EEE',
-        padding: '4px 8px',
-        margin: 0,
+        padding: '0 8px',
+        margin: '0 8px',
     },
     infoLine: {
         paddingBottom: 0,

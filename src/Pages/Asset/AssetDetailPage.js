@@ -16,13 +16,19 @@ import style from './_style';
 class com extends Component {
     state = {
         assets: null,
+        contentHeight: window.innerHeight - 48,
     };
 
     //界面生成之前，读取数据
     componentWillMount = async function() {};
 
     //界面完成后的初始化函数-退出现有账号
-    componentDidMount = async function() {};
+    componentDidMount = async function() {
+        let that = this;
+        window.addEventListener('resize', () => {
+            that.setState({ contentHeight: window.innerHeight });
+        });
+    };
 
     //渲染实现
     render() {
@@ -31,7 +37,7 @@ class com extends Component {
         var assetId = global.$store('AssetDetailPage', 'assetId');
 
         //最终拼合
-        return h(Grid, { container: true, className: css.page }, [
+        let aa = h(Grid, { container: true }, [
             h(NavBar, {
                 title: '素材详情',
             }),
@@ -40,11 +46,42 @@ class com extends Component {
                 h(Grid, { item: true, xs: 12, md: 10, lg: 8 }, [
                     h(AssetDetail, { assetId: assetId }),
                 ]),
+                h(Grid, { item: true, xs: 12, md: 10, lg: 8, style: { marginLeft: -30 } }, [
+                    h('div', { className: css.postsLabel }, '最近跟帖'),
+                    h(PostList, { wdRef: `asset/${assetId}/post` }),
+                ]),
             ]),
-            h('div', { className: css.postsLabel }, '最近跟帖'),
-            h(Grid, { style: { marginLeft: -16 } }, [
-                h(PostList, { wdRef: `asset/${assetId}/post` }),
+        ]);
+
+        let content = h(Grid, {
+            container: true,
+            style: { height: that.state.contentHeight, margin: 16, },
+        }, [
+            h(Grid, {
+                container: true,
+                justify: 'center',
+                style: {
+                    height: that.state.contentHeight,
+                    overflowY: 'auto',
+                }
+            }, [
+                h(Grid, { item: true, xs: 12, md: 10, lg: 8 }, [
+                    h(AssetDetail, { assetId: assetId }),
+                ]),
+                h(Grid, { item: true, xs: 12, md: 10, lg: 8 }, [
+                    h('div', { className: css.postsLabel }, '最近跟帖'),
+                    h(PostList, { wdRef: `asset/${assetId}/post` }),
+                ]),
             ]),
+        ]);
+
+        //最终拼合
+        return h(Grid, { container: true }, [
+            h(NavBar, {
+                title: '素材详情',
+            }),
+            h(Grid, { container: true, style: { height: 64 } }),
+            content,
         ]);
     }
 };

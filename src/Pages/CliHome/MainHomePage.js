@@ -48,7 +48,6 @@ class com extends Component {
             container: true,
             style: { height: that.state.contentHeight, overflow: 'auto' },
         }, [
-
             h(Grid, { item: true }, [
                 h(Button, {
                     raised: true,

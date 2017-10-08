@@ -22,6 +22,7 @@ import Post from '../../Units/Post/Post';
 import MyUpload from '../../Utils/MyUpload';
 
 const style = theme => ({
+
     newPost: {
         width: '100%',
         background: '#EEE',
@@ -221,9 +222,7 @@ class com extends Component {
 
         return h(Grid, {
             container: true,
-            style: {
-                margin: '0 16px',
-            }
+            style: { marginBottom: 64 }
         }, itemArr);
     }
 };
