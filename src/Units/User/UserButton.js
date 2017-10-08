@@ -57,8 +57,13 @@ class com extends Component {
         user: {},
     };
 
-    //界面生成之前，读取数据
+    //参数变更时候
     componentWillReceiveProps = async function() {
+        this.getUserInfo();
+    };
+
+    //获取用户基本信息
+    getUserInfo = () => {
         let that = this;
         let userId = that.props.userId;
         global.$wd.sync().ref(`user/${userId}`).once('value', (shot) => {
@@ -68,7 +73,9 @@ class com extends Component {
     };
 
     //界面完成后的初始化函数-退出现有账号
-    componentDidMount = async function() {};
+    componentDidMount = async function() {
+        this.getUserInfo();
+    };
 
     //渲染实现
     render() {

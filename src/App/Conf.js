@@ -14,6 +14,10 @@ let ConfBase = {
         assetUrl: /^https?:\/\//,
         assetTitle: /^.{3,64}/,
         assetDesc: /^[\s\S]{0,256}/,
+        imgFile: /^.+(?:.[pP][nN][gG]|.[jJ][pP][eE]?[gG]|.[gG][iI][fF])$/,
+        videoFile: /^.+(?:.[mM][pP]4)$/,
+        postText:/^.{0,64}/,
+        postUrl:/^https?:\/\//,
     },
     assetTypes: {
         link: {

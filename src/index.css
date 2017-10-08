@@ -10,6 +10,11 @@ body {
     overflow: hidden;
 }
 
+input:focus {
+    box-shadow: none;
+    outline: none;
+}
+
 #root {
     position: absolute;
     margin: 0;

@@ -121,7 +121,6 @@ class MyComponent extends Component {
                     label: that.state.inputLabel,
                     placeholder: that.state.inputTip,
                     helperText: that.state.inputTip,
-                    autoComplete: "tel",
                     value: that.state.inputValue,
                     onChange: (e) => {
                         var val = e.target.value;

@@ -46,9 +46,9 @@ const styles = theme => ({
     detailDesc: {
         marginBottom: theme.spacing.unit,
         fontSize: '0.8rem',
-        lineHeight:'1.4rem',
+        lineHeight: '1.4rem',
         color: '#666',
-        textAlign:'justify',
+        textAlign: 'justify',
         letterSpacing: '0.05rem',
         fontWeight: 200,
     },
@@ -58,6 +58,15 @@ const styles = theme => ({
     },
     contentBtn: {
         marginRight: theme.spacing.unit,
+    },
+    addIcon: {
+        fontSize: '1.2rem',
+    },
+    addFab: {
+        margin: theme.spacing.unit,
+        position: 'fixed',
+        bottom: theme.spacing.unit * 5,
+        right: theme.spacing.unit * 2,
     },
 });
 

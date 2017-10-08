@@ -10,6 +10,8 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
+import Button from 'material-ui/Button';
+import AddIcon from 'material-ui-icons/Add';
 import List, { ListItem } from 'material-ui/List';
 import FontA from 'react-fa';
 import Moment from 'react-moment';
@@ -20,6 +22,7 @@ import style from './_style';
 class com extends Component {
     state = {
         assets: null,
+        isCurrentUser: false,
     };
 
     wdAuthListen = null;
@@ -33,6 +36,9 @@ class com extends Component {
             let curUser = global.$wd.auth().currentUser;
             if(curUser && !userId) {
                 userId = curUser.uid;
+            };
+            if(curUser && userId === curUser.uid) {
+                that.setState({ isCurrentUser: true });
             };
             if(userId) that.getAssets(userId);
         });
@@ -68,8 +74,8 @@ class com extends Component {
         ]);
         let assets = that.state.assets;
 
+        assetElArr = [];
         if(assets) {
-            assetElArr = [];
             let assetsArr = [];
             for(var key in assets) {
                 assets[key].id = key;
@@ -111,6 +117,21 @@ class com extends Component {
                 assetElArr.push(el);
                 assetElArr.push(h('div', { className: css.divider }));
             });
+        };
+
+        //新增按钮
+        if(that.state.isCurrentUser) {
+            assetElArr.push(
+                h(Button, {
+                    fab: true,
+                    color: 'accent',
+                    className: css.addFab,
+                    onClick: () => {
+                        global.$storeRemove('AssetEditPage', 'assetId');
+                        global.$router.changePage('AssetEditPage');
+                    },
+                }, h(AddIcon, { className: css.addIcon }))
+            );
         };
 
         return h(List, { style: { padding: 0 } }, assetElArr);

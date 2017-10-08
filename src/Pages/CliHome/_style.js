@@ -4,13 +4,12 @@ const styles = theme => ({
         margin: 0,
         height: '100%',
         width: '100%',
-        overflowY: 'auto',
+        overflowY: 'hidden',
         display: 'block',
     },
     content: {
         margin: 0,
         flex: 1,
-        padding:16,
     },
 });
 

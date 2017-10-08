@@ -105,13 +105,10 @@ class com extends Component {
         this.wdAuthListen && this.wdAuthListen();
     };
 
-
-
-
     //检查url是否可以显示的图片
     isImageUrl = (str) => {
         if(!str) return false;
-        let regx = /^.+(?:.[pP][nN][gG]|.[jJ][pP][eE]?[gG]|.[gG][iI][fF])$/;
+        let regx = global.$conf.regx.imgFile;
         return regx.test(str);
     };
 
@@ -186,7 +183,7 @@ class com extends Component {
                h(MyUpload, {
                     freeze: 10,
                     style: { padding: 1, background: '#FAFAFA' },
-                    nameRegx: '^.+(?:.[pP][nN][gG]|.[jJ][pP][eE]?[gG]|.[gG][iI][fF])$',
+                    nameRegx: global.$conf.regx.imgFile,
                     children: h('img', {
                         className: css.img,
                         src: that.state.assetUrl && that.isImageUrl(that.state.assetUrl) ? `${that.state.assetUrl}-scale512` : global.$conf.defaultIcon,
@@ -231,7 +228,7 @@ class com extends Component {
                h(MyUpload, {
                     freeze: 10,
                     raised: true,
-                    nameRegx: '^.+(?:.[mM][pP]4)$',
+                    nameRegx: global.$conf.regx.videoFile,
                     children: h('div', {}, [
                         h(FontA, { name: 'cloud-upload' }),
                         h('span', {
