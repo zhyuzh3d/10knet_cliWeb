@@ -31,13 +31,12 @@ class com extends Component {
         currentUser: null,
     };
 
-    //界面初始化之前的函数
-    componentWillMount = async function() {};
+    wdAuthListen = null;
 
     //界面完成后的初始化函数:判断用户是否登录，创建userMenu
     componentDidMount = async function() {
         let that = this;
-        global.$wd.auth().onAuthStateChanged(function(user) {
+        this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
             if(!cuser) return;
             global.$wd.sync().ref(`user/${cuser.uid}`).once('value', (shot) => {
@@ -45,6 +44,10 @@ class com extends Component {
                 that.setState({ currentUser: cuser });
             });
         });
+    };
+
+    componentWillUnmount = async function() {
+        this.wdAuthListen && this.wdAuthListen();
     };
 
     //渲染实现

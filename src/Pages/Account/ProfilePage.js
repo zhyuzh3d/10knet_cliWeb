@@ -27,10 +27,12 @@ class com extends Component {
         nick: '',
     };
 
+    wdAuthListen = null;
+
     //界面完成后的初始化函数-更新用户已有图标到file
     componentWillMount = async function() {
         let that = this;
-        global.$wd.auth().onAuthStateChanged(function(user) {
+        this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
             if(!cuser) return;
             //合并user字段数据
@@ -45,6 +47,10 @@ class com extends Component {
             });
         });
     };
+    componentWillUnmount = async function() {
+        this.wdAuthListen && this.wdAuthListen();
+    };
+
 
     //控制器-注册新用户
     updateProfile = () => {

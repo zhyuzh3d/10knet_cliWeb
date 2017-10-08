@@ -114,9 +114,9 @@ class MyComponent extends Component {
             className: css.dialog,
         }, [
             h(DialogTitle, that.state.title),
-            that.state.useInput ? h(DialogContent, [
+            h(DialogContent, [
                 h(DialogContentText, that.state.text),
-                h(TextField, {
+                that.state.useInput ? h(TextField, {
                     className: css.textField,
                     label: that.state.inputLabel,
                     placeholder: that.state.inputTip,
@@ -131,8 +131,8 @@ class MyComponent extends Component {
                             btnDisabled: regx && !regx.test(val),
                         });
                     },
-                }),
-            ]) : undefined,
+                }) : undefined,
+            ]),
             h('div', [
                 h(Button, {
                     onClick: () => {

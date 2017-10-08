@@ -72,8 +72,7 @@ class com extends Component {
         }
     };
 
-    //界面初始化之前的函数:
-    componentWillMount = async function() {};
+    wdAuthListen = null;
 
     //界面完成后的初始化函数:判断用户是否登录，创建userMenu
     componentDidMount = async function() {
@@ -81,7 +80,7 @@ class com extends Component {
         window.addEventListener('resize', () => {
             that.setState({ contentHeight: window.innerHeight - 48 });
         });
-        global.$wd.auth().onAuthStateChanged(function(user) {
+        that.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             if(global.$wd.auth().currentUser) that.setState({ hasLogin: true })
         });
 
@@ -100,8 +99,14 @@ class com extends Component {
                 file: { name: asset.url },
             });
         });
-
     };
+
+    componentWillUnmount = async function() {
+        this.wdAuthListen && this.wdAuthListen();
+    };
+
+
+
 
     //检查url是否可以显示的图片
     isImageUrl = (str) => {

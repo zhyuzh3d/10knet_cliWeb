@@ -36,9 +36,10 @@ class com extends Component {
     };
 
     //界面生成之前，读取数据
+    wdAuthListen = null;
     componentWillMount = async function() {
         let that = this;
-        global.$wd.auth().onAuthStateChanged(function(user) {
+        this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
             if(!cuser) return;
             global.$wd.sync().ref(`user/${cuser.uid}`).once('value', (shot) => {
@@ -46,6 +47,10 @@ class com extends Component {
                 that.setState({ currentUser: cuser });
             });
         });
+    };
+
+    componentWillUnmount = async function() {
+        this.wdAuthListen && this.wdAuthListen();
     };
 
 

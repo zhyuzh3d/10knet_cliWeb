@@ -22,12 +22,14 @@ class com extends Component {
         assets: null,
     };
 
+    wdAuthListen = null;
+
     //界面生成之前，读取数据
     componentDidMount = async function() {
         let that = this;
         let userId = that.props.userId;
 
-        global.$wd.auth().onAuthStateChanged((user) => {
+        that.wdAuthListen = global.$wd.auth().onAuthStateChanged((user) => {
             let curUser = global.$wd.auth().currentUser;
             if(curUser && !userId) {
                 userId = curUser.uid;
@@ -35,7 +37,6 @@ class com extends Component {
             if(userId) that.getAssets(userId);
         });
     };
-
 
     //根据uid获取资源列表
     getAssets = (userId) => {
@@ -52,6 +53,7 @@ class com extends Component {
     componentWillUnmount = () => {
         let ref = global.$wd.sync().ref('asset')
         ref.off('value');
+        this.wdAuthListen && this.wdAuthListen();
     };
 
 

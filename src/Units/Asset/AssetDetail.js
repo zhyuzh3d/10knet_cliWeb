@@ -25,17 +25,23 @@ class com extends Component {
         author: {},
     };
 
+    wdAuthListen = null;
+
     //界面生成之前，读取数据
     componentDidMount = async function() {
         let that = this;
         let assetId = that.props.assetId;
         if(assetId) that.getAsset(assetId);
 
-        global.$wd.auth().onAuthStateChanged((user) => {
+        that.wdAuthListen = global.$wd.auth().onAuthStateChanged((user) => {
             if(global.$wd.auth().currentUser) {
                 that.setState({ currentUser: user });
             };
         });
+    };
+
+    componentWillUnmount = async function() {
+        this.wdAuthListen && this.wdAuthListen();
     };
 
     //根据uid获取资源列表
@@ -123,6 +129,7 @@ class com extends Component {
                             text: '删除后将无法恢复',
                             okHandler: () => {
                                 that.removeAsset(assetId);
+                                global.$router.prevPage();
                             },
                         });
                     },
