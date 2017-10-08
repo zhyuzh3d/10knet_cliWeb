@@ -19,15 +19,17 @@ class com extends Component {
         contentHeight: window.innerHeight - 48,
     };
 
-    //界面生成之前，读取数据
-    componentWillMount = async function() {};
 
-    //界面完成后的初始化函数-退出现有账号
     componentDidMount = async function() {
-        let that = this;
-        window.addEventListener('resize', () => {
-            that.setState({ contentHeight: window.innerHeight });
-        });
+        window.addEventListener('resize', this.setContentSize);
+    };
+
+    setContentSize = () => {
+        this.setState({ contentHeight: window.innerHeight });
+    };
+
+    componentWillUnmount = () => {
+        window.removeEventListener('resize', this.setContentSize);
     };
 
     //渲染实现
