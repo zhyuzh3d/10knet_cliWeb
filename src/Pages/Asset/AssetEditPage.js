@@ -86,7 +86,7 @@ class com extends Component {
         });
 
         //编辑状态读取asset信息
-        const assetId = global.$store('AssetAddPage', 'assetId');
+        const assetId = global.$store('AssetEditPage', 'assetId');
         if(!assetId) return;
         that.setState({ assetId: assetId });
 
@@ -279,8 +279,6 @@ class com extends Component {
         return h(Grid, { container: true, className: css.page }, [
             h(ModalBar, { title: that.state.title }),
             h('div', { style: { height: 48 } }),
-
-
             h(Grid, { container: true, justify: 'center' }, [
                 h(Grid, { item: true, xs: 10, sm: 8 }, content),
             ]),

@@ -12,12 +12,14 @@ import MyRouter from '../Utils/MyRouter'; //全局页面路由
 import MyStore from '../Utils/MyStore'; //全局页面路由
 import MySnackbar from '../Utils/MySnackbar'; //底部统一的提示
 import MyAlert from '../Utils/MyAlert'; //统一的警告弹窗
+import MyConfirm from '../Utils/MyConfirm'; //统一的确认弹窗
 
 //全局使用
 global.$router = MyRouter;
 global.$store = MyStore.store;
 global.$storeRemove = MyStore.storeRemove;
 global.$alert = MyAlert;
+global.$confirm = MyConfirm;
 global.$snackbar = MySnackbar;
 
 //野狗账号与数据存储
@@ -52,6 +54,7 @@ class App extends Component {
             h(that.state.currentPage),
             h(MySnackbar),
             h(MyAlert),
+            h(MyConfirm),
         ]));
     };
 };

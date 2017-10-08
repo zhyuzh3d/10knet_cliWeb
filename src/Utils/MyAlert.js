@@ -1,3 +1,7 @@
+/*
+弹窗警告元素，全局唯一使用
+输出函数$fn.show(title,text);
+*/
 import React from 'react';
 import { Component } from 'react';
 import h from 'react-hyperscript';

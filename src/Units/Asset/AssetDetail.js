@@ -61,7 +61,6 @@ class com extends Component {
 
     //删除asset，然后返回上一页
     removeAsset = (assetId) => {
-        let that = this;
         let ref = global.$wd.sync().ref(`asset/${assetId}`);
         ref.remove().then(() => {
             global.$wd.sync().ref(`asset/${assetId}`).off('value');
@@ -113,13 +112,19 @@ class com extends Component {
                 isAuthor ? h(Button, {
                     className: css.contentBtn,
                     onClick: () => {
-                        global.$router.changePage('AssetAddPage', { assetId: assetId });
+                        global.$router.changePage('AssetEditPage', { assetId: assetId });
                     },
                 }, '编辑') : undefined,
                 isAuthor ? h(Button, {
                     className: css.contentBtn,
                     onClick: () => {
-                        that.removeAsset(assetId);
+                        global.$confirm.fn.show({
+                            title: '警告！',
+                            text: '删除后将无法恢复',
+                            okHandler: () => {
+                                that.removeAsset(assetId);
+                            },
+                        });
                     },
                 }, '删除') : undefined,
             ]),

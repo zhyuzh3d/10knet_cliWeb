@@ -1,3 +1,7 @@
+/*
+提示信息元素，全局唯一使用
+输出函数$fn.show(element／title, duration);
+*/
 import React from 'react';
 import { Component } from 'react';
 import h from 'react-hyperscript';
@@ -20,16 +24,16 @@ class MyComponent extends Component {
     }
 
     //打开底部的提示
-    show = $fn.show = (ele, dur) => {
+    show = $fn.show = (element, duration) => {
         this.setState({
             open: true,
-            element: ele,
-            duration: dur || 3000,
+            element: element,
+            duration: duration || 3000,
         });
     };
 
     //关闭底部的提示
-    hide = $fn.hide = (ele) => {
+    hide = $fn.hide = () => {
         this.setState({
             open: false,
             element: null,

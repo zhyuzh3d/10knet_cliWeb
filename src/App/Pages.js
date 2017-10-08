@@ -8,7 +8,7 @@ import HomePage from '../Pages/Home/HomePage';
 
 import MainHomePage from '../Pages/CliHome/MainHomePage';
 import SlaveHomePage from '../Pages/CliHome/SlaveHomePage';
-import AssetAddPage from '../Pages/Asset/AssetAddPage';
+import AssetEditPage from '../Pages/Asset/AssetEditPage';
 import AssetDetailPage from '../Pages/Asset/AssetDetailPage';
 import AssetListPage from '../Pages/Asset/AssetListPage';
 
@@ -23,7 +23,7 @@ const pages = {
     HomePage,
     SlaveHomePage,
     MainHomePage,
-    AssetAddPage,
+    AssetEditPage,
     AssetDetailPage,
     AssetListPage,
     TestPage,

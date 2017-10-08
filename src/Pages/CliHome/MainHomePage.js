@@ -52,10 +52,29 @@ class com extends Component {
                 raised: true,
                 color: 'primary',
                 onClick: () => {
-                    global.$storeRemove('AssetAddPage', 'assetId');
-                    global.$router.changePage('AssetAddPage');
+                    global.$storeRemove('AssetEditPage', 'assetId');
+                    global.$router.changePage('AssetEditPage');
                 },
             }, '增加一个资源'),
+            h(Button, {
+                raised: true,
+                color: 'primary',
+                onClick: () => {
+                    global.$confirm.fn.show({
+                        title: '警告！',
+                        text: '删除后将无法恢复',
+                        input: {
+                            label: '测试坦诚',
+                            tip: '12字符',
+                            value: '11',
+                            regx: /^.{3,5}$/,
+                        },
+                        okHandler: (val) => {
+                            console.log('>>>confirm', val);
+                        },
+                    });
+                },
+            }, '确认弹窗'),
             h(Button, {
                 raised: true,
                 color: 'primary',
@@ -73,7 +92,6 @@ class com extends Component {
         ]);
     }
 };
-
 
 com.propTypes = {
     classes: PropTypes.object.isRequired,
