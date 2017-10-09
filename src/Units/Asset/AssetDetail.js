@@ -11,6 +11,7 @@ import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
+import IconButton from 'material-ui/IconButton';
 import FontA from 'react-fa';
 import Moment from 'react-moment';
 
@@ -113,13 +114,13 @@ class com extends Component {
                         window.open(asset.url);
                     },
                 }, '打开链接'),
-                isAuthor ? h(Button, {
+                isAuthor ? h(IconButton, {
                     className: css.contentBtn,
                     onClick: () => {
                         global.$router.changePage('AssetEditPage', { assetId: assetId });
                     },
-                }, '编辑') : undefined,
-                isAuthor ? h(Button, {
+                }, h(FontA,{name:'pencil'})) : undefined,
+                isAuthor ? h(IconButton, {
                     className: css.contentBtn,
                     onClick: () => {
                         global.$confirm.fn.show({
@@ -130,7 +131,7 @@ class com extends Component {
                             },
                         });
                     },
-                }, '删除') : undefined,
+                }, h(FontA,{name:'trash'})) : undefined,
             ]),
         ]);
     }

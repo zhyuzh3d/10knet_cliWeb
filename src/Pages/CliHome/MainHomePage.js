@@ -17,6 +17,15 @@ class com extends Component {
         snackbarOpen: false,
         title: '资源管理中心',
         contentHeight: window.innerHeight - 48,
+        currentUser: null,
+    };
+
+    componentWillMount = async function() {
+        let that = this;
+        this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
+            var cuser = global.$wd.auth().currentUser;
+            cuser && that.setState({ currentUser: cuser });
+        });
     };
 
     componentDidMount = async function() {
@@ -29,13 +38,14 @@ class com extends Component {
 
     componentWillUnmount = () => {
         window.removeEventListener('resize', this.setContentSize);
+
     };
 
     //渲染实现
     render() {
         document.getElementsByTagName('title')[0].innerHTML = '控制台';
         let that = this;
-        //const css = this.props.classes;
+
 
         //内容区
         let content = h(Grid, {

@@ -39,25 +39,28 @@ class MyComponent extends Component {
         open: false,
         title: null,
         text: null,
+        okHandler: undefined,
     };
 
 
     //打开底部的提示
-    show = $fn.show = (title, text) => {
+    show = $fn.show = (title, text, okHandler) => {
         this.setState({
             open: true,
             title: title || '...',
             text: text || '...',
+            okHandler: okHandler,
         });
     };
 
     //关闭底部的提示
-    hide = $fn.hide = (text) => {
+    hide = $fn.hide = () => {
         this.setState({
             open: false,
             title: null,
             text: null,
         });
+        this.state.okHandler && this.state.okHandler();
     };
 
     //渲染实现
