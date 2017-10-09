@@ -2,7 +2,8 @@
 任意用户头像和名称按钮，点击跳转到用户详情页面
 props:{
     userId:不能为空，
-    size:'xs,sm,md,lg'
+    size:'xs,sm,md,lg',
+    asButton:是否作为按钮使用，默认跳转到用户想详情页
 }
 */
 import { Component } from 'react';
@@ -49,6 +50,10 @@ const varSize = {
         img: 32,
         font: 16,
     },
+    xlg: {
+        img: 48,
+        font: 18,
+    },
 };
 
 //元件
@@ -82,13 +87,16 @@ class com extends Component {
         let that = this;
         const css = that.props.classes;
         let size = varSize[that.props.size || 'sm'];
+        let asBtn = that.props.asButton === false ? false : true;
         let user = that.state.user;
 
-        return h(ButtonBase, {
+        console.log('>>>asbtn', asBtn);
+
+        return h(asBtn ? ButtonBase : 'div', {
             className: css.user,
-            onClick: () => {
+            onClick: asBtn ? () => {
                 global.$router.changePage('UserDetailPage', { userId: user.uid });
-            },
+            } : undefined,
         }, [
             h('img', {
                 src: user.photoURL ? `http://${user.photoURL}-thumb64` : global.$conf.defaultIcon,

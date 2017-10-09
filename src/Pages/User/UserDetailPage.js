@@ -15,7 +15,6 @@ import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
 import NavBar from '../../Units/MainAppBar/NavBar';
-import AssetList from '../../Units/Asset/AssetList';
 import merge from 'deepmerge';
 
 const style = theme => ({
@@ -108,8 +107,8 @@ class com extends Component {
             return;
         };
 
-        global.$wd.sync().ref(`follow/${curUserId}/${userId}`).update({
-            ts: global.$wd.sync().ServerValue.TIMESTAMP
+        global.$wd.sync().ref(`follow/${curUserId}`).update({
+            [userId]: global.$wd.sync().ServerValue.TIMESTAMP,
         }).then((res) => {
             that.setState({ hasFollowed: true });
             global.$snackbar.fn.show('关注成功', 1000);
@@ -118,13 +117,29 @@ class com extends Component {
         });
     };
 
+    //关注此用户
+    unFollowUser = () => {
+        let that = this;
+        const userId = this.state.userId;
+        const curUserId = this.state.currentUser ? this.state.currentUser.uid : undefined;
+        if(!userId || !curUserId) {
+            global.$alert.show('您还没有登录，无法添加关注', '请登陆后再试');
+            return;
+        };
+
+        global.$wd.sync().ref(`follow/${curUserId}/${userId}`).remove().then((res) => {
+            that.setState({ hasFollowed: false });
+            global.$snackbar.fn.show('取消关注成功', 1000);
+        }).catch((err) => {
+            global.$snackbar.fn.show(`取消关注失败:${err.message}`, 3000);
+        });
+    };
 
 
     //渲染实现
     render() {
         let that = this;
         const css = this.props.classes;
-        var userId = global.$store('AssetListPage', 'userId');
         var uPhoto = that.state.user.photoURL ? `http://${that.state.user.photoURL}-thumb128` : global.$conf.defaultIcon;
 
         let content = h(Grid, { container: true, justify: 'center' }, [
@@ -135,20 +150,24 @@ class com extends Component {
                 }),
                 h('div', {
                     className: css.uName,
-                }, that.state.user.displayName),
+                }, that.state.user.displayName || '未知用户名'),
             ]),
             h(Grid, { item: true, xs: 12, className: css.btnBox }, [
                 h(Button, {
                     className: css.followBtn,
                     raised: true,
-                    color: 'accent',
-                    disabled: that.state.hasFollowed || !that.state.userId || !that.state.currentUser,
+                    color: that.state.hasFollowed ? 'default' : 'accent',
+                    disabled: !that.state.userId || !that.state.currentUser,
                     onClick: () => {
-                        that.followUser();
+                        if(that.state.hasFollowed) {
+                            that.unFollowUser();
+                        } else {
+                            that.followUser();
+                        };
                     },
                 }, [
                     h(FontA, { name: 'heart', style: { marginRight: 12 } }),
-                    h('span', '关注'),
+                    h('span', that.state.hasFollowed ? '取消关注' : '关注'),
                 ]),
                 h(Button, {
                     className: css.assetsBtn,

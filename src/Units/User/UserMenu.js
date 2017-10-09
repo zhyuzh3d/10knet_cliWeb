@@ -91,6 +91,22 @@ class com extends Component {
             h(MenuItem, {
                 disabled: !that.state.currentUser,
                 onClick: () => {
+                    global.$router.changePage('AssetListPage', {
+                        userId: that.state.currentUser.uid,
+                    });
+                },
+            }, '我的素材'),
+            h(MenuItem, {
+                disabled: !that.state.currentUser,
+                onClick: () => {
+                    global.$router.changePage('FollowListPage', {
+                        userId: that.state.currentUser.uid,
+                    });
+                },
+            }, '我的关注'),
+            h(MenuItem, {
+                disabled: !that.state.currentUser,
+                onClick: () => {
                     global.$router.changePage('ProfilePage', {
                         successPage: global.$router.currentPage,
                     });
