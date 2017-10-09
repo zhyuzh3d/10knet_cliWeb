@@ -7,12 +7,7 @@ import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
-import IconButton from 'material-ui/IconButton';
 import TextField from 'material-ui/TextField';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
-import Typography from 'material-ui/Typography';
-import ArrowBackIcon from 'material-ui-icons/ArrowBack';
 
 import MyUpload from '../../Utils/MyUpload';
 import _style from './_style';
