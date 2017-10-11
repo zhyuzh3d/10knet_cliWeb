@@ -4,22 +4,11 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
-import Button from 'material-ui/Button';
 
 import MainAppBar from '../../Units/MainAppBar/MainAppBar';
+import BasketList from '../../Units/Basket/BasketList';
 
-const style = theme => ({
-    myBtn: {
-        marginTop: 12,
-        height: 64,
-    },
-    myBox: {
-        marginTop: 24,
-    },
-    myBtnBox: {
-        textAlign: 'center',
-    },
-});
+const style = theme => ({});
 
 
 //元件
@@ -52,30 +41,7 @@ class com extends Component {
 
         //内容区
         let content = h(Grid, { container: true, justify: 'center', className: css.myBox }, [
-            h(Grid, { item: true, xs: 12, className: css.myBtnBox }, [
-                h(Button, {
-                    raised: true,
-                    color: 'primary',
-                    className: css.myBtn,
-                    onClick: () => {
-                        global.$router.changePage('AssetListPage', {
-                            userId: null,
-                        });
-                    },
-                }, '我的资源列表'),
-            ]),
-            h(Grid, { item: true, xs: 12, className: css.myBtnBox }, [
-                h(Button, {
-                    raised: true,
-                    color: 'primary',
-                    className: css.myBtn,
-                    onClick: () => {
-                        global.$router.changePage('FollowListPage', {
-                            userId: null,
-                        });
-                    },
-                }, '我的关注列表'),
-            ]),
+            h(BasketList),
         ]);
 
         //最终拼合

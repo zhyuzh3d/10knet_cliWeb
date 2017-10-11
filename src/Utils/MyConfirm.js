@@ -1,16 +1,16 @@
 /*
 弹窗警告元素，全局唯一使用
 输出函数$fn.show(opt:{
-title,
-text,
-okHandler(inputval),
-cancelHandler(inputval),
-input:{
-    label,
-    tip,
-    regx,正则表达式，非法则禁用确定按钮
-    value,
-}
+    title,
+    text,
+    okHandler(inputval),
+    cancelHandler(inputval),
+    input:{
+        label,
+        tip,
+        regx,正则表达式，非法则禁用确定按钮
+        value,
+    }
 });
 */
 import React from 'react';
@@ -71,8 +71,8 @@ class MyComponent extends Component {
         let that = this;
         that.setState({
             open: true,
-            title: opt.title || '...',
-            text: opt.text || '...',
+            title: opt.title || '',
+            text: opt.text || '',
             okHandler: opt.okHandler || that.emptyHandler,
             cancelHandler: opt.cancelHandler || that.emptyHandler,
             useInput: opt.input ? true : false,
