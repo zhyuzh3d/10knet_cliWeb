@@ -56,7 +56,7 @@ class com extends Component {
                 h(Button, {
                     raised: true,
                     color: 'primary',
-                    class: css.myBtn,
+                    className: css.myBtn,
                     onClick: () => {
                         global.$router.changePage('AssetListPage', {
                             userId: null,
@@ -68,7 +68,7 @@ class com extends Component {
                 h(Button, {
                     raised: true,
                     color: 'primary',
-                    class: css.myBtn,
+                    className: css.myBtn,
                     onClick: () => {
                         global.$router.changePage('FollowListPage', {
                             userId: null,

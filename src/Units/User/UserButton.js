@@ -90,8 +90,6 @@ class com extends Component {
         let asBtn = that.props.asButton === false ? false : true;
         let user = that.state.user;
 
-        console.log('>>>asbtn', asBtn);
-
         return h(asBtn ? ButtonBase : 'div', {
             className: css.user,
             onClick: asBtn ? () => {
