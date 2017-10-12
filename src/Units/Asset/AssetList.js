@@ -3,6 +3,7 @@
 props:{
     userId:如果为空则自动调取当前用户的uid使用
     wdRef:野狗数据参照路径,与userId不同时使用
+    basketId:当前打开的篮子Id，用于传递到添加素材页面
 }
 */
 import { Component } from 'react';
@@ -142,8 +143,10 @@ class com extends Component {
                     color: 'accent',
                     className: css.addFab,
                     onClick: () => {
-                        global.$storeRemove('AssetEditPage', 'assetId');
-                        global.$router.changePage('AssetEditPage');
+                        global.$storeRemove('BasketEditAssetPage', 'assetId');
+                        let basketId = that.props.basketId;
+                        let opt = that.props.basketId ? { baseketId: that.props.basketId } : {};
+                        global.$router.changePage('BasketEditAssetPage', opt);
                     },
                 }, h(AddIcon, { className: css.addIcon }))
             );

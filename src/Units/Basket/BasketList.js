@@ -27,7 +27,7 @@ const style = theme => ({
     },
     item: {
         padding: '8px 16px',
-        borderBottom:'1px solid #EEE',
+        borderBottom: '1px solid #EEE',
     },
     itemIcon: {
         margin: 8,
@@ -137,25 +137,37 @@ class com extends Component {
                     regx: /^.{2,32}$/,
                     value: '未命名',
                 },
-                okHandler: that.addItem,
+                okHandler: (ipt)=>{
+                    that.addItem(ipt);
+                },
             });
         };
     };
 
-    //新建项目写入数据库
+    //新建一个空项目，通过ref可以索引到基础信息,素材列表放在assets内,然后添加到用户索引
     addItem = (ipt) => {
-        let userId = this.state.userId;
-        let ref = global.$wd.sync().ref(`ubasket/${userId}`);
-        let newItem = {
-            title: ipt,
-            ts: global.$wd.sync().ServerValue.TIMESTAMP,
-        };
-        ref.push(newItem).then((res) => {
-            global.$snackbar.fn.show('创建成功', 2000);
+        let that = this;
+        let userId = that.state.userId;
+        let ref = global.$wd.sync().ref(`basket`);
+
+        ref.push({ author: userId }).then((res) => {
+            let newItem = {
+                title: ipt,
+                ref: `ubasket/${userId}`,
+                ts: global.$wd.sync().ServerValue.TIMESTAMP,
+            };
+
+            global.$wd.sync().ref(`ubasket/${userId}`).update({
+                [res.key()]: newItem
+            }).then((res) => {
+                global.$snackbar.fn.show('创建成功', 2000);
+            });
         }).catch((err) => {
             global.$snackbar.fn.show(`创建失败:${err.message}`, 3000);
         });
     };
+
+
 
     //渲染实现
     render() {
@@ -185,7 +197,10 @@ class com extends Component {
                         //window.open(item.url);
                         let userId = that.state.userId;
                         if(userId) {
-                            global.$router.changePage('AssetListPage', { wdRef: `ubasket/${userId}` });
+                            global.$router.changePage('BasketAssetListPage', {
+                                userId: null,
+                                wdRef: `basket/${userId}/${item.key}/assets`,
+                            });
                         };
                     },
                 }, [
