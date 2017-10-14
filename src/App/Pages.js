@@ -13,8 +13,6 @@ import AssetDetailPage from '../Pages/Asset/AssetDetailPage';
 import AssetListPage from '../Pages/Asset/AssetListPage';
 import UserDetailPage from '../Pages/User/UserDetailPage';
 import FollowListPage from '../Pages/User/FollowListPage';
-import BasketAssetListPage from '../Pages/Basket/BasketAssetListPage';
-import BasketEditAssetPage from '../Pages/Basket/BasketEditAssetPage';
 
 import TestPage from '../Pages/Temp/TestPage.jsx';
 
@@ -32,8 +30,6 @@ const pages = {
     AssetListPage,
     UserDetailPage,
     FollowListPage,
-    BasketAssetListPage,
-    BasketEditAssetPage,
     TestPage,
 };
 

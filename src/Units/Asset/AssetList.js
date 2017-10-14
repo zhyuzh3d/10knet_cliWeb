@@ -6,6 +6,7 @@ props:{
     basketId:当前打开的篮子Id，用于传递到添加素材页面
 }
 */
+
 import { Component } from 'react';
 import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
@@ -18,7 +19,54 @@ import List, { ListItem } from 'material-ui/List';
 import FontA from 'react-fa';
 import Moment from 'react-moment';
 
-import style from './_style';
+const style = theme => ({
+    loading: {
+        width: '100%',
+        textAlign: 'center',
+        fontSize: 18,
+        color: '#AAA',
+        marginTop: 64,
+    },
+    item: {
+        padding: '8px 16px',
+    },
+    itemIcon: {
+        margin: 8,
+    },
+    itemArrow: {
+        fontSize: 8,
+        color: '#AAA',
+    },
+    itemText: {
+        margin: 8,
+        flex: 1,
+    },
+    itemTitle: {
+        fontSize: '0.9rem',
+        fontWeight: 'bold',
+        color: '#333'
+    },
+    itemTime: {
+        fontSize: 8,
+        fontWeight: 200,
+        color: '#AAA',
+        verticalAlign: 'middle',
+    },
+    divider: {
+        width: '100%',
+        height: 1,
+        background: '#EEE',
+    },
+    addIcon: {
+        fontSize: '1.2rem',
+    },
+    addFab: {
+        margin: theme.spacing.unit,
+        position: 'fixed',
+        bottom: theme.spacing.unit * 5,
+        right: theme.spacing.unit * 2,
+    },
+});
 
 //元件
 class com extends Component {
@@ -64,7 +112,9 @@ class com extends Component {
     //根据wdRef获取资源列表
     getAssetsByRef = (wdRef) => {
         let that = this;
-        global.$wd.sync().ref(wdRef).on('value', (shot) => {
+        let ref = global.$wd.sync().ref(wdRef + '/arr');
+        let query = ref.limitToLast(100);
+        query.on('value', (shot) => {
             that.setState({ assets: shot.val() });
         });
     };
@@ -75,7 +125,7 @@ class com extends Component {
         global.$wd.sync().ref('asset').off('value');
         this.wdAuthListen && this.wdAuthListen();
         let wdRef = this.props.wdRef;
-        if(wdRef) global.$wd.sync().ref(wdRef).off('value');
+        if(wdRef) global.$wd.sync().ref(wdRef + '/arr').off('value');
     };
 
 
@@ -102,7 +152,7 @@ class com extends Component {
             assetsArr = assetsArr.sort((a, b) => { return b.ts - a.ts });
             assetsArr.forEach((item, index) => {
                 let el = h(ListItem, {
-                    className: css.asset,
+                    className: css.item,
                     button: true,
                     onClick: () => {
                         //window.open(item.url);
@@ -112,21 +162,21 @@ class com extends Component {
                     h(Grid, { container: true, align: 'center' }, [
                         h(Grid, {
                             item: true,
-                            className: css.assetIcon
+                            className: css.itemIcon
                         }, h(FontA, { name: AssetTypes[item.type].icon })),
                         h(Grid, {
                             item: true,
-                            className: css.assetText,
+                            className: css.itemText,
                         }, [
-                            h('div', { className: css.assetTitle }, item.title || '未标题...'),
+                            h('div', { className: css.itemTitle }, item.title || '未标题...'),
                             h(Moment, {
-                                className: css.assetTime,
+                                className: css.itemTime,
                                 format: 'YY.MMDD.hhmm'
                             }, item.ts),
                         ]),
                         h(Grid, {
                             item: true,
-                            className: css.assetIcon2
+                            className: css.itemArrow,
                         }, h(FontA, { name: 'chevron-right' })),
                     ]),
                 ]);
@@ -143,9 +193,10 @@ class com extends Component {
                     color: 'accent',
                     className: css.addFab,
                     onClick: () => {
-                        global.$storeRemove('BasketEditAssetPage', 'assetId');
-                        let opt = that.props.basketId ? { baseketId: that.props.basketId } : {};
-                        global.$router.changePage('BasketEditAssetPage', opt);
+                        global.$storeRemove('AssetEditPage', 'assetId');
+                        let basketId = that.props.basketId;
+                        let opt = basketId ? { basketId: basketId } : {};
+                        global.$router.changePage('AssetEditPage', opt);
                     },
                 }, h(AddIcon, { className: css.addIcon }))
             );

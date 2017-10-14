@@ -6,14 +6,13 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 
 import NavBar from '../../Units/MainAppBar/NavBar';
-import AssetList from '../../Units/Basket/AssetList';
-
-const style = theme => ({});
+import AssetList from '../../Units/Asset/AssetList';
+import style from './_style';
 
 //元件
 class com extends Component {
     state = {
-        title: '篮内素材列表',
+        title: '素材列表',
         assets: null,
         contentHeight: window.innerHeight - 48,
     };
@@ -34,16 +33,13 @@ class com extends Component {
     //渲染实现
     render() {
         let that = this;
-        let userId = global.$store('BasketAssetListPage', 'userId');
-        let wdRef = global.$store('BasketAssetListPage', 'wdRef');
-        let basketId = global.$store('BasketAssetListPage', 'basketId');
+        let userId = global.$store('AssetListPage', 'userId');
+        let wdRef = global.$store('AssetListPage', 'wdRef');
 
         let content = h(AssetList, {
             uid: userId,
             wdRef: wdRef,
-            basketId: basketId,
         });
-
 
         let contentStyle = {
             padding: 16,

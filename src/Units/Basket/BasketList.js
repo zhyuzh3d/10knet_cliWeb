@@ -197,7 +197,7 @@ class com extends Component {
                         //window.open(item.url);
                         let userId = that.state.userId;
                         if(userId) {
-                            global.$router.changePage('BasketAssetListPage', {
+                            global.$router.changePage('AssetListPage', {
                                 userId: null,
                                 wdRef: `basket/${item.id}`,
                                 basketId: item.id,

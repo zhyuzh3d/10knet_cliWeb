@@ -7,12 +7,13 @@ import Grid from 'material-ui/Grid';
 
 import NavBar from '../../Units/MainAppBar/NavBar';
 import AssetList from '../../Units/Asset/AssetList';
-import style from './_style';
+
+const style = theme => ({});
 
 //元件
 class com extends Component {
     state = {
-        title: '素材列表',
+        title: '篮内素材列表',
         assets: null,
         contentHeight: window.innerHeight - 48,
     };
@@ -35,11 +36,14 @@ class com extends Component {
         let that = this;
         let userId = global.$store('AssetListPage', 'userId');
         let wdRef = global.$store('AssetListPage', 'wdRef');
+        let basketId = global.$store('AssetListPage', 'basketId');
 
         let content = h(AssetList, {
             uid: userId,
             wdRef: wdRef,
+            basketId: basketId,
         });
+
 
         let contentStyle = {
             padding: 16,
