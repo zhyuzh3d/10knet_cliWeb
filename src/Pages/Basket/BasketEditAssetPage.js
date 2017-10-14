@@ -61,6 +61,7 @@ class com extends Component {
         assetVer: '',
         baksetArr: null,
         curBasket: null,
+        basketLock: false,
     };
 
 
@@ -113,12 +114,11 @@ class com extends Component {
 
         let assetId = that.state.assetId;
         let basketId = that.state.curBasket.key;
-        if(assetId) { //修改
+        if(assetId) { //修改basket内asset
             let ref = global.$wd.sync().ref(`basket/${basketId}/arr/${assetId}`);
             ref.update(newAsset).then((res) => {
-                let saveToSrc = that.state.saveToSrc;
                 if(that.state.saveToSrc) {
-                    that.saveAssetToSrc(newAsset, assetId); //同步
+                    that.saveAssetToSrc(newAsset, assetId); //同步到src
                 } else {
                     global.$snackbar.fn.show('修改成功', 2000);
                     global.$router.prevPage();
@@ -152,10 +152,8 @@ class com extends Component {
         }
     };
 
-    //保存asset复制品到ubasket/uidId/basketId
+    //保存asset复制品到src/assetId/his,这里的assetId是之前push生成的唯一key
     saveAssetToSrc = (assetId, newAsset) => {
-        let cuser = global.$wd.auth().currentUser;
-        let userId = cuser ? cuser.uid : null;
         delete newAsset.picker;
         delete newAsset.src;
 
@@ -175,6 +173,9 @@ class com extends Component {
     componentDidMount = async function() {
         let that = this;
         window.addEventListener('resize', this.setContentSize);
+
+        let basketId = global.$store('BasketEditAssetPage', 'basketId');
+        if(basketId) that.setState({ basketLock: true });
 
         that.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             let cuser = global.$wd.auth().currentUser;
@@ -200,7 +201,7 @@ class com extends Component {
     //获取asset信息
     getAsset = (userId, basketId, assetId) => {
         let that = this;
-        let ref = global.$wd.sync().ref(`ubasket/${userId}/${basketId}/${assetId}`).once('value', (shot) => {
+        global.$wd.sync().ref(`ubasket/${userId}/${basketId}/${assetId}`).once('value', (shot) => {
             var asset = shot.val();
             that.setState({
                 assetTitle: asset.title,
@@ -395,6 +396,7 @@ class com extends Component {
                 //篮子下拉
                 h(Button, {
                     raised: true,
+                    disabled: that.state.basketLock,
                     style: { marginRight: 4 },
                     onClick: (evt) => {
                         that.setState({
@@ -413,7 +415,7 @@ class com extends Component {
                     onRequestClose: () => { that.setState({ basketMenuOpen: false }) },
                 }, basketMenuArr),
 
-                h(Button, {
+                !that.state.basketLock ? h(Button, {
                     raised: true,
                     onClick: (evt) => {
                         that.showAdItemDialog();
@@ -421,8 +423,7 @@ class com extends Component {
                 }, [
                     h(FontA, { name: 'shopping-basket', style: { marginRight: 8 } }),
                     h('span', '新建'),
-                ]),
-
+                ]) : undefined,
             ]),
 
             //粘贴输入连接

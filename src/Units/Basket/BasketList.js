@@ -137,7 +137,7 @@ class com extends Component {
                     regx: /^.{2,32}$/,
                     value: '未命名',
                 },
-                okHandler: (ipt)=>{
+                okHandler: (ipt) => {
                     that.addItem(ipt);
                 },
             });
@@ -199,7 +199,8 @@ class com extends Component {
                         if(userId) {
                             global.$router.changePage('BasketAssetListPage', {
                                 userId: null,
-                                wdRef: `basket/${userId}/${item.key}/assets`,
+                                wdRef: `basket/${item.id}`,
+                                basketId: item.id,
                             });
                         };
                     },

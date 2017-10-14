@@ -6,7 +6,7 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 
 import NavBar from '../../Units/MainAppBar/NavBar';
-import AssetList from '../../Units/Asset/AssetList';
+import AssetList from '../../Units/Basket/AssetList';
 
 const style = theme => ({});
 
@@ -36,11 +36,14 @@ class com extends Component {
         let that = this;
         let userId = global.$store('BasketAssetListPage', 'userId');
         let wdRef = global.$store('BasketAssetListPage', 'wdRef');
+        let basketId = global.$store('BasketAssetListPage', 'basketId');
 
         let content = h(AssetList, {
             uid: userId,
             wdRef: wdRef,
+            basketId: basketId,
         });
+
 
         let contentStyle = {
             padding: 16,
