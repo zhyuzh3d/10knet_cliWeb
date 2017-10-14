@@ -83,7 +83,7 @@ class com extends Component {
     //检查是否已经关注过了
     checkForFollow = (currentUserId, userId) => {
         let that = this;
-        global.$wd.sync().ref(`follow/${currentUserId}/${userId}`).once('value', (shot) => {
+        global.$wd.sync().ref(`ufollow/${currentUserId}/${userId}`).once('value', (shot) => {
             !shot.val() && that.setState({ hasFollowed: false });
         });
     };
@@ -107,7 +107,7 @@ class com extends Component {
             return;
         };
 
-        global.$wd.sync().ref(`follow/${curUserId}`).update({
+        global.$wd.sync().ref(`ufollow/${curUserId}`).update({
             [userId]: global.$wd.sync().ServerValue.TIMESTAMP,
         }).then((res) => {
             that.setState({ hasFollowed: true });
@@ -127,7 +127,7 @@ class com extends Component {
             return;
         };
 
-        global.$wd.sync().ref(`follow/${curUserId}/${userId}`).remove().then((res) => {
+        global.$wd.sync().ref(`ufollow/${curUserId}/${userId}`).remove().then((res) => {
             that.setState({ hasFollowed: false });
             global.$snackbar.fn.show('取消关注成功', 1000);
         }).catch((err) => {

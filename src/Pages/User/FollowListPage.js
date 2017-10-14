@@ -87,7 +87,7 @@ class com extends Component {
     //获取user字段下的用户信息
     getFollowList = (userId) => {
         let that = this;
-        global.$wd.sync().ref(`follow/${userId}`).once('value', (shot) => {
+        global.$wd.sync().ref(`ufollow/${userId}`).once('value', (shot) => {
             let follows = shot.val();
             follows && that.setState({ follows: follows });
         });
