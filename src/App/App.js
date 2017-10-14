@@ -8,6 +8,7 @@ import Theme from './Theme'; //主题风格
 import Conf from './Conf'; //全局设置
 import Pages from './Pages'; //全局设置
 
+import MyFn from '../Utils/MyFn'; //统一的确认弹窗
 import MyRouter from '../Utils/MyRouter'; //全局页面路由
 import MyStore from '../Utils/MyStore'; //全局页面路由
 import MySnackbar from '../Utils/MySnackbar'; //底部统一的提示
@@ -15,6 +16,7 @@ import MyAlert from '../Utils/MyAlert'; //统一的警告弹窗
 import MyConfirm from '../Utils/MyConfirm'; //统一的确认弹窗
 
 //全局使用
+global.$fn = MyFn;
 global.$router = MyRouter;
 global.$store = MyStore.store;
 global.$storeRemove = MyStore.storeRemove;
@@ -28,7 +30,6 @@ global.$wd = wilddog;
 global.$wd.initializeApp(global.$conf.wd);
 
 //所有公用函数
-global.$fn = {};
 global.$xdata = {}; //穿越
 
 //App元素
@@ -43,6 +44,9 @@ class App extends Component {
         var urlObj = urlParser.parse(window.location.href);
         var pName = urlObj.path ? urlObj.path.base : '/MainHomePage';
         global.$router.changePage(pName);
+
+        //野狗自动登录
+        global.$currentUser = global.$wd.auth().currentUser;
     };
 
     //渲染实现

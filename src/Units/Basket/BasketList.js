@@ -13,9 +13,11 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import AddIcon from 'material-ui-icons/Add';
-import List, { ListItem } from 'material-ui/List';
+import List from 'material-ui/List';
 import FontA from 'react-fa';
-import Moment from 'react-moment';
+
+import BasketItem from '../../Units/Basket/BasketItem';
+
 
 const style = theme => ({
     loading: {
@@ -24,32 +26,6 @@ const style = theme => ({
         fontSize: 18,
         color: '#AAA',
         marginTop: 64,
-    },
-    item: {
-        padding: '8px 16px',
-        borderBottom: '1px solid #EEE',
-    },
-    itemIcon: {
-        margin: 8,
-    },
-    itemArrow: {
-        fontSize: 8,
-        color: '#AAA',
-    },
-    itemText: {
-        margin: 8,
-        flex: 1,
-    },
-    itemTitle: {
-        fontSize: '0.9rem',
-        fontWeight: 'bold',
-        color: '#333'
-    },
-    itemTime: {
-        fontSize: 8,
-        fontWeight: 200,
-        color: '#AAA',
-        verticalAlign: 'middle',
     },
     addFab: {
         margin: theme.spacing.unit,
@@ -62,6 +38,7 @@ const style = theme => ({
 //元件
 class com extends Component {
     state = {
+        currentUser: null,
         list: null,
         isCurrentUser: false,
     };
@@ -80,7 +57,10 @@ class com extends Component {
             let curUser = global.$wd.auth().currentUser;
             if(curUser && !userId) {
                 userId = curUser.uid;
-                that.setState({ userId: userId });
+                that.setState({
+                    userId: userId,
+                    currentUser: curUser
+                });
             };
             if(curUser && userId === curUser.uid) {
                 that.setState({ isCurrentUser: true });
@@ -122,7 +102,7 @@ class com extends Component {
 
 
     //显示弹窗添加项目
-    showAdItemDialog = () => {
+    showAddItemDialog = () => {
         let that = this;
         let userId = this.state.userId;
 
@@ -152,6 +132,7 @@ class com extends Component {
 
         ref.push({ author: userId }).then((res) => {
             let newItem = {
+                author: userId,
                 title: ipt,
                 ref: `ubasket/${userId}`,
                 ts: global.$wd.sync().ServerValue.TIMESTAMP,
@@ -166,7 +147,6 @@ class com extends Component {
             global.$snackbar.fn.show(`创建失败:${err.message}`, 3000);
         });
     };
-
 
 
     //渲染实现
@@ -188,44 +168,12 @@ class com extends Component {
             };
 
             //排序
-            itemArr = itemArr.sort((a, b) => { return b.ts - a.ts });
+            itemArr = itemArr.sort(global.$fn.sortByTopTs);
             itemArr.forEach((item, index) => {
-                let el = h(ListItem, {
-                    className: css.item,
-                    button: true,
-                    onClick: () => {
-                        //window.open(item.url);
-                        let userId = that.state.userId;
-                        if(userId) {
-                            global.$router.changePage('AssetListPage', {
-                                userId: null,
-                                wdRef: `basket/${item.id}`,
-                                basketId: item.id,
-                            });
-                        };
-                    },
-                }, [
-                    h(Grid, { container: true, align: 'center' }, [
-                        h(Grid, {
-                            item: true,
-                            className: css.itemIcon
-                        }, h(FontA, { name: 'folder' })),
-                        h(Grid, {
-                            item: true,
-                            className: css.itemText,
-                        }, [
-                            h('div', { className: css.itemTitle }, item.title || '未标题...'),
-                            h(Moment, {
-                                className: css.itemTime,
-                                format: 'YYYY/MM/DD hh:mm'
-                            }, item.ts),
-                        ]),
-                        h(Grid, {
-                            item: true,
-                            className: css.itemArrow
-                        }, h(FontA, { name: 'chevron-right' })),
-                    ]),
-                ]);
+                let el = h(BasketItem, {
+                    item: item,
+                    currentUser: that.state.currentUser,
+                });
                 itemElArr.push(el);
                 itemElArr.push(h('div', { className: css.divider }));
             });
@@ -239,7 +187,7 @@ class com extends Component {
                     color: 'accent',
                     className: css.addFab,
                     onClick: () => {
-                        that.showAdItemDialog();
+                        that.showAddItemDialog();
                     },
                 }, h(AddIcon, { className: css.addIcon }))
             );

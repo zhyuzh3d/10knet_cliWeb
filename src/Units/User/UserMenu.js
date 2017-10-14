@@ -39,18 +39,28 @@ class com extends Component {
     wdAuthListen = null;
     componentWillMount = async function() {
         let that = this;
-        this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
-            var cuser = global.$wd.auth().currentUser;
-            if(!cuser) {
-                that.setState({ currentUser: null });
-                return;
-            };
-
-            let ref = global.$wd.sync().ref(`user/${cuser.uid}`);
-            ref.once('value', (shot) => {
-                cuser = merge(cuser, shot.val());
-                that.setState({ currentUser: cuser });
+        if(global.$currentUser) {
+            that.getCurrentUserInof(global.$currentUser);
+        } else {
+            this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
+                var cuser = global.$wd.auth().currentUser;
+                if(!cuser) {
+                    that.setState({ currentUser: null });
+                    return;
+                } else {
+                    that.getCurrentUserInof(cuser);
+                };
             });
+        };
+    };
+
+    //获取用户头像
+    getCurrentUserInof = (cuser) => {
+        let that = this;
+        let ref = global.$wd.sync().ref(`user/${cuser.uid}`);
+        ref.once('value', (shot) => {
+            cuser = merge(cuser, shot.val());
+            that.setState({ currentUser: cuser });
         });
     };
 
