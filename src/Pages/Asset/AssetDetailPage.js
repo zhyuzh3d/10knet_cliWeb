@@ -2,6 +2,7 @@
 sotre{
     assetId,
     basketId,如果存在，就读取basket/arr/assetId数据；如果不存在就读取src/assetId源数据
+    appBarTitle: 页面标题,
 }
 */
 import { Component } from 'react';

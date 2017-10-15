@@ -199,7 +199,7 @@ class com extends Component {
                         that.setState({ cuserMenuOpen: false });
                         that.editItem();
                     },
-                }, '修改'),
+                }, '编辑'),
                 h(MenuItem, {
                     onClick: () => {
                         that.setState({ cuserMenuOpen: false });

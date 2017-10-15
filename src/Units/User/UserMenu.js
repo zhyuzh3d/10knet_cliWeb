@@ -98,7 +98,7 @@ class com extends Component {
                     });
                 },
             }, '登录注册') : undefined,
-            h(MenuItem, {
+            false && h(MenuItem, {
                 disabled: !that.state.currentUser,
                 onClick: () => {
                     global.$router.changePage('AssetListPage', {

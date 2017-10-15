@@ -100,7 +100,6 @@ class com extends Component {
     addPost = () => {
         let that = this;
 
-
         if(!global.$wd.auth().currentUser) {
             global.$alert.fn.show('您还没有登录', '请点右上角图标进行登录或注册');
             return;

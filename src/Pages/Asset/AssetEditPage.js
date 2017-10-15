@@ -4,6 +4,7 @@
 store:{
     basketId,
     assetId,
+    appBarTitle: 页面标题,
 }
 */
 import { Component } from 'react';
@@ -16,7 +17,6 @@ import NavBar from '../../Units/MainAppBar/NavBar';
 
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
-import ButtonBase from 'material-ui/ButtonBase';
 import TextField from 'material-ui/TextField';
 import Menu, { MenuItem } from 'material-ui/Menu';
 import FontA from 'react-fa';

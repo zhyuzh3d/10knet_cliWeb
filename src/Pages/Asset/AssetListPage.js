@@ -1,3 +1,12 @@
+/*
+篮子内素材的列表
+store:{
+    userId: 用户ID，读取不同人的篮子列表,
+    wdRef: 数据路径`basket/${item.id}`,
+    basketId: 篮筐ID,
+    appBarTitle: 页面标题,
+}
+*/
 import { Component } from 'react';
 import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
