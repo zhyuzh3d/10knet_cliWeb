@@ -9,7 +9,6 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
-import style from './_style';
 import merge from 'deepmerge';
 
 import AppBar from 'material-ui/AppBar';
@@ -20,6 +19,36 @@ import FontA from 'react-fa';
 import Typography from 'material-ui/Typography';
 
 import UserMenu from '../../Units/User/UserMenu';
+
+
+const style = theme => ({
+    appBar: {
+        padding: 0,
+        boxShadow: 'none',
+        borderBottom: '1px solid #EEE',
+        height: 48,
+        minHeight: 48,
+    },
+    baseButton: {
+        fontSize: '0.9rem',
+    },
+    dividerV: {
+        marginRight: theme.spacing.unit * 2,
+        marginLeft: theme.spacing.unit,
+    },
+    flex: {
+        flex: 1,
+        fontSize: '0.9rem',
+    },
+    title: {
+        flex: 1,
+        fontSize: '0.9rem',
+        whiteSpace: 'nowrap',
+        overflowX: 'hidden',
+        textOverflow: 'ellipsis',
+        wordBreak: 'break-all',
+    }
+});
 
 //元件
 class com extends Component {
@@ -58,8 +87,8 @@ class com extends Component {
         let that = this;
         const css = that.props.classes;
         const title = that.props.title || that.state.title;
-        const winTitle = that.props.winTitle || '控制台';
-        document.getElementsByTagName('title')[0].innerHTML = winTitle;
+        const winTitle = that.props.winTitle;
+        if(winTitle) document.getElementsByTagName('title')[0].innerHTML = winTitle;
 
         //导航栏
         let topBar = h(AppBar, {
@@ -81,7 +110,7 @@ class com extends Component {
                     }, '首页'),
                     h('span', { className: css.dividerV }, '|'),
                 ]),
-                h(Typography, { type: 'title', className: css.flex }, title),
+                h(Typography, { type: 'title', className: css.title }, title),
                 h(UserMenu),
             ]),
         ]);

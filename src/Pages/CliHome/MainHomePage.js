@@ -16,7 +16,7 @@ class com extends Component {
     state = {
         snackbarText: '..tip..',
         snackbarOpen: false,
-        title: '资源管理中心',
+        title: '首页',
         contentHeight: window.innerHeight - 48,
         currentUser: null,
     };
@@ -35,7 +35,6 @@ class com extends Component {
 
     //渲染实现
     render() {
-        document.getElementsByTagName('title')[0].innerHTML = '控制台';
         let that = this;
         const css = this.props.classes;
 

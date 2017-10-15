@@ -13,7 +13,7 @@ const style = theme => ({});
 //元件
 class com extends Component {
     state = {
-        title: '篮内素材列表',
+        appBarTitle: '素材列表',
         assets: null,
         contentHeight: window.innerHeight - 48,
     };
@@ -37,13 +37,13 @@ class com extends Component {
         let userId = global.$store('AssetListPage', 'userId');
         let wdRef = global.$store('AssetListPage', 'wdRef');
         let basketId = global.$store('AssetListPage', 'basketId');
+        let appBarTitle = global.$store('AssetListPage', 'appBarTitle');
 
         let content = h(AssetList, {
             uid: userId,
             wdRef: wdRef,
             basketId: basketId,
         });
-
 
         let contentStyle = {
             padding: 16,
@@ -52,7 +52,7 @@ class com extends Component {
             paddingBottom: 128,
         };
         return h(Grid, { container: true, }, [
-            h(NavBar, { title: that.state.title }),
+            h(NavBar, { title: `[ ${appBarTitle||that.state.appBarTitle} ]` }),
             h(Grid, { container: true, style: { height: 64 } }),
             h(Grid, { container: true, justify: 'center' },
                 h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),

@@ -41,7 +41,7 @@ const style = theme => ({
     itemTitle: {
         fontSize: '0.9rem',
         fontWeight: 'bold',
-        color: '#333'
+        color: '#333',
     },
     itemTime: {
         fontSize: 8,
@@ -66,6 +66,7 @@ class com extends Component {
             userId: null,
             wdRef: `basket/${item.id}`,
             basketId: item.id,
+            appBarTitle: item.title,
         });
     };
 

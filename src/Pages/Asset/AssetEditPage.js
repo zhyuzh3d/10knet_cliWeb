@@ -70,6 +70,7 @@ const style = theme => ({
 //元件
 class com extends Component {
     state = {
+        appBarTitle: '新建和编辑素材',
         asset: null,
         assetId: null,
         title: '新建素材',
@@ -386,6 +387,8 @@ class com extends Component {
         let that = this;
         const css = this.props.classes;
         const AssetTypes = global.$conf.assetTypes;
+        let appBarTitle = global.$store('AssetDetailPage', 'appBarTitle');
+
 
         //类型下拉菜单
         let typeMenuArr = [];
@@ -662,7 +665,7 @@ class com extends Component {
             paddingBottom: 128,
         };
         return h(Grid, { container: true, }, [
-            h(NavBar, { title: that.state.title }),
+            h(NavBar, { title: `*${that.state.assetTitle || appBarTitle || that.state.appBarTitle}` }),
             h(Grid, { container: true, style: { height: 64 } }),
             h(Grid, { container: true, justify: 'center' },
                 h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),

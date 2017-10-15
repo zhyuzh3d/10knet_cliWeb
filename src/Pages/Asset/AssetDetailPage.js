@@ -21,7 +21,7 @@ import style from './_style';
 //元件
 class com extends Component {
     state = {
-        title: '素材详情',
+        appBarTitle: '素材详情',
         contentHeight: window.innerHeight - 48,
     };
 
@@ -44,6 +44,7 @@ class com extends Component {
         const css = that.props.classes;
         var assetId = global.$store('AssetDetailPage', 'assetId');
         var basketId = global.$store('AssetDetailPage', 'basketId');
+        let appBarTitle = global.$store('AssetDetailPage', 'appBarTitle');
 
         let content = h(Grid, {
             container: true,
@@ -65,7 +66,7 @@ class com extends Component {
             paddingBottom: 128,
         };
         return h(Grid, { container: true, }, [
-            h(NavBar, { title: that.state.title }),
+            h(NavBar, { title: appBarTitle || that.state.appBarTitle}),
             h(Grid, { container: true, style: { height: 80 } }),
             h(Grid, { container: true, justify: 'center' },
                 h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),

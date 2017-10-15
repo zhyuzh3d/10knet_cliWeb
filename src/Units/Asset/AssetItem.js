@@ -72,6 +72,7 @@ class com extends Component {
         global.$router.changePage('AssetDetailPage', {
             assetId: item.id,
             basketId: item.basket,
+            appBarTitle: item.title,
         });
     };
 
@@ -130,6 +131,7 @@ class com extends Component {
         global.$router.changePage('AssetEditPage', {
             basketId: item.basket,
             assetId: item.id,
+            appBarTitle: item.title,
         });
     };
 

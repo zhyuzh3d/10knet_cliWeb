@@ -52,6 +52,7 @@ class App extends Component {
     //渲染实现
     render() {
         let that = this;
+        document.getElementsByTagName('title')[0].innerHTML = '控制台';
         return h(MuiThemeProvider, {
             theme: Theme,
         }, h('div', [
