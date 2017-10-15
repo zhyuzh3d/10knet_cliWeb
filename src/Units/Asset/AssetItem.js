@@ -30,7 +30,14 @@ const style = theme => ({
     itemArrow: {
         fontSize: 8,
         color: '#AAA',
-        width: 56,
+        width: 36,
+        height: 48,
+        textAlign: 'center',
+    },
+    itemMenu: {
+        fontSize: 8,
+        color: '#AAA',
+        width: 48,
         height: 48,
         textAlign: 'center',
     },
@@ -163,7 +170,7 @@ class com extends Component {
         let cuserMenuGrp;
         if(editMod) {
             let cuserMenuBtn = h(ButtonBase, {
-                className: css.itemArrow,
+                className: css.itemMenu,
                 onClick: (evt) => {
                     that.setState({
                         cuserMenuOpen: !that.state.cuserMenuOpen,
@@ -179,18 +186,6 @@ class com extends Component {
                 anchorEl: that.state.cuserMenuAnchor,
                 onRequestClose: () => { that.setState({ cuserMenuOpen: false }) },
             }, [
-                that.props.moveUpHandler && h(MenuItem, {
-                    onClick: () => {
-                        that.setState({ cuserMenuOpen: false });
-                        that.moveItemUp();
-                    },
-                }, '上移'),
-               that.props.moveDownHandler && h(MenuItem, {
-                    onClick: () => {
-                        that.setState({ cuserMenuOpen: false });
-                        that.moveItemDown();
-                    },
-                }, '下移'),
                 h(MenuItem, {
                     onClick: () => {
                         that.setState({ cuserMenuOpen: false });
@@ -211,8 +206,31 @@ class com extends Component {
                 }, '删除'),
             ]);
 
+            let upBtn = h(ButtonBase, {
+                className: css.itemArrow,
+                onClick: (evt) => {
+                    that.setState({ cuserMenuOpen: false });
+                    that.moveItemUp();
+                }
+            }, [
+                 h(FontA, { name: 'arrow-up' }),
+            ]);
+
+            let downBtn = h(ButtonBase, {
+                className: css.itemArrow,
+                onClick: (evt) => {
+                    that.setState({ cuserMenuOpen: false });
+                    that.moveItemDown();
+                }
+            }, [
+                 h(FontA, { name: 'arrow-down' }),
+            ]);
+
+
             cuserMenuGrp = h('div', { className: css.cuserMenuGrp }, [
                 cuserMenuBtn,
+                that.props.moveDownHandler && upBtn,
+                that.props.moveDownHandler && downBtn,
                 cuserMenus,
             ]);
         };
