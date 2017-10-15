@@ -126,6 +126,10 @@ class com extends Component {
             let prevPos = prevItem.pos;
             let curPos = item.pos;
 
+            if(prevPos === curPos) {
+                prevPos += Math.random();
+            };
+
             global.$wd.sync().ref(`basket/${basketId}/arr/${prevItem.id}`).update({
                 pos: curPos,
             }).then((res) => {
@@ -154,6 +158,10 @@ class com extends Component {
             let nexItem = arr[nex];
             let nexPos = nexItem.pos;
             let curPos = item.pos;
+
+            if(nexItem === curPos) {
+                curPos += Math.random();
+            };
 
             global.$wd.sync().ref(`basket/${basketId}/arr/${nexItem.id}`).update({
                 pos: curPos,
