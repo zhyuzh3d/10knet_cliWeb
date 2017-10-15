@@ -193,7 +193,7 @@ class com extends Component {
                 const assetId = global.$store('AssetEditPage', 'assetId');
                 const basketId = global.$store('AssetEditPage', 'basketId');
                 if(assetId) {
-                    that.getAsset(cuser.uid);
+                    that.getAsset(basketId, assetId, cuser.uid);
                     that.setState({
                         assetId: assetId,
                         basketId: basketId,
@@ -204,9 +204,9 @@ class com extends Component {
     };
 
     //获取asset信息
-    getAsset = (userId, basketId, assetId) => {
+    getAsset = (basketId, assetId, userId) => {
         let that = this;
-        global.$wd.sync().ref(`ubasket/${userId}/${basketId}/${assetId}`).once('value', (shot) => {
+        global.$wd.sync().ref(`basket/${basketId}/arr/${assetId}`).once('value', (shot) => {
             var asset = shot.val();
             that.setState({
                 assetTitle: asset.title,
@@ -438,7 +438,7 @@ class com extends Component {
                     label: '链接',
                     placeholder: '粘贴链接',
                     helperText: '请输入完整的http开头的链接地址',
-                    value: that.state.url,
+                    value: that.state.assetUrl,
                     onChange: (e) => { that.setState({ assetUrl: e.target.value }) },
                 }),
             ]) : undefined,

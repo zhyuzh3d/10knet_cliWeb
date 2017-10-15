@@ -31,7 +31,7 @@ const style = theme => ({
         fontSize: 8,
         color: '#AAA',
         width: 56,
-        height:48,
+        height: 48,
         textAlign: 'center',
     },
     itemText: {
@@ -119,6 +119,7 @@ class com extends Component {
     editItem = () => {
         let that = this;
         let item = that.props.item;
+
         global.$router.changePage('AssetEditPage', {
             basketId: item.basket,
             assetId: item.id,
