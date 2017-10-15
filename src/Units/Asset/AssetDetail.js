@@ -34,7 +34,7 @@ class com extends Component {
     componentDidMount = async function() {
         let that = this;
         let assetId = that.props.assetId;
-        if(assetId) that.getAsset(assetId);
+        if(assetId) that.getAsset();
 
         that.wdAuthListen = global.$wd.auth().onAuthStateChanged((user) => {
             if(global.$wd.auth().currentUser) {
@@ -49,17 +49,16 @@ class com extends Component {
         let that = this;
         let assetId = that.props.assetId;
         let basketId = that.props.basketId;
-        if(assetId) return;
+        if(!assetId) return;
 
         let ref = global.$wd.sync().ref(`src/${assetId}`);
         if(basketId) {
-            ref = global.$wd.sync().ref(`${basketId}/arr/${assetId}`);
+            ref = global.$wd.sync().ref(`basket/${basketId}/arr/${assetId}`);
             that.setState({ isSrc: false });
         } else {
             that.setState({ isSrc: true });
         };
         that.wdDataRef = ref;
-
         ref.on('value', (shot) => {
             let asset = shot.val();
             if(!asset) return;

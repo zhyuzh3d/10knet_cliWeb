@@ -64,7 +64,7 @@ class com extends Component {
 
         global.$router.changePage('AssetDetailPage', {
             assetId: item.id,
-            basketId: item.id,
+            basketId: item.basket,
         });
     };
 
