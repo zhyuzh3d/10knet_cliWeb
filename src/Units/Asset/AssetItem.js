@@ -1,8 +1,10 @@
 /*
 单个篮筐项
 props:{
-    item:数据对象,带有item.id
+    item:数据对象,带有item.id和item.basket
     currentUser:当前用户，用于判断是否显示菜单
+    moveUpHandler(item):向上移动
+    moveDownHandler(item):向下移动
 }
 */
 import { Component } from 'react';
@@ -17,8 +19,6 @@ import { ListItem } from 'material-ui/List';
 import FontA from 'react-fa';
 import Moment from 'react-moment';
 
-
-
 const style = theme => ({
     item: {
         padding: '8px 16px',
@@ -31,7 +31,7 @@ const style = theme => ({
         fontSize: 8,
         color: '#AAA',
         width: 56,
-        height: 48,
+        height:48,
         textAlign: 'center',
     },
     itemText: {
@@ -62,25 +62,25 @@ class com extends Component {
         let that = this;
         let item = that.props.item;
 
-        global.$router.changePage('AssetListPage', {
-            userId: null,
-            wdRef: `basket/${item.id}`,
+        global.$router.changePage('AssetDetailPage', {
+            assetId: item.id,
             basketId: item.id,
         });
     };
 
-    //删除一个篮子，只是删除ubasket下面的篮子，并不真正删除basket下包含素材的篮子
+    //删除一个篮素材，只是删除ubasket/uid/arr下面的素材，不删src
     deletItem = () => {
         let that = this;
         let item = that.props.item;
         let userId = that.props.currentUser ? that.props.currentUser.uid : null;
-        if(!item || !userId) return;
+        if(!item || !userId || !item.basket) return;
 
         global.$confirm.fn.show({
             title: `确定删除${item.title}吗?`,
             text: '删除后无法恢复',
             okHandler: () => {
-                global.$wd.sync().ref(`ubasket/${userId}/${item.id}`).remove().then((res) => {
+                let ref = global.$wd.sync().ref(`basket/${item.basket}/arr/${item.id}`);
+                ref.remove().then((res) => {
                     global.$snackbar.fn.show('删除成功', 2000);
                 }).catch((err) => {
                     global.$snackbar.fn.show(`删除失败:${err.message}`, 3000);
@@ -89,53 +89,22 @@ class com extends Component {
         });
     };
 
-    //置顶item,设置item.pos等于当前时间戳
-    setItemTop = () => {
-        let that = this;
-        let item = that.props.item;
-        let userId = that.props.currentUser ? that.props.currentUser.uid : null;
-        if(!item || !userId) return;
-
-        global.$wd.sync().ref(`ubasket/${userId}/${item.id}`).update({
-            top: global.$wd.sync().ServerValue.TIMESTAMP,
-        }).then((res) => {
-            global.$snackbar.fn.show('置顶成功', 2000);
-        }).catch((err) => {
-            global.$snackbar.fn.show(`置顶失败:${err.message}`, 3000);
-        });
-    };
-
-    //置顶item,设置item.pos等于当前时间戳
-    setItemUnTop = () => {
-        let that = this;
-        let item = that.props.item;
-        let userId = that.props.currentUser ? that.props.currentUser.uid : null;
-        if(!item || !userId) return;
-
-        global.$wd.sync().ref(`ubasket/${userId}/${item.id}/top`).remove().then((res) => {
-            global.$snackbar.fn.show('取消置顶成功', 2000);
-        }).catch((err) => {
-            global.$snackbar.fn.show(`取消置顶失败:${err.message}`, 3000);
-        });
-    };
-
     //重命名
     renameItem = () => {
         let that = this;
         let item = that.props.item;
-        let userId = that.props.currentUser ? that.props.currentUser.uid : null;
-        if(!item || !userId) return;
+        if(!item || !item.basket || item.id) return;
 
         global.$confirm.fn.show({
-            title: '请输入篮子新名称',
+            title: '请输入素材新标题',
             input: {
-                label: '篮子新名称',
+                label: '素材新标题',
                 tip: '2～32个字符',
                 regx: /^.{2,32}$/,
                 value: item.title,
             },
             okHandler: (ipt) => {
-                global.$wd.sync().ref(`ubasket/${userId}/${item.id}`).update({
+                global.$wd.sync().ref(`basket/${item.basket}/arr/${item.id}`).update({
                     title: ipt,
                 }).then((res) => {
                     global.$snackbar.fn.show('修改成功', 2000);
@@ -146,10 +115,40 @@ class com extends Component {
         });
     };
 
+    //修改，打开编辑页面
+    editItem = () => {
+        let that = this;
+        let item = that.props.item;
+        global.$router.changePage('AssetEditPage', {
+            basketId: item.basket,
+            assetId: item.id,
+        });
+    };
+
+
+    //上移动，使用外部prop传来的方法
+    moveItemUp = () => {
+        let that = this;
+        let item = that.props.item;
+        let moveUpHandler = that.props.moveUpHandler;
+        item && moveUpHandler && moveUpHandler(item);
+    };
+
+    //上移动，使用外部prop传来的方法
+    moveItemDown = () => {
+        let that = this;
+        let item = that.props.item;
+        let moveDownHandler = that.props.moveDownHandler;
+        item && moveDownHandler && moveDownHandler(item);
+    };
+
+
+
     //渲染实现
     render() {
         let that = this;
         const css = that.props.classes;
+        const AssetTypes = global.$conf.assetTypes;
 
         let cuser = that.props.currentUser;
         let item = that.props.item;
@@ -158,7 +157,6 @@ class com extends Component {
         if(cuser && item && cuser.uid === item.author) {
             editMod = true;
         };
-
 
         //当前用户编辑菜单
         let cuserMenuGrp;
@@ -172,7 +170,7 @@ class com extends Component {
                     })
                 }
             }, [
-                h(FontA, { name: 'bars' }),
+                 h(FontA, { name: 'bars' }),
             ]);
 
             let cuserMenus = h(Menu, {
@@ -180,24 +178,30 @@ class com extends Component {
                 anchorEl: that.state.cuserMenuAnchor,
                 onRequestClose: () => { that.setState({ cuserMenuOpen: false }) },
             }, [
-                h(MenuItem, {
+                that.props.moveUpHandler && h(MenuItem, {
                     onClick: () => {
                         that.setState({ cuserMenuOpen: false });
-                        that.setItemTop();
+                        that.moveItemUp();
                     },
-                }, item.top ? '移到顶部' : '置顶'),
-                item.top && h(MenuItem, {
+                }, '上移'),
+               that.props.moveDownHandler && h(MenuItem, {
                     onClick: () => {
                         that.setState({ cuserMenuOpen: false });
-                        that.setItemUnTop();
+                        that.moveItemDown();
                     },
-                }, '取消置顶'),
+                }, '下移'),
                 h(MenuItem, {
                     onClick: () => {
                         that.setState({ cuserMenuOpen: false });
                         that.renameItem();
                     },
                 }, '重命名'),
+                h(MenuItem, {
+                    onClick: () => {
+                        that.setState({ cuserMenuOpen: false });
+                        that.editItem();
+                    },
+                }, '修改'),
                 h(MenuItem, {
                     onClick: () => {
                         that.setState({ cuserMenuOpen: false });
@@ -221,7 +225,7 @@ class com extends Component {
                     item: true,
                     className: css.itemIcon,
                     onClick: that.clickHandler,
-                }, h(FontA, { name: item.top ? 'folder' : 'folder-o' })),
+                }, h(FontA, { name: AssetTypes[item.type].icon })),
                 h(Grid, {
                     item: true,
                     className: css.itemText,

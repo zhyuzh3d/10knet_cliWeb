@@ -1,7 +1,8 @@
 /*
 Asset资源详情页面
 props:{
-    assetId:
+    assetId,
+    basketId,如果存在，就读取basket/arr/assetId数据；如果不存在就读取src/assetId源数据
 }
 */
 import { Component } from 'react';
@@ -24,6 +25,7 @@ class com extends Component {
         asset: null,
         curUser: null,
         author: {},
+        isSrc: false,
     };
 
     wdAuthListen = null;
@@ -43,17 +45,25 @@ class com extends Component {
 
     //根据uid获取资源列表
     wdDataRef = null;
-    wdDataListen = null;
-    getAsset = (assetId) => {
+    getAsset = () => {
         let that = this;
-        let ref = that.wdDataRef = global.$wd.sync().ref(`asset/${assetId}`);
-        that.wdDataListen = ref.on('value', (shot) => {
+        let assetId = that.props.assetId;
+        let basketId = that.props.basketId;
+        if(assetId) return;
+
+        let ref = global.$wd.sync().ref(`src/${assetId}`);
+        if(basketId) {
+            ref = global.$wd.sync().ref(`${basketId}/arr/${assetId}`);
+            that.setState({ isSrc: false });
+        } else {
+            that.setState({ isSrc: true });
+        };
+        that.wdDataRef = ref;
+
+        ref.on('value', (shot) => {
             let asset = shot.val();
             if(!asset) return;
             that.setState({ asset: asset });
-            global.$wd.sync().ref(`user/${asset.author}`).once('value', (shot) => {
-                that.setState({ author: shot.val() || {} });
-            });
         });
     };
 
@@ -61,7 +71,7 @@ class com extends Component {
     componentWillUnmount = () => {
         try {
             this.wdAuthListen && this.wdAuthListen();
-            this.wdDataListen && this.wdDataRef.off('value', this.wdDataListen);
+            this.wdDataRef.off('value');
         } catch(err) {};
     };
 
@@ -119,7 +129,7 @@ class com extends Component {
                     onClick: () => {
                         global.$router.changePage('AssetEditPage', { assetId: assetId });
                     },
-                }, h(FontA,{name:'pencil'})) : undefined,
+                }, h(FontA, { name: 'pencil' })) : undefined,
                 isAuthor ? h(IconButton, {
                     className: css.contentBtn,
                     onClick: () => {
@@ -131,7 +141,7 @@ class com extends Component {
                             },
                         });
                     },
-                }, h(FontA,{name:'trash'})) : undefined,
+                }, h(FontA, { name: 'trash' })) : undefined,
             ]),
         ]);
     }

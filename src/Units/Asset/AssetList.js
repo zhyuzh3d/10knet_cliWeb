@@ -15,9 +15,11 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import AddIcon from 'material-ui-icons/Add';
-import List, { ListItem } from 'material-ui/List';
+import List from 'material-ui/List';
 import FontA from 'react-fa';
-import Moment from 'react-moment';
+
+import AssetItem from '../../Units/Asset/AssetItem';
+
 
 const style = theme => ({
     loading: {
@@ -26,31 +28,6 @@ const style = theme => ({
         fontSize: 18,
         color: '#AAA',
         marginTop: 64,
-    },
-    item: {
-        padding: '8px 16px',
-    },
-    itemIcon: {
-        margin: 8,
-    },
-    itemArrow: {
-        fontSize: 8,
-        color: '#AAA',
-    },
-    itemText: {
-        margin: 8,
-        flex: 1,
-    },
-    itemTitle: {
-        fontSize: '0.9rem',
-        fontWeight: 'bold',
-        color: '#333'
-    },
-    itemTime: {
-        fontSize: 8,
-        fontWeight: 200,
-        color: '#AAA',
-        verticalAlign: 'middle',
     },
     divider: {
         width: '100%',
@@ -73,6 +50,8 @@ class com extends Component {
     state = {
         assets: null,
         isCurrentUser: false,
+        currentUser: null,
+        assetArr: [],
     };
 
     wdAuthListen = null;
@@ -89,7 +68,10 @@ class com extends Component {
                 userId = curUser.uid;
             };
             if(curUser && userId === curUser.uid) {
-                that.setState({ isCurrentUser: true });
+                that.setState({
+                    isCurrentUser: true,
+                    currentUser: curUser,
+                });
             };
             if(wdRef) {
                 that.getAssetsByRef(wdRef);
@@ -129,11 +111,70 @@ class com extends Component {
     };
 
 
+    //向上移动素材的函数,查找前一个item.id,根据item.index查询
+    moveUpHandler = (item) => {
+        let that = this;
+        let arr = that.state.assetArr;
+        let prev = item.index - 1;
+        let basketId = that.props.basketId;
+        if(!basketId) return;
+
+        if(prev < 0) {
+            global.$snackbar.fn.show(`已经在最顶端`, 2000);
+        } else if(prev < arr.length) {
+            let prevItem = arr[prev];
+            let prevPos = prevItem.pos;
+            let curPos = item.pos;
+
+            global.$wd.sync().ref(`basket/${basketId}/arr/${prevItem.id}`).update({
+                pos: curPos,
+            }).then((res) => {
+                global.$wd.sync().ref(`basket/${basketId}/arr/${item.id}`).update({
+                    pos: prevPos,
+                }).then((res) => {
+                    global.$snackbar.fn.show(`上移成功`, 2000);
+                });
+            }).catch((err) => {
+                global.$snackbar.fn.show(`上移失败:${err.message}`, 3000);
+            });
+        };
+    };
+
+    //向下移动素材的函数,查找前一个item.id,根据item.index查询
+    moveDownHandler = (item) => {
+        let that = this;
+        let arr = that.state.assetArr;
+        let nex = item.index + 1;
+        let basketId = that.props.basketId;
+        if(!basketId) return;
+
+        if(nex >= arr.length) {
+            global.$snackbar.fn.show(`已经在最底`, 2000);
+        } else if(nex >= 0) {
+            let nexItem = arr[nex];
+            let nexPos = nexItem.pos;
+            let curPos = item.pos;
+
+            global.$wd.sync().ref(`basket/${basketId}/arr/${nexItem.id}`).update({
+                pos: curPos,
+            }).then((res) => {
+                global.$wd.sync().ref(`basket/${basketId}/arr/${item.id}`).update({
+                    pos: nexPos,
+                }).then((res) => {
+                    global.$snackbar.fn.show(`上移成功`, 2000);
+                });
+            }).catch((err) => {
+                global.$snackbar.fn.show(`上移失败:${err.message}`, 3000);
+            });
+        };
+    };
+
+
     //渲染实现
     render() {
         let that = this;
         const css = that.props.classes;
-        const AssetTypes = global.$conf.assetTypes;
+        let basketId = that.props.basketId;
 
         let assetElArr = h(Grid, { item: true, className: css.loading }, [
             h(FontA, { name: 'spinner', spin: true }),
@@ -142,44 +183,28 @@ class com extends Component {
 
         assetElArr = [];
         if(assets) {
-            let assetsArr = [];
+            that.state.assetArr = [];
+            let assetArr = that.state.assetArr;
+
+            //补充数据
             for(var key in assets) {
                 assets[key].id = key;
-                assetsArr.push(assets[key])
+                assets[key].basket = basketId;
+                assetArr.push(assets[key]);
             };
 
             //排序
-            assetsArr = assetsArr.sort((a, b) => { return b.ts - a.ts });
-            assetsArr.forEach((item, index) => {
-                let el = h(ListItem, {
-                    className: css.item,
-                    button: true,
-                    onClick: () => {
-                        //window.open(item.url);
-                        global.$router.changePage('AssetDetailPage', { assetId: item.id });
-                    },
-                }, [
-                    h(Grid, { container: true, align: 'center' }, [
-                        h(Grid, {
-                            item: true,
-                            className: css.itemIcon
-                        }, h(FontA, { name: AssetTypes[item.type].icon })),
-                        h(Grid, {
-                            item: true,
-                            className: css.itemText,
-                        }, [
-                            h('div', { className: css.itemTitle }, item.title || '未标题...'),
-                            h(Moment, {
-                                className: css.itemTime,
-                                format: 'YY.MMDD.hhmm'
-                            }, item.ts),
-                        ]),
-                        h(Grid, {
-                            item: true,
-                            className: css.itemArrow,
-                        }, h(FontA, { name: 'chevron-right' })),
-                    ]),
-                ]);
+            assetArr = assetArr.sort((a, b) => { return b.pos - a.pos });
+
+            assetArr.forEach((item, index) => {
+                item.index = index;
+                let el = h(AssetItem, {
+                    item: item,
+                    currentUser: that.state.currentUser,
+                    moveUpHandler: that.moveUpHandler,
+                    moveDownHandler: that.moveDownHandler,
+                });
+
                 assetElArr.push(el);
                 assetElArr.push(h('div', { className: css.divider }));
             });
@@ -194,7 +219,6 @@ class com extends Component {
                     className: css.addFab,
                     onClick: () => {
                         global.$storeRemove('AssetEditPage', 'assetId');
-                        let basketId = that.props.basketId;
                         let opt = basketId ? { basketId: basketId } : {};
                         global.$router.changePage('AssetEditPage', opt);
                     },

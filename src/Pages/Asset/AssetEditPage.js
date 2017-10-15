@@ -1,6 +1,10 @@
 /*
 新建或者编辑一个素材asset
 如果素材与源作者一致，那么同步修改源src
+store:{
+    basketId,
+    assetId,
+}
 */
 import { Component } from 'react';
 import h from 'react-hyperscript';
@@ -104,6 +108,7 @@ class com extends Component {
             ver: that.state.assetVer || global.$wd.sync().ServerValue.TIMESTAMP,
             picker: userId,
             ts: global.$wd.sync().ServerValue.TIMESTAMP,
+            pos: global.$wd.sync().ServerValue.TIMESTAMP,
         };
 
         //清理

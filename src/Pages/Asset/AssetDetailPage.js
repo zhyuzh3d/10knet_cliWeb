@@ -1,3 +1,9 @@
+/*素材的详情页，带有留言板
+sotre{
+    assetId,
+    basketId,如果存在，就读取basket/arr/assetId数据；如果不存在就读取src/assetId源数据
+}
+*/
 import { Component } from 'react';
 import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
@@ -15,8 +21,7 @@ import style from './_style';
 //元件
 class com extends Component {
     state = {
-        assets: null,
-        title:'素材详情',
+        title: '素材详情',
         contentHeight: window.innerHeight - 48,
     };
 
@@ -38,25 +43,21 @@ class com extends Component {
         let that = this;
         const css = that.props.classes;
         var assetId = global.$store('AssetDetailPage', 'assetId');
+        var basketId = global.$store('AssetDetailPage', 'basketId');
 
         let content = h(Grid, {
             container: true,
             style: { height: that.state.contentHeight },
         }, [
-            h(AssetDetail, { assetId: assetId }),
+            h(AssetDetail, {
+                assetId: assetId,
+                basketId: basketId,
+            }),
             h('div', { className: css.postsLabel }, '最近跟帖'),
-            h(PostList, { wdRef: `asset/${assetId}/post` }),
+            h(PostList, { wdRef: `src/${assetId}/post` }),
         ]);
 
         //最终拼合
-        /*        return h(Grid, { container: true }, [
-                    h(NavBar, {
-                        title: '素材详情',
-                    }),
-                    h(Grid, { container: true, style: { height: 64 } }),
-                    content,
-                ]);*/
-
         let contentStyle = {
             padding: 16,
             height: that.state.contentHeight,
