@@ -16,9 +16,13 @@ import NavBar from '../../Units/MainAppBar/NavBar';
 
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
+import ButtonBase from 'material-ui/ButtonBase';
 import TextField from 'material-ui/TextField';
 import Menu, { MenuItem } from 'material-ui/Menu';
 import FontA from 'react-fa';
+
+import Moment from 'react-moment';
+
 
 const style = theme => ({
     textField: {
@@ -44,15 +48,29 @@ const style = theme => ({
         whiteSpace: 'nowrap',
         padding: `${theme.spacing.unit}px 0`,
     },
-    longBtn: {
-        marginTop: theme.spacing.unit * 6,
+    okBtn: {
+        width: '60%',
+    },
+    cancelBtn: {
+        marginRight: '2%',
+        width: '38%',
+    },
+    btnRow: {
         width: '100%',
+        marginTop: theme.spacing.unit * 6,
+    },
+    shortBtn: {
+        width: 64,
+        minWidth: 64,
+        marginLeft: 8,
+        textAlign: 'center',
     },
 });
 
 //元件
 class com extends Component {
     state = {
+        asset: null,
         assetId: null,
         title: '新建素材',
         contentHeight: window.innerHeight - 48,
@@ -66,6 +84,8 @@ class com extends Component {
         baksetArr: null,
         curBasket: null,
         basketLock: false,
+        src: null,
+        srcArr: [],
     };
 
 
@@ -137,15 +157,15 @@ class com extends Component {
             delete newAsset.src;
 
             ref.push(false).then((res) => {
-                let asseId = res.key();
+                let assetId = res.key();
 
                 //同时推到src和baskets下
-                let srcRef = global.$wd.sync().ref(`src/${asseId}/his`);
+                let srcRef = global.$wd.sync().ref(`src/${assetId}/his`);
                 srcRef.push(newAsset).then((res) => {
-                    newAsset.src = asseId;
+                    newAsset.src = assetId;
                     newAsset.picker = userId;
-                    let assetRef = global.$wd.sync().ref(`basket/${basketId}/arr`);
-                    assetRef.push(newAsset).then((res) => {
+                    let assetRef = global.$wd.sync().ref(`basket/${basketId}/arr/${assetId}`);
+                    assetRef.update(newAsset).then((res) => {
                         global.$snackbar.fn.show('新增成功', 2000);
                         global.$router.prevPage();
                     });
@@ -209,16 +229,46 @@ class com extends Component {
         global.$wd.sync().ref(`basket/${basketId}/arr/${assetId}`).once('value', (shot) => {
             var asset = shot.val();
             that.setState({
-                assetTitle: asset.title,
-                assetUrl: asset.url,
-                assetDesc: asset.desc,
-                curType: global.$conf.assetTypes[asset.type],
+                asset: asset,
                 picker: userId,
                 assetSrc: asset.src,
-                assetVer: asset.ver,
-                file: { name: asset.url },
             });
+            that.setAssetIpt(asset);
+            that.getSrcHis();
             that.getSrcAuthor(asset.src, userId);
+        });
+    };
+
+    //获取源历史
+    getSrcHis = () => {
+        let that = this;
+        let arr = [];
+        let asset = that.state.asset;
+        asset && arr.push(asset);
+        let assetId = that.state.assetId;
+
+        let ref = global.$wd.sync().ref(`src/${assetId}/his`);
+        ref.orderByChild('ts').limitToLast(10).once('value', (shot) => {
+            let assets = shot.val();
+            if(assets) {
+                for(let key in assets) {
+                    arr.push(assets[key]);
+                };
+            };
+        });
+        that.setState({ srcArr: arr })
+    };
+
+    //设置可修改数据
+    setAssetIpt = (asset) => {
+        let that = this;
+        that.setState({
+            assetTitle: asset.title || that.state.assetTitle,
+            assetUrl: asset.url || that.state.assetUrl,
+            assetDesc: asset.desc || that.state.assetDesc,
+            curType: global.$conf.assetTypes[asset.type || 'link'],
+            assetVer: asset.ver,
+            file: { name: asset.url },
         });
     };
 
@@ -233,6 +283,8 @@ class com extends Component {
             };
         });
     };
+
+
 
 
     //获取用户的所有篮筐信息
@@ -283,7 +335,7 @@ class com extends Component {
         };
     };
 
-    //新建一个空项目，通过ref可以索引到基础信息,素材列表放在assets内,然后添加到用户索引
+    //新建一个空篮子，通过ref可以索引到基础信息,素材列表放在assets内,然后添加到用户索引
     addItem = (ipt) => {
         let that = this;
         let userId = global.$wd.auth().currentUser.uid;
@@ -373,6 +425,32 @@ class com extends Component {
             basketMenuArr.push(menuItem);
         });
 
+        //源下拉菜单
+        let srcMenuArr = [];
+        let srcArr = that.state.srcArr || [];
+        srcArr.forEach(function(item, index) {
+            var menuItem = h(MenuItem, {
+                onClick: (evt) => {
+                    that.setState({
+                        srcMenuOpen: false,
+                    });
+                    global.$confirm.fn.show({
+                        title: '修改内容将被替换',
+                        text: '替换后无法找回，您需要重新修改',
+                        okHandler: () => {
+                            that.setAssetIpt(item);
+                        }
+                    });
+                },
+            }, [
+                item === that.state.asset ? h('span', '新') : h('span', '源'),
+                h(Moment, {
+                    format: 'YYYY/MM/DD hh:mm'
+                }, item.ts),
+            ]);
+            srcMenuArr.push(menuItem);
+        });
+
 
         //内容区
         let content = [
@@ -429,6 +507,26 @@ class com extends Component {
                     h(FontA, { name: 'shopping-basket', style: { marginRight: 8 } }),
                     h('span', '新建'),
                 ]) : undefined,
+
+                //源下拉
+                that.state.assetId ? h(Button, {
+                    raised: true,
+                    className: css.shortBtn,
+                    onClick: (evt) => {
+                        that.setState({
+                            srcMenuOpen: !that.state.srcMenuOpen,
+                            srcMenuAnchor: evt.currentTarget,
+                        })
+                    }
+                }, [
+                    h(FontA, { name: 'clock-o', style: { marginRight: 4 } }),
+                    h(FontA, { name: 'caret-down' }),
+                ]) : undefined,
+                that.state.assetId ? h(Menu, {
+                    open: that.state.srcMenuOpen,
+                    anchorEl: that.state.srcMenuAnchor,
+                    onRequestClose: () => { that.setState({ srcMenuOpen: false }) },
+                }, srcMenuArr) : undefined,
             ]),
 
             //粘贴输入连接
@@ -536,16 +634,24 @@ class com extends Component {
                     onChange: (e) => { that.setState({ assetDesc: e.target.value }) },
                 }),
             ]),
+            h('div', {
+                className: css.btnRow,
+            }, [
+                 h(Button, {
+                    disabled: !that.state.hasLogin,
+                    raised: true,
+                    className: css.cancelBtn,
+                    onClick: () => { global.$router.prevPage() },
+                }, '取 消'),
+                h(Button, {
+                    disabled: !that.state.hasLogin,
+                    color: 'primary',
+                    raised: true,
+                    className: css.okBtn,
+                    onClick: () => { that.saveAsset() },
+                }, '保 存'),
+            ]),
 
-
-
-            h(Button, {
-                disabled: !that.state.hasLogin,
-                color: 'primary',
-                raised: true,
-                className: css.longBtn,
-                onClick: () => { that.saveAsset() },
-            }, '保 存'),
         ];
 
         //最终拼合
