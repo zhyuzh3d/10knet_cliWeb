@@ -97,6 +97,7 @@ class com extends Component {
         ref.on('value', (shot) => {
             let asset = shot.val();
             if(!asset) return;
+            asset.id = assetId;
             that.setState({ asset: asset });
         });
     };
@@ -169,7 +170,7 @@ class com extends Component {
                     global.$wd.sync().ref(`ubasket/${userId}`).update({
                         [itemKey]: asset,
                     }).then((res) => {
-                        that.copyAssetToBasket(asset, itemKey);
+                        that.copyAssetToBasket(userId, asset, itemKey);
                     });
                 }).catch((err) => {
                     global.$snackbar.fn.show(`收集失败:${err.message}`, 3000);
@@ -185,23 +186,23 @@ class com extends Component {
                     title: '请选择收集篮',
                     itemArr: arr,
                     okHandler: (basket) => {
-                        that.copyAssetToBasket(asset, basket.id);
+                        that.copyAssetToBasket(userId, asset, basket.id);
                     },
                 });
             };
         });
     };
 
-    //将asset存储到我的basket，不变src
-    copyAssetToBasket = (asset, basketId) => {
+    //将asset存储到我的basket，同时记录到src/pick,不变src
+    copyAssetToBasket = (uid, asset, basketId) => {
         let ref = global.$wd.sync().ref(`basket/${basketId}/arr`);
         ref.push(asset).then((res) => {
             global.$snackbar.fn.show(`收集成功，请返回查看`, 2000);
         });
+        global.$wd.sync().ref(`src/${asset.id}/pick`).update({
+            [uid]: global.$wd.sync().ServerValue.TIMESTAMP,
+        });
     };
-
-
-
 
 
     //渲染实现

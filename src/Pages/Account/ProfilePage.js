@@ -83,8 +83,9 @@ class com extends Component {
         //保存到user字段下
         var uid = global.$wd.auth().currentUser.uid;
         global.$wd.sync().ref(`user/${uid}`).update({
-            'photoURL': url,
-            'displayName': nick,
+            photoURL: url,
+            displayName: nick,
+            ts: global.$wd.sync().ServerValue.TIMESTAMP,
         }).then(function(user) {
             global.$snackbar.fn.show('保存成功', 2000);
             global.$router.changePage('ProfilePage$successPage');

@@ -40,6 +40,26 @@ class App extends Component {
         currentPage: 'div',
     };
 
+    //每分钟自动记录一次登录状态
+    userCheckTimer = false;
+    startAutoCheck = (uid) => {
+        let that = this;
+        setInterval(() => {
+            that.userCheck(uid);
+        }, 60000);
+    };
+
+    //签到一次
+    userCheck = (uid) => {
+        let that = this;
+        global.$wd.sync().ref(`ucheck`).update({
+            [uid]: global.$wd.sync().ServerValue.TIMESTAMP,
+        });
+        global.$wd.sync().ref(`uchecks/${uid}`).transaction(function(cv) {
+            return(cv || 0) + 1;
+        });
+    };
+
     //初始化页面，自动根据地址栏路径判断切换到首页
     componentDidMount = async function() {
         global.$router.init(this, Pages);
@@ -47,8 +67,16 @@ class App extends Component {
         var pName = urlObj.path ? urlObj.path.base : '/MainHomePage';
         global.$router.changePage(pName);
 
-        //野狗自动登录
+        //野狗自动登录，自动定时签到
+        let that = this;
         global.$currentUser = global.$wd.auth().currentUser;
+        this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
+            var cuser = global.$wd.auth().currentUser;
+            clearInterval(that.userCheckTimer);
+            if(cuser) {
+                that.startAutoCheck(cuser.uid);
+            };
+        });
     };
 
     //渲染实现
