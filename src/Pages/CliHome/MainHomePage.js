@@ -50,6 +50,7 @@ class com extends Component {
             overflowY: 'auto',
             paddingBottom: 128,
         };
+
         return h(Grid, { container: true, }, [
             h(MainAppBar, { title: that.state.title }),
             h(Grid, { container: true, style: { height: 72 } }),
