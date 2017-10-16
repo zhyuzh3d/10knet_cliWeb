@@ -2,7 +2,6 @@
 弹窗列表元素，全局唯一使用
 输出函数$fn.show(opt:{
     title,
-    text,
     itemArr,数组
     item,当前选择的值
     labelKey,字符串，指定用哪一项做菜单文字，默认title
@@ -18,13 +17,9 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Button from 'material-ui/Button';
-import ButtonBase from 'material-ui/ButtonBase';
-import List, { ListItem } from 'material-ui/List';
-import Menu, { MenuItem } from 'material-ui/Menu';
-import TextField from 'material-ui/TextField';
+import { ListItem } from 'material-ui/List';
 import Dialog, {
     DialogContent,
-    DialogContentText,
     DialogTitle,
 } from 'material-ui/Dialog';
 
@@ -78,7 +73,6 @@ class MyComponent extends Component {
     state = {
         open: false,
         title: null,
-        text: null,
         item: null,
         itemArr: null,
         labelKey: 'title',
@@ -93,7 +87,6 @@ class MyComponent extends Component {
         that.setState({
             open: true,
             title: opt.title || '',
-            text: opt.text || '',
             item: opt.item || null,
             itemArr: opt.itemArr || null,
             highlight: opt.highlight || false,
@@ -105,12 +98,11 @@ class MyComponent extends Component {
     emptyHandler = () => {};
 
     //关闭底部的提示
-    hide = $fn.hide = (text) => {
+    hide = $fn.hide = () => {
         let that = this;
         that.setState({
             open: false,
             title: null,
-            text: null,
             item: null,
             itemArr: null,
             labelKey: 'title',

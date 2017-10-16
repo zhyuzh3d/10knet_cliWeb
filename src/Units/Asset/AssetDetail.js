@@ -47,9 +47,8 @@ const style = theme => ({
         marginRight: theme.spacing.unit,
     },
     itemMenu: {
-        fontSize: 8,
         width: 56,
-        minWidth:56,
+        minWidth: 56,
         textAlign: 'center',
     },
 });
@@ -61,6 +60,7 @@ class com extends Component {
         curUser: null,
         author: {},
         isSrc: false,
+        myBasketArr: [],
     };
 
     wdAuthListen = null;
@@ -135,6 +135,75 @@ class com extends Component {
         });
     };
 
+    //拾取，把当前素材复制一份到自己的篮子，picker变自己
+    pick = () => {
+        let that = this;
+        let asset = that.state.asset;
+        let cuser = global.$wd.auth().currentUser;
+
+        if(!cuser) {
+            global.$snackbar.fn.show(`您还没有登录，不能拾取`, 3000);
+            return;
+        };
+
+        if(!asset) {
+            global.$snackbar.fn.show(`没有素材，不能拾取`, 3000);
+            return;
+        };
+
+        //获取篮子列表
+        let userId = cuser.uid;
+        global.$wd.sync().ref(`ubasket/${userId}`).once('value', (shot) => {
+            let baskets = shot.val();
+            if(!baskets) {
+                //创建新篮子
+                let bref = global.$wd.sync().ref(`basket`);
+                bref.push({ author: userId }).then((res) => {
+                    Object.assign(asset, {
+                        title: '临时收集篮',
+                        picker: userId,
+                        ts: global.$wd.sync().ServerValue.TIMESTAMP,
+                        top: false,
+                    });
+                    let itemKey = res.key();
+                    global.$wd.sync().ref(`ubasket/${userId}`).update({
+                        [itemKey]: asset,
+                    }).then((res) => {
+                        that.copyAssetToBasket(asset, itemKey);
+                    });
+                }).catch((err) => {
+                    global.$snackbar.fn.show(`收集失败:${err.message}`, 3000);
+                });
+            } else {
+                //提示用户选择
+                let arr = [];
+                for(let key in baskets) {
+                    baskets[key].id = key;
+                    arr.push(baskets[key]);
+                };
+                global.$selector.fn.show({
+                    title: '请选择收集篮',
+                    itemArr: arr,
+                    okHandler: (basket) => {
+                        that.copyAssetToBasket(asset, basket.id);
+                    },
+                });
+            };
+        });
+    };
+
+    //将asset存储到我的basket，不变src
+    copyAssetToBasket = (asset, basketId) => {
+        let ref = global.$wd.sync().ref(`basket/${basketId}/arr`);
+        ref.push(asset).then((res) => {
+            global.$snackbar.fn.show(`收集成功，请返回查看`, 2000);
+        });
+    };
+
+
+
+
+
     //渲染实现
     render() {
         let that = this;
@@ -168,12 +237,27 @@ class com extends Component {
             h(Grid, { item: true, xs: 12 }, [
                 h(Button, {
                     raised: true,
-                    color: 'accent',
+                    color: 'primary',
                     className: css.contentBtn,
                     onClick: () => {
                         window.open(asset.url);
                     },
-                }, '打开链接'),
+                }, [
+                    h(FontA, { name: 'fire', style: { marginRight: 8 } }),
+                    h('span', '打开'),
+                ]),
+
+                h(Button, {
+                    raised: true,
+                    color: 'accent',
+                    className: css.contentBtn,
+                    onClick: () => {
+                        that.pick();
+                    },
+                }, [
+                    h(FontA, { name: 'leaf', style: { marginRight: 8 } }),
+                    h('span', '拾取'),
+                ]),
 
                 //当前用户编辑菜单
                 (isAuthor && basketId) ? h(Button, {
