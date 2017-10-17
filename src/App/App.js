@@ -51,7 +51,6 @@ class App extends Component {
 
     //签到一次
     userCheck = (uid) => {
-        let that = this;
         global.$wd.sync().ref(`ucheck`).update({
             [uid]: global.$wd.sync().ServerValue.TIMESTAMP,
         });

@@ -3,6 +3,7 @@
 props:{
     userId:如果为空则自动调取当前用户的uid使用
     wdRef:野狗数据参照路径,与userId不同时使用
+    isFocus:是否是收藏他人的篮子
 }
 */
 import { Component } from 'react';
@@ -62,9 +63,11 @@ class com extends Component {
                     currentUser: curUser
                 });
             };
+
             if(curUser && userId === curUser.uid) {
                 that.setState({ isCurrentUser: true });
             };
+
             if(wdRef) {
                 that.getListByRef(wdRef);
             } else {
@@ -76,7 +79,12 @@ class com extends Component {
     //根据uid获取列表
     getListByUid = (userId) => {
         let that = this;
-        let ref = global.$wd.sync().ref(`ubasket/${userId}`);
+        let ref;
+        if(that.props.isFocus) {
+            ref = global.$wd.sync().ref(`ufbasket/${userId}`);
+        } else {
+            ref = global.$wd.sync().ref(`ubasket/${userId}`);
+        };
         ref.on('value', (shot) => {
             that.setState({ list: shot.val() });
         });
@@ -172,6 +180,7 @@ class com extends Component {
             itemArr.forEach((item, index) => {
                 let el = h(BasketItem, {
                     item: item,
+                    isFocus:that.props.isFocus,
                     currentUser: that.state.currentUser,
                 });
                 itemElArr.push(el);
@@ -180,7 +189,7 @@ class com extends Component {
         };
 
         //新增按钮
-        if(that.state.isCurrentUser) {
+        if(that.state.isCurrentUser && !that.props.isFocus) {
             itemElArr.push(
                 h(Button, {
                     fab: true,

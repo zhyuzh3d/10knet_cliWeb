@@ -2,6 +2,7 @@
 单个篮筐项
 props:{
     item:数据对象,带有item.id
+    isFocus:操作ubasket路径或ufbasket路径
     currentUser:当前用户，用于判断是否显示菜单
 }
 */
@@ -57,6 +58,8 @@ class com extends Component {
         editMod: false,
     };
 
+    componentWillMount = async function() {};
+
     //点击跳转打开素材列表页面
     clickHandler = () => {
         let that = this;
@@ -81,7 +84,11 @@ class com extends Component {
             title: `确定删除${item.title}吗?`,
             text: '删除后无法恢复',
             okHandler: () => {
-                global.$wd.sync().ref(`ubasket/${userId}/${item.id}`).remove().then((res) => {
+                let ref = global.$wd.sync().ref(`ubasket/${userId}/${item.id}`);
+                if(that.props.isFocus) {
+                    ref = global.$wd.sync().ref(`ufbasket/${userId}/${item.id}`)
+                };
+                ref.remove().then((res) => {
                     global.$snackbar.fn.show('删除成功', 2000);
                 }).catch((err) => {
                     global.$snackbar.fn.show(`删除失败:${err.message}`, 3000);
@@ -97,7 +104,11 @@ class com extends Component {
         let userId = that.props.currentUser ? that.props.currentUser.uid : null;
         if(!item || !userId) return;
 
-        global.$wd.sync().ref(`ubasket/${userId}/${item.id}`).update({
+        let ref = global.$wd.sync().ref(`ubasket/${userId}/${item.id}`);
+        if(that.props.isFocus) {
+            ref = global.$wd.sync().ref(`ufbasket/${userId}/${item.id}`)
+        };
+        ref.update({
             top: global.$wd.sync().ServerValue.TIMESTAMP,
         }).then((res) => {
             global.$snackbar.fn.show('置顶成功', 2000);
@@ -113,7 +124,11 @@ class com extends Component {
         let userId = that.props.currentUser ? that.props.currentUser.uid : null;
         if(!item || !userId) return;
 
-        global.$wd.sync().ref(`ubasket/${userId}/${item.id}/top`).remove().then((res) => {
+        let ref = global.$wd.sync().ref(`ubasket/${userId}/${item.id}`);
+        if(that.props.isFocus) {
+            ref = global.$wd.sync().ref(`ufbasket/${userId}/${item.id}`)
+        };
+        ref.update({ top: 0 }).then((res) => {
             global.$snackbar.fn.show('取消置顶成功', 2000);
         }).catch((err) => {
             global.$snackbar.fn.show(`取消置顶失败:${err.message}`, 3000);
@@ -136,7 +151,11 @@ class com extends Component {
                 value: item.title,
             },
             okHandler: (ipt) => {
-                global.$wd.sync().ref(`ubasket/${userId}/${item.id}`).update({
+                let ref = global.$wd.sync().ref(`ubasket/${userId}/${item.id}`);
+                if(that.props.isFocus) {
+                    ref = global.$wd.sync().ref(`ufbasket/${userId}/${item.id}`)
+                };
+                ref.update({
                     title: ipt,
                 }).then((res) => {
                     global.$snackbar.fn.show('修改成功', 2000);
@@ -156,7 +175,7 @@ class com extends Component {
         let item = that.props.item;
 
         let editMod = false;
-        if(cuser && item && cuser.uid === item.author) {
+        if(cuser && item && (cuser.uid === item.author || (that.props.isFocus && cuser.uid === item.picker))) {
             editMod = true;
         };
 

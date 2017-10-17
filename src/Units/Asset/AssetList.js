@@ -37,17 +37,27 @@ const style = theme => ({
     addIcon: {
         fontSize: '1.2rem',
     },
-    addFab: {
+    fabGrp: {
         margin: theme.spacing.unit,
         position: 'fixed',
-        bottom: theme.spacing.unit * 5,
-        right: theme.spacing.unit * 2,
+        bottom: theme.spacing.unit * 4,
+        right: 0,
+    },
+    addFab: {
+        marginRight: 24,
+        verticalAlign: 'top',
+    },
+    focusFab: {
+        marginRight: 24,
+        verticalAlign: 'top',
     },
 });
 
 //元件
 class com extends Component {
     state = {
+        basket: null,
+        hasFocus: true,
         assets: null,
         isCurrentUser: false,
         currentUser: null,
@@ -75,6 +85,8 @@ class com extends Component {
             };
             if(wdRef) {
                 that.getAssetsByRef(wdRef);
+                that.getBasketInfo(wdRef);
+                that.checkFocus();
             } else {
                 if(userId) that.getAssetsByUid(userId);
             };
@@ -100,6 +112,41 @@ class com extends Component {
             that.setState({ assets: shot.val() });
         });
     };
+
+    //根据wdref-author从ubasket下获取basket基本信息
+    getBasketInfo = (wdRef) => {
+        let that = this;
+        let basketId = that.props.basketId;
+        if(!basketId || !wdRef) return;
+        global.$wd.sync().ref(wdRef).once('value', (shot) => {
+            let basket = shot.val();
+            if(!basket) return;
+            let authorId = basket.author;
+            global.$wd.sync().ref(`ubasket/${authorId}/${basketId}`).once('value', (shot2) => {
+                that.setState({ basket: shot2.val() });
+            });
+        });
+    };
+
+    //检查是否已经拾取过
+    checkFocus = () => {
+        let that = this;
+        let cuser = global.$wd.auth().currentUser || {};
+        let basketId = that.props.basketId;
+        if(!cuser) {
+            that.setState({ hasFocus: false });
+        } else {
+            let userId = cuser.uid;
+            global.$wd.sync().ref(`ufbasket/${userId}/${basketId}/ts`).once('value', (shot) => {
+                if(!shot.val()) {
+                    that.setState({ hasFocus: false });
+                } else {
+                    that.setState({ hasFocus: true });
+                };
+            });
+        };
+    };
+
 
 
     //取消野狗监听
@@ -178,6 +225,35 @@ class com extends Component {
     };
 
 
+    //将篮子path放入我的收藏ufbasket/uid,记录from,ref,ts,title,author字段
+    addFocusBasket = () => {
+        let that = this;
+        let cuser = global.$wd.auth().currentUser || {};
+        let userId = cuser.uid;
+        if(!userId) {
+            global.$snackbar.fn.show(`您还没有登录，不能拾取`, 3000);
+            return;
+        };
+
+        let basket = that.state.basket;
+        let basketId = that.props.basketId;
+        let focusbasket = Object.assign(basket, {
+            picker: userId,
+            from: that.props.wdRef,
+            ts: global.$wd.sync().ServerValue.TIMESTAMP,
+            top: 0,
+        });
+        global.$wd.sync().ref(`ufbasket/${userId}`).update({
+            [basketId]: focusbasket,
+        }).then((res) => {
+            that.setState({ hasFocus: true });
+            global.$snackbar.fn.show(`拾取成功`, 2000);
+        }).catch((err) => {
+            global.$snackbar.fn.show(`拾取失败:${err.message}`, 3000);
+        });
+    };
+
+
     //渲染实现
     render() {
         let that = this;
@@ -218,10 +294,11 @@ class com extends Component {
             });
         };
 
-        //新增按钮
-        if(that.state.isCurrentUser) {
-            assetElArr.push(
-                h(Button, {
+        return h(List, { style: { padding: 0 } }, [
+            h('div', {}, assetElArr),
+            h('div', { className: css.fabGrp }, [
+                //新增按钮
+                that.state.isCurrentUser ? h(Button, {
                     fab: true,
                     color: 'accent',
                     className: css.addFab,
@@ -230,11 +307,19 @@ class com extends Component {
                         let opt = basketId ? { basketId: basketId } : {};
                         global.$router.changePage('AssetEditPage', opt);
                     },
-                }, h(AddIcon, { className: css.addIcon }))
-            );
-        };
-
-        return h(List, { style: { padding: 0 } }, assetElArr);
+                }, h(AddIcon, { className: css.addIcon })) : undefined,
+                //收藏按钮
+                that.state.basket ? h(Button, {
+                    disabled: that.state.hasFocus,
+                    fab: true,
+                    color: 'primary',
+                    className: css.focusFab,
+                    onClick: () => {
+                        that.addFocusBasket();
+                    },
+                }, h(FontA, { name: 'leaf' })) : undefined,
+            ]),
+        ]);
     }
 };
 
