@@ -16,13 +16,15 @@ import Tabs, { Tab } from 'material-ui/Tabs';
 import MainAppBar from '../../Units/MainAppBar/MainAppBar';
 import BasketList from '../../Units/Basket/BasketList';
 
+import UserList from '../../Units/User/UserList';
+
 const style = theme => ({
     tabBar: {
         marginTop: 48,
         boxShadow: 'none',
     },
     listBox: {
-        marginTop: 48,
+        marginTop: 56,
         width: '100%',
     },
 });
@@ -39,8 +41,12 @@ class com extends Component {
         tabValue: 0,
     };
 
+    wdAuthListen;
     componentDidMount = async function() {
         window.addEventListener('resize', this.setContentSize);
+        this.wdAuthListen = global.$wd.auth().onAuthStateChanged((user) => {
+            this.setState({ currentUser: user });
+        });
     };
 
     setContentSize = () => {
@@ -48,6 +54,7 @@ class com extends Component {
     };
 
     componentWillUnmount = () => {
+        this.wdAuthListen && this.wdAuthListen();
         window.removeEventListener('resize', this.setContentSize);
     };
 
@@ -55,6 +62,7 @@ class com extends Component {
     render() {
         let that = this;
         const css = this.props.classes;
+        let cuser = that.state.currentUser;
 
         //内容区
         let content = h(Grid, { container: true, justify: 'center', className: css.myBox }, [
@@ -76,7 +84,13 @@ class com extends Component {
             ]),
             h('div', { className: css.listBox }, [
                 this.state.tabValue === 0 ? h(BasketList) : undefined,
+                this.state.tabValue === 1 ? h(UserList, {
+                    wdRefObj: cuser ? global.$wd.sync().ref(`ucheck`).limitToLast(10) : null,
+                }) : undefined,
                 this.state.tabValue === 2 ? h(BasketList, { isFocus: true }) : undefined,
+                this.state.tabValue === 3 ? h(UserList, {
+                    wdRefObj: cuser ? global.$wd.sync().ref(`ufollow/${cuser.uid}`) : null,
+                }) : undefined,
             ]),
         ]);
 

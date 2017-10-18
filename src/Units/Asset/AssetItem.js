@@ -111,8 +111,7 @@ class com extends Component {
                 regx: /^.{2,32}$/,
                 value: item.title,
             },
-            okHandler: (ipt) => {
-                global.$wd.sync().ref(`basket/${item.basket}/arr/${item.id}`).update({
+            okHandler: (ipt) => {                global.$wd.sync().ref(`basket/${item.basket}/arr/${item.id}`).update({
                     title: ipt,
                 }).then((res) => {
                     global.$snackbar.fn.show('修改成功', 2000);

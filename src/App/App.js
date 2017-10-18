@@ -38,6 +38,7 @@ global.$xdata = {}; //穿越
 class App extends Component {
     state = {
         currentPage: 'div',
+        currentUser: null,
     };
 
     //每分钟自动记录一次登录状态
@@ -52,7 +53,7 @@ class App extends Component {
     //签到一次
     userCheck = (uid) => {
         global.$wd.sync().ref(`ucheck`).update({
-            [uid]: global.$wd.sync().ServerValue.TIMESTAMP,
+            [uid]: { ts: global.$wd.sync().ServerValue.TIMESTAMP },
         });
         global.$wd.sync().ref(`uchecks/${uid}`).transaction(function(cv) {
             return(cv || 0) + 1;
@@ -64,13 +65,14 @@ class App extends Component {
         global.$router.init(this, Pages);
         var urlObj = urlParser.parse(window.location.href);
         var pName = urlObj.path ? urlObj.path.base : '/MainHomePage';
-        global.$router.changePage(pName);
+        global.$router.changePage(pName, { currentUser: this.state.currentUser });
 
         //野狗自动登录，自动定时签到
         let that = this;
         global.$currentUser = global.$wd.auth().currentUser;
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
+            that.setState({ currentUser: cuser });
             clearInterval(that.userCheckTimer);
             if(cuser) {
                 that.startAutoCheck(cuser.uid);
