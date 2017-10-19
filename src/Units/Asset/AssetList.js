@@ -317,7 +317,7 @@ class com extends Component {
                     onClick: () => {
                         that.addFocusBasket();
                     },
-                }, h(FontA, { name: 'leaf' })) : undefined,
+                }, h(FontA, { name: 'star' })) : undefined,
             ]),
         ]);
     }

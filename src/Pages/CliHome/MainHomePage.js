@@ -12,6 +12,7 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import AppBar from 'material-ui/AppBar';
 import Tabs, { Tab } from 'material-ui/Tabs';
+import FontA from 'react-fa';
 
 import MainAppBar from '../../Units/MainAppBar/MainAppBar';
 import BasketList from '../../Units/Basket/BasketList';
@@ -27,6 +28,9 @@ const style = theme => ({
         marginTop: 56,
         width: '100%',
     },
+    tabIcon: {
+        marginRight: 8,
+    }
 });
 
 
@@ -47,6 +51,11 @@ class com extends Component {
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged((user) => {
             this.setState({ currentUser: user });
         });
+
+        //延迟以避免指示条出错
+        setTimeout(() => {
+            this.setState({ tabValue: global.$store('MainHomePage', 'tabsValue') || 0 });
+        }, 200);
     };
 
     setContentSize = () => {
@@ -72,14 +81,37 @@ class com extends Component {
                     value: this.state.tabValue,
                     onChange: (evt, val) => {
                         that.setState({ tabValue: val });
+                        global.$store('MainHomePage', {
+                            tabsValue: val,
+                        });
                     },
                     indicatorColor: 'primary',
                     textColor: 'primary',
                 }, [
-                    h(Tab, { label: '创建' }),
-                    h(Tab, { label: '发现' }),
-                    h(Tab, { label: '收藏' }),
-                    h(Tab, { label: '关注' }),
+                    h(Tab, {
+                        icon: h('div', {}, [
+                            h(FontA, { name: 'leaf', style: { marginRight: 8 } }),
+                            h('span', '收集')
+                        ]),
+                    }),
+                    h(Tab, {
+                        icon: h('div', {}, [
+                            h(FontA, { name: 'user-plus', style: { marginRight: 8 } }),
+                            h('span', '发现')
+                        ]),
+                    }),
+                    h(Tab, {
+                        icon: h('div', {}, [
+                            h(FontA, { name: 'star', style: { marginRight: 8 } }),
+                            h('span', '收藏')
+                        ]),
+                    }),
+                    h(Tab, {
+                        icon: h('div', {}, [
+                            h(FontA, { name: 'user', style: { marginRight: 8 } }),
+                            h('span', '关注')
+                        ]),
+                    }),
                 ])
             ]),
             h('div', { className: css.listBox }, [

@@ -20,10 +20,11 @@ const style = theme => ({
         borderBottom: '1px solid #EEE',
         padding: 0,
         margin: 0,
-        paddingBottom: 16,
+        paddingBottom: 8,
     },
     infoLine: {
         paddingBottom: 0,
+        height: 28,
     },
     txtLine: {
         fontSize: '0.9rem',
@@ -104,7 +105,7 @@ class com extends Component {
                 className: css.urlLine,
                 style: {
                     padding: '4px 40px',
-                    marginBottom:-4,
+                    marginBottom: -4,
                 }
             }, [
                 global.$conf.regx.imgFile.test(post.url) ? h('img', {

@@ -17,30 +17,55 @@ import FontA from 'react-fa';
 import NavBar from '../../Units/MainAppBar/NavBar';
 import merge from 'deepmerge';
 
+import BasketList from '../../Units/Basket/BasketList';
+
+
 const style = theme => ({
     uBox: {
-        textAlign: 'center',
-        marginTop: 48,
+        textAlign: 'left',
+        marginTop: 24,
+        marginRight: 16,
+        borderRight: '1px solid #EEE'
     },
     btnBox: {
-        textAlign: 'center',
+        textAlign: 'left',
         marginTop: 16,
     },
     uName: {
         marginTop: 8,
         fontSize: '1.2rem',
         fontWeight: 'bold',
-        textAlign: 'center',
+        textAlign: 'left',
     },
     uImg: {
-        width: 96,
-        height: 96,
+        width: 64,
+        height: 64,
         borderRadius: 96,
         background: '#EEE',
+        marginLeft: 24,
+        marginRight: 8,
     },
     followBtn: {
-        marginTop: 24,
-        marginRight: 8,
+        marginTop: 8,
+        minHeight: 32,
+        height: 32,
+        fontSize: 12,
+    },
+    assetBtn: {
+        marginTop: 8,
+        width: 96,
+    },
+    label: {
+        background: '#FFF',
+        width: '100%',
+        height: 24,
+        paddingLeft: 24,
+        marginTop: 16,
+        fontSize: 12,
+        color: '#AAA',
+    },
+    userGrp: {
+        marginBottom: 16,
     }
 });
 
@@ -107,8 +132,8 @@ class com extends Component {
             return;
         };
 
-        global.$wd.sync().ref(`ufollow/${curUserId}`).update({
-            [userId]: global.$wd.sync().ServerValue.TIMESTAMP,
+        global.$wd.sync().ref(`ufollow/${curUserId}/${userId}`).update({
+            ts: global.$wd.sync().ServerValue.TIMESTAMP,
         }).then((res) => {
             that.setState({ hasFollowed: true });
             global.$snackbar.fn.show('关注成功', 1000);
@@ -142,48 +167,40 @@ class com extends Component {
         const css = this.props.classes;
         var uPhoto = that.state.user.photoURL ? `http://${that.state.user.photoURL}-thumb128` : global.$conf.defaultIcon;
 
-        let content = h(Grid, { container: true, justify: 'center' }, [
-            h(Grid, { item: true, xs: 12, className: css.uBox }, [
-                h('img', {
-                    className: css.uImg,
-                    src: uPhoto,
-                }),
-                h('div', {
-                    className: css.uName,
-                }, that.state.user.displayName || '未知用户名'),
-            ]),
-            h(Grid, { item: true, xs: 12, className: css.btnBox }, [
-                h(Button, {
-                    className: css.followBtn,
-                    raised: true,
-                    color: that.state.hasFollowed ? 'default' : 'accent',
-                    disabled: !that.state.userId || !that.state.currentUser,
-                    onClick: () => {
-                        if(that.state.hasFollowed) {
-                            that.unFollowUser();
-                        } else {
-                            that.followUser();
-                        };
-                    },
-                }, [
-                    h(FontA, { name: 'heart', style: { marginRight: 12 } }),
-                    h('span', that.state.hasFollowed ? '取消关注' : '关注'),
+        let content = h('div', {}, [
+            h(Grid, { container: true, justify: 'flex-start', className: css.userGrp }, [
+                h(Grid, { item: true, className: css.uBox }, [
+                    h('img', {
+                        className: css.uImg,
+                        src: uPhoto,
+                    }),
                 ]),
-                h(Button, {
-                    className: css.assetsBtn,
-                    raised: true,
-                    color: 'primary',
-                    disabled: !that.state.userId,
-                    onClick: () => {
-                        global.$router.changePage('AssetListPage', {
-                            userId: that.state.userId,
-                        });
-                    },
-                }, [
-                    h(FontA, { name: 'list', style: { marginRight: 12 } }),
-                    h('span', 'TA的素材'),
+                h(Grid, { item: true, className: css.btnBox }, [
+                    h('div', {
+                        className: css.uName,
+                    }, that.state.user.displayName || '未知用户名'),
+                    h(Button, {
+                        className: css.followBtn,
+                        raised: true,
+                        color: that.state.hasFollowed ? 'default' : 'accent',
+                        disabled: !that.state.userId || !that.state.currentUser,
+                        onClick: () => {
+                            if(that.state.hasFollowed) {
+                                that.unFollowUser();
+                            } else {
+                                that.followUser();
+                            };
+                        },
+                    }, [
+                        h(FontA, { name: 'heart', style: { marginRight: 12 } }),
+                        h('span', that.state.hasFollowed ? '取消关注' : '关注'),
+                    ]),
                 ]),
             ]),
+            h('div', { className: css.label }, 'TA收集的素材'),
+            h(BasketList, {
+                userId: that.state.user ? that.state.user.uid : undefined,
+            }, 'hh'),
         ]);
 
         //最终拼合
