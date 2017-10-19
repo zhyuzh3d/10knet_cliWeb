@@ -45,6 +45,7 @@ class App extends Component {
     userCheckTimer = false;
     startAutoCheck = (uid) => {
         let that = this;
+        that.userCheckTimer && clearInterval(that.userCheckTimer);
         setInterval(() => {
             that.userCheck(uid);
         }, 60000);
@@ -73,6 +74,7 @@ class App extends Component {
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
             that.setState({ currentUser: cuser });
+            that.userCheck(cuser.uid);
             clearInterval(that.userCheckTimer);
             if(cuser) {
                 that.startAutoCheck(cuser.uid);
