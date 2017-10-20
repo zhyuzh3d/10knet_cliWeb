@@ -243,13 +243,33 @@ class com extends Component {
             ts: global.$wd.sync().ServerValue.TIMESTAMP,
             top: 0,
         });
-        global.$wd.sync().ref(`ufbasket/${userId}`).update({
-            [basketId]: focusbasket,
-        }).then((res) => {
+        global.$wd.sync().ref(`ufbasket/${userId}/${basketId}`).update(focusbasket).then((res) => {
             that.setState({ hasFocus: true });
             global.$snackbar.fn.show(`拾取成功`, 2000);
         }).catch((err) => {
             global.$snackbar.fn.show(`拾取失败:${err.message}`, 3000);
+        });
+    };
+
+
+    //取消收藏
+    unFocusBasket = () => {
+        let that = this;
+        let cuser = global.$wd.auth().currentUser || {};
+        let userId = cuser.uid;
+
+        if(!userId) {
+            global.$snackbar.fn.show(`您还没有登录，不能拾取`, 3000);
+            return;
+        };
+
+        let basketId = that.props.basketId;
+
+        global.$wd.sync().ref(`ufbasket/${userId}/${basketId}`).remove().then((res) => {
+            that.setState({ hasFocus: false });
+            global.$snackbar.fn.show(`移除成功`, 2000);
+        }).catch((err) => {
+            global.$snackbar.fn.show(`移除失败:${err.message}`, 3000);
         });
     };
 
@@ -310,12 +330,16 @@ class com extends Component {
                 }, h(AddIcon, { className: css.addIcon })) : undefined,
                 //收藏按钮
                 that.state.basket ? h(Button, {
-                    disabled: that.state.hasFocus,
+                    color: that.state.hasFocus ? 'default' : 'primary',
                     fab: true,
-                    color: 'primary',
                     className: css.focusFab,
                     onClick: () => {
-                        that.addFocusBasket();
+                        console.log('>>>', that.state.hasFocus);
+                        if(that.state.hasFocus) {
+                            that.unFocusBasket();
+                        } else {
+                            that.addFocusBasket();
+                        };
                     },
                 }, h(FontA, { name: 'star' })) : undefined,
             ]),

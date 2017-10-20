@@ -159,7 +159,6 @@ class com extends Component {
         let that = this;
         const css = that.props.classes;
 
-        let cuser = that.state.currentUser;
         let item = that.state.item;
 
         let itemEl = h(ListItem, {
