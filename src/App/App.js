@@ -30,6 +30,7 @@ global.$snackbar = MySnackbar;
 global.$conf = Conf;
 global.$wd = wilddog;
 global.$wd.initializeApp(global.$conf.wd);
+global.$app = {};
 
 //所有公用函数
 global.$xdata = {}; //穿越
@@ -43,7 +44,7 @@ class App extends Component {
 
     //每分钟自动记录一次登录状态
     userCheckTimer = false;
-    startAutoCheck = (uid) => {
+    startAutoCheck = global.$app.startAutoCheck = (uid) => {
         let that = this;
         that.userCheckTimer && clearInterval(that.userCheckTimer);
         setInterval(() => {
@@ -52,7 +53,7 @@ class App extends Component {
     };
 
     //签到一次
-    userCheck = (uid) => {
+    userCheck = global.$app.userCheck = (uid) => {
         global.$wd.sync().ref(`ucheck`).update({
             [uid]: { ts: global.$wd.sync().ServerValue.TIMESTAMP },
         }).catch((err) => {

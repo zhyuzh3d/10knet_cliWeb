@@ -13,9 +13,7 @@ import MyUpload from '../../Utils/MyUpload';
 import _style from './_style';
 import merge from 'deepmerge';
 
-import ModalBar from '../../Units/MainAppBar/ModalBar';
-
-
+import NavBar from '../../Units/MainAppBar/NavBar';
 
 //元件
 class com extends Component {
@@ -43,7 +41,7 @@ class com extends Component {
             if(!cuser) return;
             //合并user字段数据
             global.$wd.sync().ref(`user/${cuser.uid}`).once('value', (shot) => {
-                cuser = merge(cuser, shot.val());
+                cuser = merge(cuser, shot.val()||{});
                 if(cuser && cuser.photoURL && !that.state.file) {
                     that.setState({ file: { url: cuser.photoURL } });
                 };
@@ -143,6 +141,7 @@ class com extends Component {
                         onClick: () => { that.updateProfile() },
                     }, '保 存'),
                 ]),
+                h('div', { style: { height: 200 } }),
             ]),
         ]);
 
@@ -153,7 +152,7 @@ class com extends Component {
             paddingBottom: 128,
         };
         return h(Grid, { container: true, }, [
-            h(ModalBar, { title: that.state.title }),
+            h(NavBar, { title: that.state.title }),
             h(Grid, { container: true, style: { height: 64 } }),
             h(Grid, { container: true, justify: 'center' },
                 h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),

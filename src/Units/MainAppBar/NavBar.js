@@ -70,7 +70,7 @@ class com extends Component {
             if(!cuser) return;
             let ref = global.$wd.sync().ref(`user/${cuser.uid}`)
             ref.once('value', (shot) => {
-                cuser = merge(cuser, shot.val());
+                cuser = merge(cuser, shot.val()||{});
                 that.setState({ currentUser: cuser });
             });
         });

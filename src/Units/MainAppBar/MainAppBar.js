@@ -45,7 +45,7 @@ class com extends Component {
             var cuser = global.$wd.auth().currentUser;
             if(!cuser) return;
             global.$wd.sync().ref(`user/${cuser.uid}`).once('value', (shot) => {
-                cuser = merge(cuser, shot.val());
+                cuser = merge(cuser, shot.val()||{});
                 that.setState({ currentUser: cuser });
             });
         });

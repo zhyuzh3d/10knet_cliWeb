@@ -59,7 +59,7 @@ class com extends Component {
         let that = this;
         let ref = global.$wd.sync().ref(`user/${cuser.uid}`);
         ref.once('value', (shot) => {
-            cuser = merge(cuser, shot.val());
+            cuser = merge(cuser, shot.val() || {});
             that.setState({ currentUser: cuser });
         });
     };
@@ -77,6 +77,8 @@ class com extends Component {
         const css = that.props.classes;
         let cuser = that.state.currentUser;
 
+        let nametxt = cuser && cuser.displayName ? cuser.displayName : (cuser ? '未命名' : '未登录');
+
         //用户头像
         let userIconArr = [
             h(Avatar, {
@@ -86,7 +88,7 @@ class com extends Component {
             h(Typography, {
                 type: 'caption',
                 className: css.uName
-            }, cuser && cuser.displayName ? cuser.displayName : '未知用户'),
+            }, nametxt),
         ];
 
         //用户头像下拉菜单
@@ -106,7 +108,7 @@ class com extends Component {
                     });
                 },
             }, '我的素材'),
-            h(MenuItem, {
+            false && h(MenuItem, {
                 disabled: !that.state.currentUser,
                 onClick: () => {
                     global.$router.changePage('FollowListPage', {

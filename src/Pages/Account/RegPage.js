@@ -10,9 +10,7 @@ import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 
 import _style from './_style';
-import ModalBar from '../../Units/MainAppBar/ModalBar';
-
-
+import NavBar from '../../Units/MainAppBar/NavBar';
 //元件
 class com extends Component {
     //数据对象
@@ -57,6 +55,8 @@ class com extends Component {
 
         global.$wd.auth().createUserWithPhoneAndPassword(phone, pw).then(function(user) {
             global.$snackbar.fn.show('注册成功！', 2000);
+            global.$app.userCheck(user.uid);
+            global.$app.startAutoCheck(user.uid);
             global.$router.changePage();
         }).catch(function(error) {
             global.$alert.fn.show('注册失败，请重试', error.message);
@@ -120,7 +120,7 @@ class com extends Component {
             paddingBottom: 128,
         };
         return h(Grid, { container: true, }, [
-            h(ModalBar, { title: that.state.title }),
+            h(NavBar, { title: that.state.title }),
             h(Grid, { container: true, style: { height: 64 } }),
             h(Grid, { container: true, justify: 'center' },
                 h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),
