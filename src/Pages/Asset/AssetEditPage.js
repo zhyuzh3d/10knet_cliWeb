@@ -157,7 +157,9 @@ class com extends Component {
             delete newAsset.picker; //src忽略picker和src属性
             delete newAsset.src;
 
-            ref.push(false).then((res) => {
+            ref.push({
+                author: curUser.uid,
+            }).then((res) => {
                 let assetId = res.key();
 
                 //同时推到src和baskets下

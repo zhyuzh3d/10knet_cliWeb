@@ -245,9 +245,9 @@ class com extends Component {
         });
         global.$wd.sync().ref(`ufbasket/${userId}/${basketId}`).update(focusbasket).then((res) => {
             that.setState({ hasFocus: true });
-            global.$snackbar.fn.show(`拾取成功`, 2000);
+            global.$snackbar.fn.show(`收藏成功`, 2000);
         }).catch((err) => {
-            global.$snackbar.fn.show(`拾取失败:${err.message}`, 3000);
+            global.$snackbar.fn.show(`收藏失败:${err.message}`, 3000);
         });
     };
 
@@ -334,7 +334,6 @@ class com extends Component {
                     fab: true,
                     className: css.focusFab,
                     onClick: () => {
-                        console.log('>>>', that.state.hasFocus);
                         if(that.state.hasFocus) {
                             that.unFocusBasket();
                         } else {

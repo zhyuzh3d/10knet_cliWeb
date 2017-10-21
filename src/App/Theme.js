@@ -47,6 +47,17 @@ const Theme = createMuiTheme({
         MuiIconButton: {
             root: {
                 fontSize: 16,
+                maxWidth: 1000,
+            },
+        },
+        MuiTab: {
+            root: {
+                maxWidth: 1000,
+            }
+        },
+        MuiButtonBase: {
+            root: {
+                maxWidth: 1000,
             },
         },
         MuiDialog: {

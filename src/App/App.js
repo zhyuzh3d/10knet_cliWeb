@@ -55,9 +55,14 @@ class App extends Component {
     userCheck = (uid) => {
         global.$wd.sync().ref(`ucheck`).update({
             [uid]: { ts: global.$wd.sync().ServerValue.TIMESTAMP },
+        }).catch((err) => {
+            console.log(`[APP/userCheck]:${err}`);
         });
+
         global.$wd.sync().ref(`uchecks/${uid}`).transaction(function(cv) {
             return(cv || 0) + 1;
+        }).catch((err) => {
+            console.log(`[APP/userCheck]:${err}`);
         });
     };
 
@@ -74,9 +79,9 @@ class App extends Component {
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
             that.setState({ currentUser: cuser });
-            that.userCheck(cuser.uid);
             clearInterval(that.userCheckTimer);
             if(cuser) {
+                that.userCheck(cuser.uid);
                 that.startAutoCheck(cuser.uid);
             };
         });
@@ -85,7 +90,7 @@ class App extends Component {
     //渲染实现
     render() {
         let that = this;
-        document.getElementsByTagName('title')[0].innerHTML = '控制台';
+        document.getElementsByTagName('title')[0].innerHTML = '资源管理';
         return h(MuiThemeProvider, {
             theme: Theme,
         }, h('div', [

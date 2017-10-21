@@ -30,7 +30,7 @@ class com extends Component {
         snackbarText: '..tip..',
         snackbarOpen: false,
         hasLogin: false,
-        title: '控制中心',
+        title: '资源管理',
         currentUser: null,
     };
 
@@ -60,7 +60,7 @@ class com extends Component {
         let that = this;
         const css = that.props.classes;
         const title = that.props.title || that.state.title;
-        const winTitle = that.props.winTitle || '控制台';
+        const winTitle = that.props.winTitle || '资源管理';
         document.getElementsByTagName('title')[0].innerHTML = winTitle;
 
 
