@@ -15,7 +15,6 @@ app react的顶级app
 pages 所有页面的设置对象{MainPage:reactComponent,}
 */
 
-//import createHistory from 'history/createMemoryHistory';
 import createHistory from 'history/createBrowserHistory';
 import MyStore from './MyStore';
 
@@ -24,7 +23,9 @@ let app = null;
 let pages = null;
 let store = MyStore.store;
 let currentPage = 'MainHomePage';
-let history = createHistory();
+let history = createHistory({
+    basename: '/cli',
+});
 
 //从外部获得App对象用于setstate(currentPage)实现换页
 function init(appComponent, Pages) {
