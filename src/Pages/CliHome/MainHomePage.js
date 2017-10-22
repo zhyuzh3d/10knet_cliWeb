@@ -34,6 +34,8 @@ const style = theme => ({
 });
 
 
+
+
 //元件
 class com extends Component {
     state = {
@@ -44,6 +46,7 @@ class com extends Component {
         currentUser: null,
         tabValue: 0,
     };
+
 
     wdAuthListen;
     componentDidMount = async function() {

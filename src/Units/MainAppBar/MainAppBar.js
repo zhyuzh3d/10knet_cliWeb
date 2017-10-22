@@ -68,9 +68,8 @@ class com extends Component {
         let barMenuArr = [h(MenuItem, {
                 disabled: !global.$electron,
                 onClick: () => {
-                    var send = global.$electron.ipcRenderer.sendSync;
-                    send('run', `if(!slaveWindow)initSlave();`);
-                    send('run', `slaveWindow.restore();`);
+                    global.$ipc.run(`if(!slaveWindow)initSlave();`);
+                    global.$ipc.run(`slaveWindow.restore();`);
                     that.setState({
                         appMenuOpen: false
                     })
@@ -79,8 +78,7 @@ class com extends Component {
             h(MenuItem, {
                 disabled: !global.$electron,
                 onClick: () => {
-                    var send = global.$electron.ipcRenderer.sendSync;
-                    send('run', `slaveWindow.hide();`);
+                    global.$ipc.run(`slaveWindow.hide();`);
                     that.setState({
                         appMenuOpen: false
                     })

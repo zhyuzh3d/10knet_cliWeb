@@ -15,6 +15,7 @@ import MySnackbar from '../Utils/MySnackbar'; //底部统一的提示
 import MyAlert from '../Utils/MyAlert'; //统一的警告弹窗
 import MyConfirm from '../Utils/MyConfirm'; //统一的确认弹窗
 import MySelector from '../Utils/MySelector'; //统一的选择弹窗
+import MyIpc from '../Utils/MyIpc'; //electron窗口进程通信ipc处理
 
 //全局使用
 global.$fn = MyFn;
@@ -25,6 +26,7 @@ global.$alert = MyAlert;
 global.$confirm = MyConfirm;
 global.$selector = MySelector;
 global.$snackbar = MySnackbar;
+global.$ipc = MyIpc;
 
 //野狗账号与数据存储
 global.$conf = Conf;
@@ -40,6 +42,13 @@ class App extends Component {
     state = {
         currentPage: 'div',
         currentUser: null,
+    };
+
+    //初始化ipc窗口和msg监听
+    componentWillMount = () => {
+        if(global.$ipc) {
+            global.$ipc.init(global.$winName);
+        };
     };
 
     //每分钟自动记录一次登录状态
@@ -94,7 +103,7 @@ class App extends Component {
     //渲染实现
     render() {
         let that = this;
-        document.getElementsByTagName('title')[0].innerHTML = '资源管理';
+        document.getElementsByTagName('title')[0].innerHTML = '资源管理器';
         return h(MuiThemeProvider, {
             theme: Theme,
         }, h('div', [
