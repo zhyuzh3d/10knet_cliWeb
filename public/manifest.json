@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "10knetCli",
+  "name": "cli web for 10knet.com",
   "icons": [
     {
       "src": "favicon.ico",
