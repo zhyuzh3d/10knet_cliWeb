@@ -13,7 +13,7 @@ const styles = theme => ({
         margin: 8,
     },
     assetIcon2: {
-        fontSize: 8,
+        fontSize: 10,
         color: '#AAA',
     },
     assetText: {
@@ -26,7 +26,7 @@ const styles = theme => ({
         color: '#333'
     },
     assetTime: {
-        fontSize: 8,
+        fontSize: 10,
         fontWeight: 200,
         color: '#AAA',
         verticalAlign: 'middle',

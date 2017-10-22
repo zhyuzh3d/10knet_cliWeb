@@ -29,7 +29,7 @@ const style = theme => ({
 
     },
     time: {
-        fontSize: 8,
+        fontSize: 10,
         fontWeight: 200,
         color: '#AAA',
         verticalAlign: 'middle',

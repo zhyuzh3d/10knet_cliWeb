@@ -27,13 +27,13 @@ const style = theme => ({
         width: 48,
     },
     itemArrow: {
-        fontSize: 8,
+        fontSize: 10,
         color: '#AAA',
         width: 56,
         textAlign: 'center',
     },
     itemFollow: {
-        fontSize: 8,
+        fontSize: 10,
         width: 56,
         textAlign: 'center',
     },
@@ -47,7 +47,7 @@ const style = theme => ({
         color: '#333',
     },
     itemTime: {
-        fontSize: 8,
+        fontSize: 10,
         fontWeight: 200,
         color: '#AAA',
         verticalAlign: 'middle',

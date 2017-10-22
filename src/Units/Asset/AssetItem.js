@@ -28,14 +28,14 @@ const style = theme => ({
         margin: 8,
     },
     itemArrow: {
-        fontSize: 8,
+        fontSize: 10,
         color: '#AAA',
         width: 36,
         height: 48,
         textAlign: 'center',
     },
     itemMenu: {
-        fontSize: 8,
+        fontSize: 10,
         color: '#AAA',
         width: 48,
         height: 48,
@@ -51,7 +51,7 @@ const style = theme => ({
         color: '#333'
     },
     itemTime: {
-        fontSize: 8,
+        fontSize: 10,
         fontWeight: 200,
         color: '#AAA',
         verticalAlign: 'middle',
