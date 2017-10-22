@@ -71,8 +71,7 @@ class App extends Component {
     componentDidMount = async function() {
         global.$router.init(this, Pages);
         var urlObj = urlParser.parse(window.location.href);
-        var urlBase = urlObj.path ? urlObj.path.base.replace('cli/', '') : null;
-        var pName = urlBase && urlBase != 'cli' ? urlBase : 'MainHomePage';
+        var pName = urlObj.path ? urlObj.path.base : 'MainHomePage';
         global.$router.changePage(pName, { currentUser: this.state.currentUser });
 
         //野狗自动登录，自动定时签到

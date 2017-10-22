@@ -24,7 +24,7 @@ let pages = null;
 let store = MyStore.store;
 let currentPage = 'MainHomePage';
 let history = createHistory({
-    basename: '/cli',
+    basename: '',
 });
 
 //从外部获得App对象用于setstate(currentPage)实现换页
