@@ -70,8 +70,11 @@ class App extends Component {
     //初始化页面，自动根据地址栏路径判断切换到首页
     componentDidMount = async function() {
         global.$router.init(this, Pages);
-        var urlObj = urlParser.parse(window.location.href);
-        var pName = urlObj.path ? urlObj.path.base : 'MainHomePage';
+        let urlObj = urlParser.parse(window.location.href);
+        let pName = urlObj.path ? urlObj.path.base : 'MainHomePage';
+        let urlPname = urlObj.query ? urlObj.query.params['pageName'] : undefined;
+        pName = urlPname ? urlPname : pName;
+
         global.$router.changePage(pName, { currentUser: this.state.currentUser });
 
         //野狗自动登录，自动定时签到

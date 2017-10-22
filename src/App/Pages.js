@@ -4,7 +4,6 @@ import RegPage from '../Pages/Account/RegPage';
 import RstPwPage from '../Pages/Account/RstPwPage';
 import ProfilePage from '../Pages/Account/ProfilePage';
 
-import HomePage from '../Pages/Home/HomePage';
 
 import MainHomePage from '../Pages/CliHome/MainHomePage';
 import SlaveHomePage from '../Pages/CliHome/SlaveHomePage';
@@ -22,7 +21,6 @@ const pages = {
     RegPage,
     RstPwPage,
     ProfilePage,
-    HomePage,
     SlaveHomePage,
     MainHomePage,
     AssetEditPage,

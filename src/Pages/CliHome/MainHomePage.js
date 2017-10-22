@@ -73,6 +73,8 @@ class com extends Component {
         const css = this.props.classes;
         let cuser = that.state.currentUser;
 
+        console.log('>>>mhome cuser', cuser);
+
         //内容区
         let content = h(Grid, { container: true, justify: 'center', className: css.myBox }, [
             h(AppBar, { className: css.tabBar, color: 'default' }, [
@@ -116,15 +118,17 @@ class com extends Component {
             ]),
             h('div', { className: css.listBox }, [
                 this.state.tabValue === 0 ? h(BasketList) : undefined,
-                this.state.tabValue === 1 ? h(UserList, {
-                    wdRefObj: cuser ? global.$wd.sync().ref(`ucheck`).limitToLast(10) : null,
+                this.state.tabValue === 1 && cuser ? h(UserList, {
+                    wdRefObj: global.$wd.sync().ref(`ucheck`).limitToLast(10),
                 }) : undefined,
                 this.state.tabValue === 2 ? h(BasketList, { isFocus: true }) : undefined,
-                this.state.tabValue === 3 ? h(UserList, {
-                    wdRefObj: cuser ? global.$wd.sync().ref(`ufollow/${cuser.uid}`) : null,
+                this.state.tabValue === 3 && cuser ? h(UserList, {
+                    wdRefObj: global.$wd.sync().ref(`ufollow/${cuser.uid}`),
                 }) : undefined,
             ]),
         ]);
+
+        console.log('>>>mhome ref', cuser);
 
         //最终拼合
         let contentStyle = {
