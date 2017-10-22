@@ -45,7 +45,6 @@ class com extends Component {
         const css = that.props.classes;
         var assetId = global.$store('AssetDetailPage', 'assetId');
         var basketId = global.$store('AssetDetailPage', 'basketId');
-        let appBarTitle = global.$store('AssetDetailPage', 'appBarTitle');
 
         let content = h(Grid, {
             container: true,

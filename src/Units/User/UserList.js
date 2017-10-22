@@ -61,7 +61,6 @@ class com extends Component {
     render() {
         let that = this;
         const css = that.props.classes;
-        console.log('>>>ulist render');
 
         let itemElArr = h(Grid, { item: true, className: css.loading }, [
             h(FontA, { name: 'spinner', spin: true }),

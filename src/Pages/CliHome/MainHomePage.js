@@ -73,8 +73,6 @@ class com extends Component {
         const css = this.props.classes;
         let cuser = that.state.currentUser;
 
-        console.log('>>>mhome cuser', cuser);
-
         //内容区
         let content = h(Grid, { container: true, justify: 'center', className: css.myBox }, [
             h(AppBar, { className: css.tabBar, color: 'default' }, [
@@ -128,7 +126,6 @@ class com extends Component {
             ]),
         ]);
 
-        console.log('>>>mhome ref', cuser);
 
         //最终拼合
         let contentStyle = {
