@@ -53,7 +53,7 @@ const style = theme => ({
         maxWidth: '66%',
     },
     time: {
-        fontSize: '0.6rem',
+        fontSize: '10px',
         color: '#AAA',
         verticalAlign: 'middle',
         fontWeight: 200,

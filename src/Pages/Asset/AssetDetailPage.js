@@ -17,7 +17,13 @@ import AssetDetail from '../../Units/Asset/AssetDetail';
 import PostList from '../../Units/Post/PostList';
 
 
-import style from './_style';
+const style = theme => ({
+    postsLabel: {
+        fontSize: 14,
+        color: '#888',
+        margin: '8px 32px',
+    },
+});
 
 //元件
 class com extends Component {
@@ -48,7 +54,10 @@ class com extends Component {
 
         let content = h(Grid, {
             container: true,
-            style: { height: that.state.contentHeight },
+            style: {
+                height: that.state.contentHeight,
+                alignContent: 'flex-start',
+            },
         }, [
             h(AssetDetail, {
                 assetId: assetId,
@@ -60,19 +69,17 @@ class com extends Component {
 
         //最终拼合
         let contentStyle = {
-            padding: 16,
+            padding: '24px 8px',
             height: that.state.contentHeight,
             overflowY: 'auto',
             paddingBottom: 128,
         };
-        return h(Grid, { container: true, }, [
+        return h('div', { container: true, }, [
             h(NavBar, { title: that.state.title }),
-            h(Grid, { container: true, style: { height: 80 } }),
             h(Grid, { container: true, justify: 'center' },
-                h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),
+                h(Grid, { item: true, xs: 12, style: contentStyle }, content),
             ),
         ]);
-
 
     }
 };

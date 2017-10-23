@@ -21,20 +21,23 @@ import UserList from '../../Units/User/UserList';
 
 const style = theme => ({
     tabBar: {
-        marginTop: 48,
         boxShadow: 'none',
+        position: 'relative',
+        borderBottom: '1px solid #CCC',
     },
     listBox: {
-        marginTop: 56,
         width: '100%',
     },
     tabIcon: {
         marginRight: 8,
+    },
+    tabs: {
+        postion: 'relative',
+    },
+    tabBtn: {
+        minWidth: 30,
     }
 });
-
-
-
 
 //元件
 class com extends Component {
@@ -59,6 +62,7 @@ class com extends Component {
         setTimeout(() => {
             this.setState({ tabValue: global.$store('MainHomePage', 'tabsValue') || 0 });
         }, 200);
+
     };
 
     setContentSize = () => {
@@ -81,6 +85,7 @@ class com extends Component {
             h(AppBar, { className: css.tabBar, color: 'default' }, [
                 h(Tabs, {
                     fullWidth: true,
+                    className: css.tabs,
                     value: this.state.tabValue,
                     onChange: (evt, val) => {
                         that.setState({ tabValue: val });
@@ -88,6 +93,7 @@ class com extends Component {
                             tabsValue: val,
                         });
                     },
+                    buttonClassName: css.tabBtn,
                     indicatorColor: 'primary',
                     textColor: 'primary',
                 }, [
@@ -138,11 +144,10 @@ class com extends Component {
             paddingBottom: 128,
         };
 
-        return h(Grid, { container: true, }, [
+        return h('div', {}, [
             h(MainAppBar, { title: that.state.title }),
-            h(Grid, { container: true, style: { height: 72 } }),
             h(Grid, { container: true, justify: 'center' },
-                h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),
+                h(Grid, { item: true, xs: 12, style: contentStyle }, content),
             ),
         ]);
     }

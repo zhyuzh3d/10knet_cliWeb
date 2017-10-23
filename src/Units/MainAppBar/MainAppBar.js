@@ -11,7 +11,6 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
-import style from './_style';
 import merge from 'deepmerge';
 
 import AppBar from 'material-ui/AppBar';
@@ -22,6 +21,21 @@ import Typography from 'material-ui/Typography';
 import Menu, { MenuItem } from 'material-ui/Menu';
 
 import UserMenu from '../../Units/User/UserMenu';
+
+const style = theme => ({
+    appBar: {
+        boxShadow: 'none',
+        height: 48,
+        minHeight: 48,
+        position: 'relative',
+        width: 360,
+        padding: 0,
+    },
+    flex: {
+        flex: 1,
+        fontSize: '0.9rem',
+    },
+});
 
 
 //元件
@@ -45,7 +59,7 @@ class com extends Component {
             var cuser = global.$wd.auth().currentUser;
             if(!cuser) return;
             global.$wd.sync().ref(`user/${cuser.uid}`).once('value', (shot) => {
-                cuser = merge(cuser, shot.val()||{});
+                cuser = merge(cuser, shot.val() || {});
                 that.setState({ currentUser: cuser });
             });
         });

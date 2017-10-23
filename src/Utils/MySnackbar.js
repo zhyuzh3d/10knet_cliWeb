@@ -28,7 +28,7 @@ class MyComponent extends Component {
         this.setState({
             open: true,
             element: element,
-            duration: duration || 3000,
+            duration: duration || 100000,
         });
     };
 
@@ -43,12 +43,15 @@ class MyComponent extends Component {
     //渲染实现
     render() {
         let that = this;
-        return h(Snackbar, {
-            open: that.state.open,
-            autoHideDuration: that.state.duration,
-            onRequestClose: that.hide,
-            message: that.state.element || '...',
-        });
+        return h('div', {}, [
+
+            h(Snackbar, {
+                open: that.state.open,
+                autoHideDuration: that.state.duration,
+                onRequestClose: that.hide,
+                message: that.state.element || '...',
+            }),
+        ]);
     };
 };
 

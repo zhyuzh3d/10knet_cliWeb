@@ -1,7 +1,8 @@
 import { Component } from 'react';
 import wilddog from 'wilddog';
 import h from 'react-hyperscript';
-import { MuiThemeProvider } from 'material-ui/styles';
+import PropTypes from 'prop-types';
+import { MuiThemeProvider, withStyles } from 'material-ui/styles';
 import urlParser from 'urlparser';
 
 import Theme from './Theme'; //主题风格
@@ -16,6 +17,9 @@ import MyAlert from '../Utils/MyAlert'; //统一的警告弹窗
 import MyConfirm from '../Utils/MyConfirm'; //统一的确认弹窗
 import MySelector from '../Utils/MySelector'; //统一的选择弹窗
 import MyIpc from '../Utils/MyIpc'; //electron窗口进程通信ipc处理
+
+import Grid from 'material-ui/Grid';
+import style from './_style';
 
 //全局使用
 global.$fn = MyFn;
@@ -36,6 +40,8 @@ global.$app = {};
 
 //所有公用函数
 global.$xdata = {}; //穿越
+
+
 
 //App元素
 class App extends Component {
@@ -98,22 +104,50 @@ class App extends Component {
                 that.startAutoCheck(cuser.uid);
             };
         });
+
     };
 
     //渲染实现
     render() {
         let that = this;
         document.getElementsByTagName('title')[0].innerHTML = '资源管理器';
+        const css = this.props.classes;
+
+        //当前地址
+        let urlObj = urlParser.parse(window.location.href);
+        console.log('>>urlObj', urlObj);
+
         return h(MuiThemeProvider, {
             theme: Theme,
-        }, h('div', [
-            h(that.state.currentPage),
-            h(MySnackbar),
-            h(MyAlert),
-            h(MyConfirm),
-            h(MySelector),
+        }, h(Grid, {
+            container: true,
+            spacing: 0,
+            alignContent: 'flex-end',
+            alignItems: 'stretch',
+            className: css.partsContainer,
+        }, [
+            h(Grid, {
+                item: true,
+                className: css.slavePart,
+            }, [
+                h('h1', {}, 'Hello world!'),
+            ]),
+            h(Grid, {
+                item: true,
+                className: css.mainPart,
+            }, [
+                h(that.state.currentPage),
+                h(MySnackbar),
+                h(MyAlert),
+                h(MyConfirm),
+                h(MySelector),
+            ]),
         ]));
     };
 };
 
-export default App;
+App.propTypes = {
+    classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(style)(App);

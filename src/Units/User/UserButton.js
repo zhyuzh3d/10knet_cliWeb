@@ -36,11 +36,11 @@ const style = theme => ({
 const varSize = {
     xs: {
         img: 8,
-        font: 5,
+        font: 10,
     },
     sm: {
         img: 16,
-        font: 8,
+        font: 12,
     },
     md: {
         img: 24,

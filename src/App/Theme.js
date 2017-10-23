@@ -53,7 +53,10 @@ const Theme = createMuiTheme({
         MuiTab: {
             root: {
                 maxWidth: 1000,
-            }
+            },
+            fullWidth: {
+                minWidth: 32
+            },
         },
         MuiButtonBase: {
             root: {

@@ -23,13 +23,13 @@ const styles = theme => ({
         textAlign: 'center',
     },
     row: {
-        width: '100%',
+        width: 360,
         textAlign: 'center',
     },
     container: {
         margin: 0,
         padding: 0,
-        width: 360,
+        width: 296,
         display: 'inline-block',
     },
     item: {

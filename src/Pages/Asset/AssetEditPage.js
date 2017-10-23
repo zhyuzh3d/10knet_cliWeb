@@ -661,16 +661,15 @@ class com extends Component {
 
         //最终拼合
         let contentStyle = {
-            padding: 32,
+            padding: '24px 32px',
             height: that.state.contentHeight,
             overflowY: 'auto',
             paddingBottom: 128,
         };
-        return h(Grid, { container: true, }, [
+        return h('div', { container: true, }, [
             h(NavBar, { title: `*${that.state.assetTitle || appBarTitle || that.state.appBarTitle}` }),
-            h(Grid, { container: true, style: { height: 64 } }),
             h(Grid, { container: true, justify: 'center' },
-                h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),
+                h(Grid, { item: true, xs: 12, style: contentStyle }, content),
             ),
         ]);
 

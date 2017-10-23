@@ -159,17 +159,17 @@ class com extends Component {
             ]),
         ]);
 
+        //最终拼合
         let contentStyle = {
-            padding: 16,
+            padding: '24px 8px',
             height: that.state.contentHeight,
             overflowY: 'auto',
             paddingBottom: 128,
         };
-        return h(Grid, { container: true, }, [
+        return h('div', { container: true, }, [
             h(NavBar, { title: that.state.title }),
-            h(Grid, { container: true, style: { height: 64 } }),
             h(Grid, { container: true, justify: 'center' },
-                h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),
+                h(Grid, { item: true, xs: 12, style: contentStyle }, content),
             ),
         ]);
 

@@ -20,7 +20,7 @@ const initMain = () => {
                 type: cmds.OPENULR,
                 url: url,
             });
-        }, 100);
+        }, 200);
     };
 
     renderer.on('msg', (event, arg) => {

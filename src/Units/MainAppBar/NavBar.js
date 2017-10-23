@@ -23,6 +23,7 @@ import UserMenu from '../../Units/User/UserMenu';
 
 const style = theme => ({
     appBar: {
+        position:'relative',
         padding: 0,
         boxShadow: 'none',
         borderBottom: '1px solid #EEE',

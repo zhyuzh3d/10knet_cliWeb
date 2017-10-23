@@ -17,14 +17,13 @@ import Post from '../../Units/Post/Post';
 import MyUpload from '../../Utils/MyUpload';
 
 const style = theme => ({
-
     newPost: {
-        width: '100%',
+        width: 360,
         background: '#EEE',
         height: 48,
-        position: 'fixed',
+        position: 'absolute',
         bottom: 0,
-        left: 0,
+        right: 0,
         display: 'flex',
     },
     newPostUrl: {
@@ -162,7 +161,12 @@ class com extends Component {
         });
 
         //添加新帖子
-        let addPostDom = h(Grid, { item: true, xs: 12, md: 8, className: css.newPostBox }, [
+        let addPostDom = h(Grid, {
+            item: true,
+            xs: 12,
+            md: 8,
+            className: css.newPostBox,
+        }, [
             that.state.newPostUrl ? h('div', { className: css.newPostUrl }, [
                 h(Button, {
                     className: css.newPostUrlBtn,

@@ -55,16 +55,15 @@ class com extends Component {
         });
 
         let contentStyle = {
-            padding: 16,
+            padding: 8,
             height: that.state.contentHeight,
             overflowY: 'auto',
             paddingBottom: 128,
         };
-        return h(Grid, { container: true, }, [
+        return h('div', { container: true, }, [
             h(NavBar, { title: `[ ${appBarTitle||that.state.appBarTitle} ]` }),
-            h(Grid, { container: true, style: { height: 64 } }),
             h(Grid, { container: true, justify: 'center' },
-                h(Grid, { item: true, xs: 12, sm: 10, md: 8, style: contentStyle }, content),
+                h(Grid, { item: true, xs: 12, style: contentStyle }, content),
             ),
         ]);
     }
