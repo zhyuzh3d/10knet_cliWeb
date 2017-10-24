@@ -24,6 +24,7 @@ const style = theme => ({
     },
     infoLine: {
         paddingBottom: 0,
+        marginBottom:4,
         height: 28,
     },
     txtLine: {

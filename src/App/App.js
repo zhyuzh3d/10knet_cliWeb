@@ -20,6 +20,8 @@ import MyIpc from '../Utils/MyIpc'; //electron窗口进程通信ipc处理
 
 import Grid from 'material-ui/Grid';
 import style from './_style';
+import FontA from 'react-fa';
+
 
 //全局使用
 global.$fn = MyFn;
@@ -41,13 +43,15 @@ global.$app = {};
 //所有公用函数
 global.$xdata = {}; //穿越
 
-
-
 //App元素
 class App extends Component {
     state = {
         currentPage: 'div',
         currentUser: null,
+        mainVis: true,
+        consoleHei: 128,
+        viewerHei: window.innerHeight - 128,
+        viewerUrl: 'http://www.10knet.com',
     };
 
     //初始化ipc窗口和msg监听
@@ -92,6 +96,23 @@ class App extends Component {
 
         global.$router.changePage(pName, { currentUser: this.state.currentUser });
 
+        //自适应viewer高度
+        window.addEventListener('resize', () => {
+            that.setState({ viewerHei: window.innerHeight - 97 });
+        });
+
+        //替换window.open命令
+        window.open = (url) => {
+            this.setState({ viewerUrl: url });
+            /*
+            let wd = window.screen.availWidth;
+            let hei = window.screen.availHeight;
+            global.$ipc.run(`mainWindow.setSize(${wd},${hei})`);
+            global.$ipc.run(`mainWindow.setPosition(0,0)`);
+            */
+        };
+
+
         //野狗自动登录，自动定时签到
         let that = this;
         global.$currentUser = global.$wd.auth().currentUser;
@@ -104,19 +125,69 @@ class App extends Component {
                 that.startAutoCheck(cuser.uid);
             };
         });
+    };
 
+    xset = global.$app.xset = (obj) => {
+        this.setState(obj);
     };
 
     //渲染实现
     render() {
         let that = this;
-        document.getElementsByTagName('title')[0].innerHTML = '资源管理器';
+        document.getElementsByTagName('title')[0].innerHTML = '10knet - 拾课网';
         const css = this.props.classes;
 
         //当前地址
         let urlObj = urlParser.parse(window.location.href);
         console.log('>>urlObj', urlObj);
 
+        //可折叠右侧资源栏360宽
+        let mainPart = h(Grid, {
+            item: true,
+            className: css.mainPart,
+            style: { display: that.state.mainVis ? 'flex' : 'none' },
+        }, [
+            h(that.state.currentPage),
+            h(MySnackbar),
+            h(MyAlert),
+            h(MyConfirm),
+            h(MySelector),
+        ]);
+        let mainVisbar = h('div', {
+            className: css.mainVisBar,
+            onClick: () => {
+                that.setState({ mainVis: !that.state.mainVis });
+            },
+        }, h(FontA, {
+            name: that.state.mainVis ? 'caret-right' : 'caret-left',
+            className: css.visBarArr,
+        }));
+
+        let slavePart = h(Grid, {
+            item: true,
+            className: css.slavePart,
+        }, h(Grid, {
+            container: true,
+            className: css.slaveBox,
+        }, [
+            h(Grid, {
+                item: true,
+                className: css.console,
+                style: { height: that.state.consoleHei },
+            }),
+            h(Grid, {
+                item: true,
+                className: css.viewer,
+                style: { padding: 0 },
+            }, h('webview', {
+                className: css.webview,
+                style: { height: that.state.viewerHei },
+                src: that.state.viewerUrl,
+            })),
+        ]));
+
+
+        //最终拼合
         return h(MuiThemeProvider, {
             theme: Theme,
         }, h(Grid, {
@@ -126,22 +197,9 @@ class App extends Component {
             alignItems: 'stretch',
             className: css.partsContainer,
         }, [
-            h(Grid, {
-                item: true,
-                className: css.slavePart,
-            }, [
-                h('h1', {}, 'Hello world!'),
-            ]),
-            h(Grid, {
-                item: true,
-                className: css.mainPart,
-            }, [
-                h(that.state.currentPage),
-                h(MySnackbar),
-                h(MyAlert),
-                h(MyConfirm),
-                h(MySelector),
-            ]),
+            slavePart,
+            mainVisbar,
+            mainPart,
         ]));
     };
 };

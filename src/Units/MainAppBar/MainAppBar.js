@@ -74,8 +74,8 @@ class com extends Component {
         let that = this;
         const css = that.props.classes;
         const title = that.props.title || that.state.title;
-        const winTitle = that.props.winTitle || '资源管理';
-        document.getElementsByTagName('title')[0].innerHTML = winTitle;
+        //const winTitle = that.props.winTitle || '10knet:拾课网';
+        //document.getElementsByTagName('title')[0].innerHTML = winTitle;
 
 
         //导航栏下拉菜单
@@ -109,6 +109,7 @@ class com extends Component {
                 h('div', {}, [
                     h(IconButton, {
                         onClick: (evt) => {
+                            //global.$app.xset({ mainVis: false });
                             that.setState({
                                 appMenuOpen: !that.state.appMenuOpen,
                                 appMenuAnchor: evt.currentTarget,
