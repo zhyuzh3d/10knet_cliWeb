@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
-import Button from 'material-ui/Button';
 import Tabs, { Tab } from 'material-ui/Tabs';
 import FontA from 'react-fa';
 

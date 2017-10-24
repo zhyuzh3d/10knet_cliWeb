@@ -20,6 +20,8 @@ const styles = theme => ({
         margin: 0,
         padding: 0,
         height: '100%',
+        alignContent: 'flex-end',
+        alignItems: 'stretch',
     },
     mainVisBar: {
         borderRight: '1px solid #CCC',
@@ -28,7 +30,8 @@ const styles = theme => ({
         cursor: 'pointer',
         background: '#EEE',
         width: 12,
-        zIndex:99,
+        minWidth: 12,
+        zIndex: 99,
     },
     visBarTxt: {
         color: '#666',

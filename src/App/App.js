@@ -104,6 +104,7 @@ class App extends Component {
         //替换window.open命令
         window.open = (url) => {
             this.setState({ viewerUrl: url });
+            //            console.log(window.innerWidth);
             /*
             let wd = window.screen.availWidth;
             let hei = window.screen.availHeight;
@@ -193,8 +194,6 @@ class App extends Component {
         }, h(Grid, {
             container: true,
             spacing: 0,
-            alignContent: 'flex-end',
-            alignItems: 'stretch',
             className: css.partsContainer,
         }, [
             slavePart,
