@@ -22,6 +22,8 @@ import Grid from 'material-ui/Grid';
 import style from './_style';
 import FontA from 'react-fa';
 
+//import wilddogVideo from '../Libs/wilddog/wilddog-video-room.js';
+import LivePanel from '../Units/Live/LivePanel';
 
 //全局使用
 global.$fn = MyFn;
@@ -37,6 +39,7 @@ global.$ipc = MyIpc;
 //野狗账号与数据存储
 global.$conf = Conf;
 global.$wd = wilddog;
+global.$wd.video = global.$wilddogVideo;
 global.$wd.initializeApp(global.$conf.wd);
 global.$app = {};
 
@@ -174,8 +177,10 @@ class App extends Component {
             h(Grid, {
                 item: true,
                 className: css.console,
-                style: { height: that.state.consoleHei },
-            }),
+                style: { height: that.state.consoleHei, margin: 0, padding: 0 },
+            }, h(LivePanel, {
+
+            })),
             h(Grid, {
                 item: true,
                 className: css.viewer,

@@ -60,6 +60,8 @@ const styles = theme => ({
         height: 97,
         flexGrow: 'initial',
         borderBottom: '1px solid #DDD',
+        margin:0,
+        padding:0,
     },
     viewer: {
         background: '#FFF',
