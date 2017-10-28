@@ -666,7 +666,7 @@ class com extends Component {
             overflowY: 'auto',
             paddingBottom: 128,
         };
-        return h('div', { container: true, }, [
+        return h('div', {}, [
             h(NavBar, { title: `*${that.state.assetTitle || appBarTitle || that.state.appBarTitle}` }),
             h(Grid, { container: true, justify: 'center' },
                 h(Grid, { item: true, xs: 12, style: contentStyle }, content),

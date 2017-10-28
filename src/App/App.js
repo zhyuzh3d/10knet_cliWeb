@@ -52,7 +52,8 @@ class App extends Component {
         currentPage: 'div',
         currentUser: null,
         mainVis: true,
-        consoleHei: 128,
+        liveVis: true,
+        liveHei: 128,
         viewerHei: window.innerHeight - 128,
         viewerUrl: 'http://www.10knet.com',
     };
@@ -107,7 +108,6 @@ class App extends Component {
         //替换window.open命令
         window.open = (url) => {
             this.setState({ viewerUrl: url });
-            //            console.log(window.innerWidth);
             /*
             let wd = window.screen.availWidth;
             let hei = window.screen.availHeight;
@@ -143,7 +143,7 @@ class App extends Component {
 
         //当前地址
         let urlObj = urlParser.parse(window.location.href);
-        console.log('>>urlObj', urlObj);
+        //console.log('>>urlObj', urlObj);
 
         //可折叠右侧资源栏360宽
         let mainPart = h(Grid, {
@@ -174,13 +174,17 @@ class App extends Component {
             container: true,
             className: css.slaveBox,
         }, [
-            h(Grid, {
+            that.state.liveVis ? h(Grid, {
                 item: true,
-                className: css.console,
-                style: { height: that.state.consoleHei, margin: 0, padding: 0 },
+                style: {
+                    height: that.state.liveHei,
+                    margin: 0,
+                    padding: 0,
+                },
+                className: css.live,
             }, h(LivePanel, {
-
-            })),
+                open: true,
+            })) : null,
             h(Grid, {
                 item: true,
                 className: css.viewer,

@@ -12,7 +12,7 @@
     "moment": "^2.18.1",
     "react": "^15.6.1",
     "react-codemirror2": "^2.0.0",
-    "react-dom": "^15.6.1",
+    "react-dom": "^15.6.2",
     "react-fa": "^4.2.0",
     "react-hyperscript": "^3.0.0",
     "react-moment": "^0.6.5",

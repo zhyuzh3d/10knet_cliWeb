@@ -41,7 +41,7 @@ class com extends Component {
             if(!cuser) return;
             //合并user字段数据
             global.$wd.sync().ref(`user/${cuser.uid}`).once('value', (shot) => {
-                cuser = merge(cuser, shot.val()||{});
+                cuser = merge(cuser, shot.val() || {});
                 if(cuser && cuser.photoURL && !that.state.file) {
                     that.setState({ file: { url: cuser.photoURL } });
                 };
@@ -152,7 +152,7 @@ class com extends Component {
             overflowY: 'auto',
             paddingBottom: 128,
         };
-        return h('div', { container: true, }, [
+        return h('div', {}, [
             h(NavBar, { title: that.state.title }),
             h(Grid, { container: true, justify: 'center' },
                 h(Grid, { item: true, xs: 12, style: contentStyle }, content),

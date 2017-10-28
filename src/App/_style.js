@@ -55,11 +55,10 @@ const styles = theme => ({
         flexDirection: 'column',
         flexWrap: 'initial',
     },
-    console: {
+    live: {
         background: '#FCFCFC',
         height: 97,
         flexGrow: 'initial',
-        borderBottom: '1px solid #DDD',
         margin:0,
         padding:0,
     },

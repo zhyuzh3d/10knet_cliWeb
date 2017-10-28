@@ -23,7 +23,7 @@ import UserMenu from '../../Units/User/UserMenu';
 
 const style = theme => ({
     appBar: {
-        position:'relative',
+        position: 'relative',
         padding: 0,
         boxShadow: 'none',
         borderBottom: '1px solid #EEE',
@@ -71,8 +71,10 @@ class com extends Component {
             if(!cuser) return;
             let ref = global.$wd.sync().ref(`user/${cuser.uid}`)
             ref.once('value', (shot) => {
-                cuser = merge(cuser, shot.val()||{});
-                that.setState({ currentUser: cuser });
+                cuser = merge(cuser, shot.val() || {});
+                try {
+                    that.setState({ currentUser: cuser });
+                } catch(err) {}
             });
         });
     };

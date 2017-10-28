@@ -4,7 +4,8 @@ let ConfBase = {
     api: (apiPath) => {},
     wd: {
         authDomain: "10knet.wilddog.com",
-        syncURL: "https://10knet.wilddogio.com"
+        syncURL: "https://10knet.wilddogio.com",
+        videoAppId:'wd7304438320qqjfhg',
     },
     regx: {
         phone: /^1\d{10}$/,
