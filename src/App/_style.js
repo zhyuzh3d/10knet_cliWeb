@@ -57,7 +57,7 @@ const styles = theme => ({
     },
     live: {
         background: '#FCFCFC',
-        height: 97,
+        height: 'auto',
         flexGrow: 'initial',
         margin:0,
         padding:0,

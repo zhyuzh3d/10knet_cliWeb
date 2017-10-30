@@ -16,17 +16,17 @@ import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
 import LiveVideo from '../../Units/Live/LiveVideo';
+import UserButton from '../../Units/User/UserButton';
 
 
 const style = theme => ({
     panelBox: {
-        height: '100%',
         padding: 0,
         margin: 0,
         width: '100%',
     },
     btnGrp: {
-        width: 96,
+        width: 128,
         flexGrow: 'initial',
         padding: 0,
         margin: 0,
@@ -37,16 +37,45 @@ const style = theme => ({
         padding: 0,
         margin: 0,
     },
-    addBtn: {
-        width: '100%',
+    fullWidthBth: {
+        width: 128,
         height: '50%',
         margin: 0,
+        padding: 0,
         borderBottom: '1px solid #EEE',
     },
-    liveVideo: {
-        height: '100%',
-        background: '#000',
-    }
+    widthBth6: {
+        width: 80,
+        height: '50%',
+        minWidth: 36,
+        margin: 0,
+        padding: 0,
+        borderBottom: '1px solid #EEE',
+        borderRight: '1px solid #EEE',
+    },
+    widthBth4: {
+        width: 48,
+        minWidth: 36,
+        height: '50%',
+        margin: 0,
+        padding: 0,
+        borderBottom: '1px solid #EEE',
+    },
+    inviteName: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    invitePs: {
+        fontSize: 12,
+        fontWeight: 200,
+    },
+    liveEmpty: {
+        width: '100%',
+        marginTop: 30,
+        fontSize: 12,
+        color: '#DDD',
+        textAlign: 'center',
+    },
 });
 
 //元件
@@ -58,14 +87,44 @@ class com extends Component {
         streamArr: [], //所有的媒体流
         liveVideoElArr: [], //所有视频元素的列表
         liveVideoEls: {}, //和Arr完全一致的id索引
+        liveInviteArr: [], //收到的所有邀请
+        wdRefArr: [],
+        hasNewInvite: 0,
     };
 
-    componentDidMount = async function() {};
+    componentDidMount = async function() {
+        let that = this;
+        this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
+            var cuser = global.$wd.auth().currentUser;
+            if(!cuser) return;
 
-    componentWillUnmount = () => {};
+            //读取自己收到的邀请，如果有新的则红色显示30秒
+            let ref = global.$wd.sync().ref(`liveinvite/${cuser.uid}`);
+            that.state.wdRefArr.push(ref);
+            let nows = new Date().getTime();
+            nows -= 600000; //10分钟之内
+            ref.orderByChild('ts').startAt(nows).limitToLast(6).on('child_added', (shot) => {
+                let arr = that.state.liveInviteArr;
+                arr.push(shot.val());
+                that.setState({ liveInviteArr: arr, hasNewInvite: 30 });
+            });
+
+            //红色提示显示
+            setInterval(() => {
+                that.setState({ hasNewInvite: that.state.hasNewInvite - 1 });
+            }, 1000);
+        });
+    };
+
+    componentWillUnmount = () => {
+        this.wdAuthListen && this.wdAuthListen();
+        this.state.wdRefArr.forEach((item) => {
+            item.off();
+        });
+    };
 
     //创建直播房间
-    setRoom = global.$live.setRoom = (url) => {
+    setRoom = global.$live.setRoom = (roomId) => {
         let that = this;
         let cuser = global.$wd.auth().currentUser;
         if(!cuser) {
@@ -78,7 +137,7 @@ class com extends Component {
             token: cuser.getToken()
         });
 
-        that.initRoom(url || that.props.liveRoomId || cuser.uid);
+        that.initRoom(roomId || that.props.liveRoomId || cuser.uid);
     };
 
     //设置当前直播间
@@ -151,9 +210,110 @@ class com extends Component {
         });
     };
 
+
+    //弹窗显示当前在线的人员列表，使用selector
+    showInviteDiaolog = () => {
+        let that = this;
+        let nows = new Date().getTime();
+        nows -= 30000; //5分钟之前
+
+        let ref = global.$wd.sync().ref('ucheck')
+        let query = ref.orderByChild('ts').startAt(nows).limitToLast(6);
+        query.once('value', (shot) => {
+            let liveUserArr = shot.val();
+            let itemArr = [];
+            for(let key in liveUserArr) {
+                itemArr.push({
+                    uid: key,
+                    el: h(UserButton, {
+                        userId: key,
+                        size: 'md',
+                        asButton: false,
+                    }),
+                });
+            };
+
+            global.$selector.fn.show({
+                title: `为您推荐了${itemArr.length}位在线对象`,
+                itemArr: itemArr,
+                labelKey: 'el',
+                okHandler: (item) => {
+                    global.$confirm.fn.show({
+                        title: '请输入邀请附言',
+                        input: {
+                            tip: '邀请附言不多于32字符',
+                            value: '可以请教您一个问题吗？',
+                            regx: /^[\S\s]{0,32}$/,
+                        },
+                        okHandler: (iptVal) => {
+                            that.inviteUser(item.uid, iptVal);
+                        },
+                        cancelHandler: (iptVal) => {
+                            that.inviteUser(item.uid, iptVal);
+                        },
+                    });
+                },
+            });
+        });
+    };
+
+
+    //邀请某人，向liveInvite／uid字段push新对象
+    inviteUser = (uid, tip) => {
+        let that = this;
+        if(!that.state.currentRoom) return;
+        if(!global.$wd.auth().currentUser) return;
+
+        global.$wd.sync().ref(`liveinvite/${uid}`).push({
+            from: global.$wd.auth().currentUser.uid,
+            fromName: global.$currentUser.displayName || '未命名用户',
+            ts: global.$wd.sync().ServerValue.TIMESTAMP,
+            ps: tip || '可以请教您一个问题吗？',
+            roomId: that.state.currentRoom.roomId,
+        });
+    };
+
+    //显示我的邀请列表,去除新消息闪烁，点击加入邀请的房间
+    showMyInviteDiaolog = () => {
+        let that = this;
+        const css = that.props.classes;
+        let itemArr = that.state.liveInviteArr;
+
+        that.setState({ hasNewInvite: 0 });
+
+        itemArr.forEach((item, index) => {
+            item.el = [
+                h('div', {
+                    className: css.inviteName
+                }, h(UserButton, {
+                    userId: item.from,
+                    size: 'md',
+                    asButton: false,
+                })),
+                h('div', { className: css.invitePs }, `  ${item.ps}`),
+            ];
+        });
+
+        global.$selector.fn.show({
+            title: `最近10分钟您收到的直播邀请`,
+            itemArr: itemArr,
+            labelKey: 'el',
+            okHandler: (item) => {
+                that.leaveRoom();
+                that.setRoom(item.roomId);
+                that.setState({ settingRoom: true });
+                setTimeout(() => {
+                    that.setState({ settingRoom: false });
+                }, 3000);
+            },
+        });
+    };
+
+
     render() {
         let that = this;
         const css = that.props.classes;
+
 
         let btnGrp = h(Grid, {
             item: true,
@@ -161,7 +321,7 @@ class com extends Component {
             style: { padding: 0 },
         }, [
            that.state.currentRoom ? h(Button, {
-                className: css.addBtn,
+                className: css.fullWidthBth,
                 onClick: () => {
                     that.leaveRoom();
                 },
@@ -172,10 +332,15 @@ class com extends Component {
                 }),
                h('span', '退出')
             ]) : h(Button, {
-                className: css.addBtn,
+                className: css.fullWidthBth,
                 onClick: () => {
                     that.setRoom();
+                    that.setState({ settingRoom: true });
+                    setTimeout(() => {
+                        that.setState({ settingRoom: false });
+                    }, 3000);
                 },
+                disabled: that.state.settingRoom,
             }, [
                h(FontA, {
                     name: 'flash',
@@ -183,10 +348,10 @@ class com extends Component {
                 }),
                h('span', '直播')
             ]),
-             h(Button, {
-                className: css.addBtn,
+            h(Button, {
+                className: css.widthBth6,
                 onClick: () => {
-                    that.leaveRoom();
+                    that.showInviteDiaolog();
                 },
                 disabled: !that.state.currentRoom,
             }, [
@@ -195,6 +360,24 @@ class com extends Component {
                     style: { marginRight: 4 },
                 }),
                h('span', '邀请')
+            ]),
+            h(Button, {
+                className: css.widthBth4,
+                style: {
+                    background: that.state.hasNewInvite % 2 > 0 ? '#f50057' : 'inherit',
+                    color: that.state.hasNewInvite % 2 > 0 ? '#FFF' : 'inherit',
+                },
+                onClick: () => {
+                    that.showMyInviteDiaolog();
+                },
+                disabled: !that.state.liveInviteArr.length > 0,
+            }, [
+               h(FontA, {
+                    name: 'vcard-o',
+                    style: {
+                        marginRight: 4,
+                    },
+                }),
             ]),
         ]);
 
@@ -209,12 +392,16 @@ class com extends Component {
             item: true,
             className: css.videoGrp,
             style: { padding: 0 },
-        }, videoArr);
+        }, videoArr.length > 0 ? videoArr : h('div', {
+            className: css.liveEmpty,
+        }, '遇到困难？开启直播邀请大神帮你忙！'));
 
         return that.props.open ? h(Grid, {
             container: true,
             className: css.panelBox,
-            style: that.props.style,
+            style: Object.assign(that.props.style || {}, {
+                height: that.state.currentRoom ? 128 : '100%',
+            }),
         }, [
             btnGrp,
             videoGrp,

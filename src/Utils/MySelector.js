@@ -3,10 +3,12 @@
 输出函数$fn.show(opt:{
     title,
     itemArr,数组
-    item,当前选择的值
-    labelKey,字符串，指定用哪一项做菜单文字，默认title
+    item,当前选择的值；
+    labelKey,字符串，指定用哪一项做菜单文字，默认title；可以指定到item.el实现自定义弹窗
     okHandler(item),
     cancelHandler(),
+    diaglogStyle,弹窗样式
+    itemStyle,单个按钮样式
 });
 */
 import React from 'react';
@@ -133,6 +135,7 @@ class MyComponent extends Component {
             open: that.state.open,
             onRequestClose: that.hide,
             className: css.dialog,
+            style: that.props.diaglogStyle,
         }, [
             h(DialogTitle, { className: css.head }, that.state.title),
             h(DialogContent, { className: css.content }, [
@@ -140,7 +143,7 @@ class MyComponent extends Component {
             ]),
             h('div', { className: css.foot }, [
                 h(Button, {
-                    style: { height: 56, width: '100%', margin: 0 },
+                    style: that.props.itemStyle || { height: 56, width: '100%', margin: 0 },
                     onClick: () => {
                         that.hide();
                     },

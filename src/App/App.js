@@ -4,6 +4,8 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { MuiThemeProvider, withStyles } from 'material-ui/styles';
 import urlParser from 'urlparser';
+import merge from 'deepmerge';
+
 
 import Theme from './Theme'; //主题风格
 import Conf from './Conf'; //全局设置
@@ -122,11 +124,17 @@ class App extends Component {
         global.$currentUser = global.$wd.auth().currentUser;
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
-            that.setState({ currentUser: cuser });
             clearInterval(that.userCheckTimer);
             if(cuser) {
                 that.userCheck(cuser.uid);
                 that.startAutoCheck(cuser.uid);
+
+                //合并user字段数据
+                global.$wd.sync().ref(`user/${cuser.uid}`).once('value', (shot) => {
+                    cuser = merge(cuser, shot.val() || {});
+                    that.setState({ currentUser: cuser });
+                    global.$currentUser = cuser;
+                });
             };
         });
     };
@@ -177,7 +185,7 @@ class App extends Component {
             that.state.liveVis ? h(Grid, {
                 item: true,
                 style: {
-                    height: that.state.liveHei,
+                    //height: that.state.liveHei,
                     margin: 0,
                     padding: 0,
                 },
