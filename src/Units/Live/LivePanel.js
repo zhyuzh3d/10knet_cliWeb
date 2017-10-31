@@ -1,9 +1,10 @@
 /*
 直播面板，创建直播间或加入直播间
 props:{
-    liveRoomId,如果没有指定那么使用uid
+    roomId,如果没有指定那么使用uid
     open,
     style,
+    roomId,
 }
 */
 import { Component } from 'react';
@@ -137,7 +138,13 @@ class com extends Component {
             token: cuser.getToken()
         });
 
-        that.initRoom(roomId || that.props.liveRoomId || cuser.uid);
+        if(!roomId && that.props.roomId === 0) {
+            roomId = (new Date().getTime()).toString(32);
+            roomId += (Math.random()).toString(32);
+        };
+
+        console.log('>>>>roomid', roomId);
+        that.initRoom(roomId || that.props.roomId || cuser.uid);
     };
 
     //设置当前直播间
@@ -214,7 +221,7 @@ class com extends Component {
     showInviteDiaolog = () => {
         let that = this;
         let nows = new Date().getTime();
-        nows -= 30000; //5分钟之前
+        nows -= 300000; //5分钟之前
 
         let ref = global.$wd.sync().ref('ucheck')
         let query = ref.orderByChild('ts').startAt(nows).limitToLast(6);
@@ -299,6 +306,7 @@ class com extends Component {
             labelKey: 'el',
             okHandler: (item) => {
                 that.leaveRoom();
+                console.log('>>>>item', item);
                 that.setRoom(item.roomId);
                 that.setState({ settingRoom: true });
                 setTimeout(() => {

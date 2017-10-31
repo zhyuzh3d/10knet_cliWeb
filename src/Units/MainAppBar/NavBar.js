@@ -73,7 +73,7 @@ class com extends Component {
             ref.once('value', (shot) => {
                 cuser = merge(cuser, shot.val() || {});
                 try {
-                    that.setState({ currentUser: cuser });
+                    that && that.setState({ currentUser: cuser });
                 } catch(err) {}
             });
         });

@@ -27,6 +27,7 @@ import FontA from 'react-fa';
 //import wilddogVideo from '../Libs/wilddog/wilddog-video-room.js';
 import LivePanel from '../Units/Live/LivePanel';
 
+
 //全局使用
 global.$fn = MyFn;
 global.$router = MyRouter;
@@ -41,7 +42,7 @@ global.$ipc = MyIpc;
 //野狗账号与数据存储
 global.$conf = Conf;
 global.$wd = wilddog;
-global.$wd.video = global.$wilddogVideo;
+global.$wd.video = window.$wilddogVideo;
 global.$wd.initializeApp(global.$conf.wd);
 global.$app = {};
 
@@ -192,6 +193,7 @@ class App extends Component {
                 className: css.live,
             }, h(LivePanel, {
                 open: true,
+                roomId: 0,
             })) : null,
             h(Grid, {
                 item: true,
