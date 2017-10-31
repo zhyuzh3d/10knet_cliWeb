@@ -190,7 +190,6 @@ class com extends Component {
     //删除一个视频流
     removeLiveVideo = (stream) => {
         let that = this;
-        let arr = that.state.streamArr;
         let index = that.state.streamArr.indexOf(stream);
         if(index === -1) return;
 
