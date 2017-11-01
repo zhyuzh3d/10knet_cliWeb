@@ -1,11 +1,17 @@
 let ConfBase = {
     hostName: '',
     hostUrl: '',
-    api: (apiPath) => {},
+    api: (apiPath) => {
+        if(window.location.hostname === 'localhost') {
+            return `http://localhost:3100${apiPath}`;
+        } else {
+            return `${window.location.origin}${apiPath}`;
+        }
+    },
     wd: {
         authDomain: "10knet.wilddog.com",
         syncURL: "https://10knet.wilddogio.com",
-        videoAppId:'wd7304438320qqjfhg',
+        videoAppId: 'wd7304438320qqjfhg',
     },
     regx: {
         phone: /^1\d{10}$/,
@@ -17,8 +23,8 @@ let ConfBase = {
         assetDesc: /^[\s\S]{0,256}/,
         imgFile: /^.+(?:.[pP][nN][gG]|.[jJ][pP][eE]?[gG]|.[gG][iI][fF])$/,
         videoFile: /^.+(?:.[mM][pP]4)$/,
-        postText:/^.{0,64}/,
-        postUrl:/^https?:\/\//,
+        postText: /^.{0,64}/,
+        postUrl: /^https?:\/\//,
     },
     assetTypes: {
         link: {

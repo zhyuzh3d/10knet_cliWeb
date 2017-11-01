@@ -226,4 +226,5 @@ App.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
+
 export default withStyles(style)(App);

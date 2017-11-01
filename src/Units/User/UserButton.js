@@ -4,6 +4,8 @@ props:{
     userId:不能为空，
     size:'xs,sm,md,lg',
     asButton:是否作为按钮使用，默认跳转到用户想详情页
+    nameStyle:文字样式
+    iconStyle:图标样式
 }
 */
 import { Component } from 'react';
@@ -99,17 +101,18 @@ class com extends Component {
             h('img', {
                 src: user.photoURL ? `http://${user.photoURL}-thumb64` : global.$conf.defaultIcon,
                 className: css.userImg,
-                style: {
+                style: Object.assign(that.props.iconStyle || {}, {
                     width: size.img,
                     height: size.img,
                     borderRadius: size.img,
-                },
+                }),
             }),
-            h('span', {
+            h('div', {
                 className: css.userName,
-                style: {
+                style: Object.assign(that.props.nameStyle || {}, {
                     fontSize: size.font,
-                },
+                    verticalAlign: 'middle',
+                }),
             }, user.displayName || '无名'),
         ]);
     }

@@ -29,6 +29,7 @@ const style = theme => ({
         borderBottom: '1px solid #EEE',
         height: 48,
         minHeight: 48,
+        width: 360,
     },
     baseButton: {
         fontSize: '0.9rem',

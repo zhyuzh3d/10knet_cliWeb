@@ -90,7 +90,8 @@ class MyComponent extends Component {
         //外部利用start函数获得文件对象，便于生成缩略图或取消上传
         that.props.start && that.props.start(file);
 
-        Request.post('http://10knet.com/api/qiniu/uploadTokenRand')
+        let api = global.$conf.api('/api/qiniu/uploadTokenRand');
+        Request.post(api)
             .send({ fileName: file.name })
             .end((err, res) => {
                 if(err || res.body.code !== 1) {

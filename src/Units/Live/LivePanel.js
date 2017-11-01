@@ -107,7 +107,8 @@ class com extends Component {
             ref.orderByChild('ts').startAt(nows).limitToLast(6).on('child_added', (shot) => {
                 let arr = that.state.liveInviteArr;
                 arr.push(shot.val());
-                that.setState({ liveInviteArr: arr, hasNewInvite: 30 });
+                arr.sort((a, b) => { return b.ts - a.ts > 0 });
+                that.setState({ liveInviteArr: arr, hasNewInvite: 31 });
             });
 
             //红色提示显示
@@ -143,15 +144,14 @@ class com extends Component {
             roomId += (Math.random()).toString(32);
         };
 
-        console.log('>>>>roomid', roomId);
         that.initRoom(roomId || that.props.roomId || cuser.uid);
     };
 
     //设置当前直播间
-    initRoom = (id) => {
+    initRoom = (roomId) => {
         let that = this;
         //创建房间，自动发布自己的摄像头视频流
-        var room = global.$wd.video.room(id);
+        var room = global.$wd.video.room(roomId);
         room.connect();
         room.on('connected', () => {
             global.$wd.video.createLocalStream({
@@ -161,20 +161,27 @@ class com extends Component {
                 maxFPS: 15,
             }).then(function(localStream) {
                 that.setState({ currentRoom: room });
+
+                room.publish(localStream, function(error) {
+                    if(error == null) {
+                        global.$snackbar.fn.show('成功进入房间');
+                    }
+                });
+                localStream.muted = true;
                 that.addLiveVideo(localStream);
             });
-            global.$snackbar.fn.show('创建成功，已经加入房间');
         });
 
         //监听新成员的加入
         room.on('stream_added', function(roomStream) {
             room.subscribe(roomStream, function(err) {
-                if(err == null) {
+                if(err != null) {
                     console.log(`>[LivePanel:setRoom:stream_added]failed:${err.message}`);
                 }
             })
         });
         room.on('stream_received', function(roomStream) {
+            roomStream.enableAudio(true);
             that.addLiveVideo(roomStream);
         });
 
@@ -197,12 +204,11 @@ class com extends Component {
     //删除一个视频流
     removeLiveVideo = (stream) => {
         let that = this;
-        let index = that.state.streamArr.indexOf(stream);
-        if(index === -1) return;
-
-        that.state.streamArr.splice(index, 1);
+        let arr = that.state.streamArr.map((item) => {
+            if(item.streamId !== stream.streamId) return item;
+        });
         that.setState({
-            streamArr: that.state.streamArr,
+            streamArr: arr,
         });
     };
 
@@ -248,8 +254,8 @@ class com extends Component {
                         title: '请输入邀请附言',
                         input: {
                             tip: '邀请附言不多于32字符',
-                            value: '可以请教您一个问题吗？',
                             regx: /^[\S\s]{0,32}$/,
+                            value: '',
                         },
                         okHandler: (iptVal) => {
                             that.inviteUser(item.uid, iptVal);
@@ -274,7 +280,7 @@ class com extends Component {
             from: global.$wd.auth().currentUser.uid,
             fromName: global.$currentUser.displayName || '未命名用户',
             ts: global.$wd.sync().ServerValue.TIMESTAMP,
-            ps: tip || '可以请教您一个问题吗？',
+            ps: tip || 'TA什么也没说...',
             roomId: that.state.currentRoom.roomId,
         });
     };
@@ -306,7 +312,6 @@ class com extends Component {
             labelKey: 'el',
             okHandler: (item) => {
                 that.leaveRoom();
-                console.log('>>>>item', item);
                 that.setRoom(item.roomId);
                 that.setState({ settingRoom: true });
                 setTimeout(() => {
@@ -371,8 +376,8 @@ class com extends Component {
             h(Button, {
                 className: css.widthBth4,
                 style: {
-                    background: that.state.hasNewInvite % 2 > 0 ? '#f50057' : 'inherit',
-                    color: that.state.hasNewInvite % 2 > 0 ? '#FFF' : 'inherit',
+                    background: that.state.hasNewInvite % 2 <= 0 ? 'inherit' : '#f50057',
+                    color: that.state.hasNewInvite % 2 <= 0 ? (that.state.liveInviteArr.length < 0 ? '#CCC' : 'inherit') : '#FFF',
                 },
                 onClick: () => {
                     that.showMyInviteDiaolog();
