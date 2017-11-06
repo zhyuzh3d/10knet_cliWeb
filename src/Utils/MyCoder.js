@@ -77,7 +77,9 @@ import formatEngine from 'beautify';
 
 var $fn = {};
 const _style = theme => ({
-
+    reactCM: {
+        width: '100%',
+    }
 });
 
 class MyComponent extends Component {
@@ -142,9 +144,12 @@ class MyComponent extends Component {
     //提前生成editorDom，不重复生产
     componentWillMount() {
         let that = this;
+        const css = that.props.classes;
+
         let options = that.props.options || {};
         options = Object.assign(that.state.optionsDefault, options);
         that.state.editorDom = h(ReactCodeMirror, {
+            className: css.reactCM,
             value: that.props.value ? that.props.value : '',
             options: options,
             optionChange: (editor, str) => {},
@@ -180,7 +185,7 @@ class MyComponent extends Component {
             let options = that.props.options || {};
             options = Object.assign(that.state.optionsDefault, options);
             var mod = that.state.formatMaps[options.mode];
-            code = formatEngine(code, { format: mod});
+            code = formatEngine(code, { format: mod });
         };
         editor.setValue(code);
     };
@@ -216,6 +221,8 @@ class MyComponent extends Component {
                 editor.setOption(attr, options[attr]);
             };
             editor.getWrapperElement().style["font-size"] = fontSize + "px";
+            editor.getWrapperElement().style["width"] = "100%";
+            editor.getWrapperElement().style["height"] = "100%";
             editor.refresh();
         };
         return that.state.editorDom;

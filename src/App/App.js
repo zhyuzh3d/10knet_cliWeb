@@ -186,7 +186,6 @@ class App extends Component {
             that.state.liveVis ? h(Grid, {
                 item: true,
                 style: {
-                    //height: that.state.liveHei,
                     margin: 0,
                     padding: 0,
                 },
@@ -195,6 +194,7 @@ class App extends Component {
                 open: true,
                 roomId: 0,
             })) : null,
+            /*
             h(Grid, {
                 item: true,
                 className: css.viewer,
@@ -204,6 +204,7 @@ class App extends Component {
                 style: { height: that.state.viewerHei },
                 src: that.state.viewerUrl,
             })),
+            */
         ]));
 
 

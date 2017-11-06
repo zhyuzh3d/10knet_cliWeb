@@ -49,7 +49,7 @@ class com extends Component {
             className: css.container,
             style: that.props.style,
             onClick: () => {
-                console.log('>>>> roomStream', this.props.wdStream);
+                console.log('>liveVideo clicked:', this.props.wdStream);
             },
         }, [
             uid ? h('div', {

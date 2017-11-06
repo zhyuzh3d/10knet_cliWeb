@@ -17,6 +17,7 @@ import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
 import LiveVideo from '../../Units/Live/LiveVideo';
+import LiveBoard from '../../Units/Live/LiveBoard';
 import UserButton from '../../Units/User/UserButton';
 
 
@@ -25,6 +26,10 @@ const style = theme => ({
         padding: 0,
         margin: 0,
         width: '100%',
+        height:'100%',
+        flexDirection: 'column',
+        flexWrap: 'nowrap',
+        margin: -8,
     },
     btnGrp: {
         width: 128,
@@ -76,6 +81,17 @@ const style = theme => ({
         fontSize: 12,
         color: '#DDD',
         textAlign: 'center',
+    },
+    videoPanel: {
+        margin: 0,
+        padding: '8px 8px 0 8px',
+        maxHeight: 128,
+        flexGrow: 0,
+    },
+    boardPanel: {
+        margin: 0,
+        padding: '0px 8px',
+        flexGrow: 1,
     },
 });
 
@@ -180,6 +196,7 @@ class com extends Component {
                 }
             })
         });
+
         room.on('stream_received', function(roomStream) {
             roomStream.enableAudio(true);
             that.addLiveVideo(roomStream);
@@ -194,18 +211,21 @@ class com extends Component {
     //离开房间，停止推送本地视频／停止所有订阅，不关闭房间
     leaveRoom = global.$live.leaveRoom = () => {
         if(!this.state.currentRoom) return;
-        this.state.currentRoom.disconnect();
         this.setState({
             currentRoom: null,
             streamArr: []
         });
+        this.state.currentRoom.disconnect();
     };
 
     //删除一个视频流
     removeLiveVideo = (stream) => {
         let that = this;
+
         let arr = that.state.streamArr.map((item) => {
-            if(item.streamId !== stream.streamId) return item;
+            if(item && stream && item.streamId !== stream.streamId) {
+                return item;
+            };
         });
         that.setState({
             streamArr: arr,
@@ -411,14 +431,22 @@ class com extends Component {
         return that.props.open ? h(Grid, {
             container: true,
             className: css.panelBox,
-            style: Object.assign(that.props.style || {}, {
-                height: that.state.currentRoom ? 128 : '100%',
-            }),
         }, [
-            btnGrp,
-            videoGrp,
+            h(Grid, {
+                container: true,
+                className: css.videoPanel,
+            }, [
+                btnGrp,
+                videoGrp,
+            ]),
+            h(Grid, {
+                container: true,
+                className: css.boardPanel,
+            }, h(LiveBoard, {
+
+            })),
         ]) : null;
-    }
+    };
 };
 
 
