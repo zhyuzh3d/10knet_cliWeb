@@ -1,7 +1,7 @@
 /*
 直播面板，创建直播间或加入直播间
 props:{
-    roomId,如果没有指定那么使用uid
+    roomId,如果没有指定那么只能等待手工创建
     open,
     style,
     roomId,
@@ -26,7 +26,7 @@ const style = theme => ({
         padding: 0,
         margin: 0,
         width: '100%',
-        height:'100%',
+        height: '100%',
         flexDirection: 'column',
         flexWrap: 'nowrap',
         margin: -8,
@@ -100,6 +100,7 @@ global.$live = {};
 class com extends Component {
     state = {
         currentRoom: null,
+        roomInfo: null,
         streams: {}, //所有的媒体流
         streamArr: [], //所有的媒体流
         liveVideoElArr: [], //所有视频元素的列表
@@ -116,7 +117,7 @@ class com extends Component {
             if(!cuser) return;
 
             //读取自己收到的邀请，如果有新的则红色显示30秒
-            let ref = global.$wd.sync().ref(`liveinvite/${cuser.uid}`);
+            let ref = global.$wd.sync().ref(`uinvite/${cuser.uid}`);
             that.state.wdRefArr.push(ref);
             let nows = new Date().getTime();
             nows -= 600000; //10分钟之内
@@ -152,15 +153,31 @@ class com extends Component {
 
         global.$wd.video.initialize({
             appId: global.$conf.wd.videoAppId,
-            token: cuser.getToken()
+            token: cuser.getToken(),
         });
 
         if(!roomId && that.props.roomId === 0) {
-            roomId = (new Date().getTime()).toString(32);
-            roomId += (Math.random()).toString(32);
-        };
-
-        that.initRoom(roomId || that.props.roomId || cuser.uid);
+            //需要创建新房间
+            global.$wd.sync().ref(`iroom`).push({
+                author: cuser.uid,
+                chairMan: cuser.uid,
+            }).then(function(newRef) {
+                let id = newRef.key();
+                newRef.on('value', (shot) => {
+                    let info = Object.assign({ roomId: id }, shot.val());
+                    that.setState({ roomInfo: info });
+                });
+                that.initRoom(id);
+            });
+        } else {
+            //读取已有房间并加入
+            let id = roomId || that.props.roomId;
+            global.$wd.sync().ref(`iroom/${id}`).on('value', (shot) => {
+                let info = Object.assign({ roomId: id }, shot.val());
+                that.setState({ roomInfo: info });
+            });
+            that.initRoom(id);
+        }
     };
 
     //设置当前直播间
@@ -296,7 +313,7 @@ class com extends Component {
         if(!that.state.currentRoom) return;
         if(!global.$wd.auth().currentUser) return;
 
-        global.$wd.sync().ref(`liveinvite/${uid}`).push({
+        global.$wd.sync().ref(`uinvite/${uid}`).push({
             from: global.$wd.auth().currentUser.uid,
             fromName: global.$currentUser.displayName || '未命名用户',
             ts: global.$wd.sync().ServerValue.TIMESTAMP,
@@ -428,6 +445,7 @@ class com extends Component {
             className: css.liveEmpty,
         }, '遇到困难？开启直播邀请大神帮你忙！'));
 
+
         return that.props.open ? h(Grid, {
             container: true,
             className: css.panelBox,
@@ -439,12 +457,12 @@ class com extends Component {
                 btnGrp,
                 videoGrp,
             ]),
-            h(Grid, {
+            that.state.currentRoom && that.state.roomInfo ? h(Grid, {
                 container: true,
                 className: css.boardPanel,
             }, h(LiveBoard, {
-
-            })),
+                roomInfo: that.state.roomInfo,
+            })) : null,
         ]) : null;
     };
 };

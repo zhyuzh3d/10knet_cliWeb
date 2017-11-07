@@ -152,7 +152,7 @@ class App extends Component {
 
         //当前地址
         let urlObj = urlParser.parse(window.location.href);
-        console.log('>>urlObj', urlObj);
+        console.log('>app render');
 
         //可折叠右侧资源栏360宽
         let mainPart = h(Grid, {

@@ -13,6 +13,7 @@ props:{
         hintEngine(editor, opts),//代码提示引擎，参见codemirror官方文档addon:hint
     },
     onChange(editor, metadata, value),//value文字变化事件回调函数
+    public, //向外输出方法
 }
 自动注册搜索相关快捷键
 Ctrl-/ / Cmd-/ 注释掉选择行，开关
@@ -143,12 +144,27 @@ class MyComponent extends Component {
 
     //提前生成editorDom，不重复生产
     componentWillMount() {
+        this.state.editorDom = this.genEditorDom();
+    };
+
+    //输出所有方法
+    componentDidMount() {
+        let that = this;
+        if(that.props.public) {
+            for(let key in that) {
+                that.props.public[key] = that[key];
+            }
+        };
+    };
+
+    //生成editorDom
+    genEditorDom = () => {
         let that = this;
         const css = that.props.classes;
 
         let options = that.props.options || {};
         options = Object.assign(that.state.optionsDefault, options);
-        that.state.editorDom = h(ReactCodeMirror, {
+        let dom = h(ReactCodeMirror, {
             className: css.reactCM,
             value: that.props.value ? that.props.value : '',
             options: options,
@@ -159,6 +175,15 @@ class MyComponent extends Component {
             onKeyUp: (editor, evt) => {
                 that.autoHint(editor, evt);
                 that.props.onKeyUp && that.props.onChange(editor, evt);
+            },
+            onSelection: (editor, data) => {
+                that.props.onSelection && that.props.onSelection(editor, data);
+            },
+            onCursor: (editor, data) => {
+                that.props.onCursor && that.props.onCursor(editor, data);
+            },
+            onScroll: (editor, data) => {
+                that.props.onCursor && that.props.onCursor(editor, data);
             },
             editorDidMount: (editor) => {
                 that.setState({ editor: editor });
@@ -173,7 +198,8 @@ class MyComponent extends Component {
                 });
             },
         });
-    };
+        return dom;
+    }
 
     //自动格式化，默认格式化所有代码，如果未指定就使用默认引擎
     beautifyCode = (editor) => {
@@ -209,12 +235,38 @@ class MyComponent extends Component {
         editor.blockComment(range.from, range.to);
     };
 
-    //渲染每次都刷新全部options
+    //设置代码
+    setValue = (value) => {
+        let editor = this.state.editor;
+        if(editor) {
+            editor.setValue(value);
+        };
+    };
+
+    //执行选择
+    setSelection = (data) => {
+        let editor = this.state.editor;
+        if(editor) {
+            editor.setSelections(data);
+        };
+    };
+
+    //执行选择
+    setCursor = (data) => {
+        let editor = this.state.editor;
+        if(editor) {
+            editor.setCursor(data);
+        };
+    };
+
+
+    //渲染每次都刷新全部options,如果props带有value刷新value
     render() {
         let that = this;
         let options = that.props.options || {};
         let fontSize = that.props.fontSize || that.state.fontSize;
         options = Object.assign(that.state.optionsDefault, options);
+
         let editor = that.state.editor;
         if(editor) {
             for(var attr in options) {
@@ -224,6 +276,9 @@ class MyComponent extends Component {
             editor.getWrapperElement().style["width"] = "100%";
             editor.getWrapperElement().style["height"] = "100%";
             editor.refresh();
+
+            //确保同步代码
+            //that.props.value && editor.setValue(that.props.value);
         };
         return that.state.editorDom;
     }
