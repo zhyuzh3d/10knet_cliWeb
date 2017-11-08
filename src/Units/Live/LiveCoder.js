@@ -18,6 +18,7 @@ import FontA from 'react-fa';
 import MyCoder from '../../Utils/MyCoder';
 import Menu, { MenuItem } from 'material-ui/Menu';
 
+
 const style = theme => ({
     codersBox: {
         margin: 0,
@@ -30,6 +31,7 @@ class com extends Component {
     state = {
         value: '',
         editorPublic: {}, //用来放置子编辑器传递出来的函数
+        editorMode: 'text/x-c++src',
     };
 
     componentWillMount = async function() {};
@@ -109,6 +111,9 @@ class com extends Component {
                 onChange: that.onChange,
                 onSelection: that.onSelection,
                 public: that.state.editorPublic,
+                options: {
+                    mode: that.state.editorMode,
+                }
             }),
         ]);
     }

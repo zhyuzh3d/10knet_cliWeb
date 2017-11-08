@@ -26,7 +26,7 @@ const style = theme => ({
         padding: 0,
         margin: 0,
         width: '100%',
-        height: '100%',
+        height: 'calc(100% + 8px)',
         flexDirection: 'column',
         flexWrap: 'nowrap',
         margin: -8,
