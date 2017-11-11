@@ -27,6 +27,11 @@ let ConfBase = {
         postUrl: /^https?:\/\//,
     },
     assetTypes: {
+        slider: {
+            id: 'slider',
+            name: '演示',
+            icon: 'caret-square-o-right',
+        },
         link: {
             id: 'link',
             name: '链接',

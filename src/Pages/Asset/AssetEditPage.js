@@ -14,6 +14,7 @@ import { withStyles } from 'material-ui/styles';
 
 import MyUpload from '../../Utils/MyUpload';
 import NavBar from '../../Units/MainAppBar/NavBar';
+import SliderEditor from '../../Units/Slider/SliderEditor';
 
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
@@ -75,7 +76,8 @@ class com extends Component {
         assetId: null,
         title: '新建素材',
         contentHeight: window.innerHeight - 48,
-        curType: global.$conf.assetTypes.link,
+        curType: global.$conf.assetTypes.slider,
+        sliderPublic: {},
         file: null,
         assetUrl: '', //http开头的完整地址
         assetTitle: '',
@@ -121,6 +123,7 @@ class com extends Component {
         let userId = curUser.uid;
         let newAsset = {
             url: that.state.assetUrl,
+            sliderId: that.state.sliderPublic.sliderId,
             title: that.state.assetTitle,
             desc: that.state.assetDesc,
             author: curUser.uid,
@@ -639,6 +642,8 @@ class com extends Component {
                     onChange: (e) => { that.setState({ assetDesc: e.target.value }) },
                 }),
             ]),
+
+            //保存、取消按钮
             h('div', {
                 className: css.btnRow,
             }, [
@@ -656,6 +661,13 @@ class com extends Component {
                     onClick: () => { that.saveAsset() },
                 }, '保 存'),
             ]),
+
+
+            //编辑创建幻灯片
+            that.state.curType === AssetTypes.slider ? h(SliderEditor, {
+                silderId: that.state.asset ? that.state.asset.sliderId : null,
+                public: that.state.sliderPublic,
+            }) : undefined,
 
         ];
 

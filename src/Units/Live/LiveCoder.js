@@ -12,11 +12,8 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
-import Button from 'material-ui/Button';
-import FontA from 'react-fa';
 
 import MyCoder from '../../Utils/MyCoder';
-import Menu, { MenuItem } from 'material-ui/Menu';
 
 
 const style = theme => ({
@@ -91,7 +88,7 @@ class com extends Component {
         const css = that.props.classes;
 
         //如果主持身份发生变化，那么启动或者暂停代码同步
-        if(that.onChair != that.props.onChair) {
+        if(that.onChair !== that.props.onChair) {
             if(that.props.onChair) {
                 that.stopSync();
             } else {

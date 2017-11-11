@@ -11,6 +11,7 @@
  *  raised:false|true,按钮样式
  *  label:'上传文件',按钮的文字
  *  icon:'insert_drive_file',按钮的图标
+ *  multiple:boolean，多文件
  *  nameRegx:'^\.+$',对文件名进行验证的正则表达式，例如'^.+(?:.png|.jpg)$'
  *  accept:'',接受的文件MIME类型（仅browser有效）
  *  children:'上传文件',按钮文字，可以是任何dom元素h('div',{},[h(HomeIcon),h('span','上传home')]}
@@ -41,7 +42,7 @@ import BackupIcon from 'material-ui-icons/Backup';
 var $fn = {};
 const _style = theme => ({
     label: {
-        fontSize: 18,
+        fontSize: 16,
     },
     overlay: {
         position: 'absolute',
@@ -77,6 +78,7 @@ class MyComponent extends Component {
         let that = this;
         return h('input', {
             type: "file",
+            multiple: that.props.multiple,
             accept: (that.props.accept || ''),
             ref: (dom) => { that.state.inputDom = dom },
             onChange: (event) => { that.onChange(event.target.files) },
@@ -245,7 +247,7 @@ class MyComponent extends Component {
             }, [
                 that.props.children || h('div', {}, [
                     h(BackupIcon, { className: css.vmid }),
-                    h('span', { className: css.vmid }, ' 上传文件'),
+                    h('span', { className: css.vmid }, that.props.label || ' 上传文件'),
                 ]),
                 h('div', {
                     className: css.overlay,
@@ -258,6 +260,7 @@ class MyComponent extends Component {
             h('input', {
                 className: css.finput,
                 type: "file",
+                multiple: that.props.multiple,
                 accept: (that.props.accept || ''),
                 ref: (dom) => { that.state.inputDom = dom },
                 onChange: (event) => { that.onChange(event.target.files) },

@@ -144,7 +144,7 @@ class MyComponent extends Component {
 
     //提前生成editorDom，不重复生产
     componentWillMount() {
-        this.state.editorDom = this.genEditorDom();
+        this.setState({ editorDom: this.genEditorDom() });
     };
 
     //输出所有方法

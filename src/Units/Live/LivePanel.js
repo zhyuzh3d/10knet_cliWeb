@@ -24,7 +24,6 @@ import UserButton from '../../Units/User/UserButton';
 const style = theme => ({
     panelBox: {
         padding: 0,
-        margin: 0,
         width: '100%',
         height: 'calc(100% + 8px)',
         flexDirection: 'column',
@@ -238,10 +237,10 @@ class com extends Component {
     //删除一个视频流
     removeLiveVideo = (stream) => {
         let that = this;
-
-        let arr = that.state.streamArr.map((item) => {
+        let arr = [];
+        that.state.streamArr.forEach((item) => {
             if(item && stream && item.streamId !== stream.streamId) {
-                return item;
+                arr.push(item);
             };
         });
         that.setState({
