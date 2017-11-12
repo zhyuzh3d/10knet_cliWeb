@@ -22,12 +22,13 @@ import FontA from 'react-fa';
 import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
 
 import MyUpload from '../../Utils/MyUpload';
+import SliderPage from '../../Units/Slider/SliderPage';
 
 
 
 const style = theme => ({
-    cardsBox: {
-        marginTop: 24,
+    sliderBox: {
+        marginTop: 32,
     },
     textField: {
         width: '100%',
@@ -40,9 +41,22 @@ const style = theme => ({
         padding: 20,
         paddingTop: 0,
     },
+    sliderLabel: {
+        fontSize: 14,
+        margin: '8px 0',
+    },
     pageLabel: {
         fontSize: 10,
-    }
+    },
+    sliderLabel2: {
+        fontSize: 12,
+        fontWeight: 100,
+        color: '#AAA',
+        marginLeft: 8,
+    },
+    pageList: {
+        width: '100%',
+    },
 });
 
 //元件
@@ -54,23 +68,20 @@ class com extends Component {
     componentDidMount = async function() {
         let that = this;
         if(that.props.sliderId) {
-            that.getSlider();
+            that.getSlider(that.props.sliderId);
         } else {
             that.newSlider();
         };
     };
 
     //获取slider
-    getSlider = () => {
+    getSlider = (id) => {
         let that = this;
-        let id = that.props.sliderId;
         if(!id) return;
-        global.$wd.sync().ref(`slider/${id}`).once('value').then(function(shot) {
+        global.$wd.sync().ref(`slider/${id}`).on('value', (shot) => {
             that.setState({
                 slider: shot.val(),
-            })
-        }).catch(function(err) {
-            global.$snackbar.fn.show('读取演示失败', 2000);
+            });
         });
     };
 
@@ -84,13 +95,7 @@ class com extends Component {
             let key = res.key();
             that.props.public ? that.props.public.sliderId = key : null;
             global.$snackbar.fn.show('创建演示成功', 2000);
-            that.setState({
-                silder: {
-                    id: key,
-                    title: '',
-                    text: '',
-                }
-            });
+            that.getSlider(key);
         });
     };
 
@@ -131,14 +136,43 @@ class com extends Component {
         that.setState({ slider: that.state.slider });
     };
 
-    //添加一张或多张图片，自动创建多个pages
-    addImgs = () => {
-
-    };
-
     //通过图像添加一个页面
     createPageByImg = (file) => {
-        console.log('>>>createPageByImg', file);
+        let that = this;
+        let sid = that.props.sliderId || that.props.public.sliderId;
+        if(!sid) return;
+        let ref = global.$wd.sync().ref(`slider/${sid}/pages/`);
+        ref.push({
+            index: file.index,
+        }).then((shot) => {
+            file.pageWdRef = `slider/${sid}/pages/${shot.key()}`;
+        });
+    };
+
+    //自动排序修正index,读取再重新设定
+    autoSortPage = () => {
+        let that = this;
+        let sid = that.props.sliderId || that.props.public.sliderId;
+        if(!sid) return;
+        let ref = global.$wd.sync().ref(`slider/${sid}/pages/`);
+        ref.once('value').then((shot) => {
+            let data = shot.val();
+            let len = 0;
+            for(let key in data) {
+                data[key].index = len;
+                len++;
+            };
+            global.$wd.sync().ref(`slider/${sid}/pages/`).update(data || {});
+        });
+    };
+
+    //上传单个背景图片成功
+    uploadImgSuccess = (file) => {
+        if(!file.pageWdRef) return;
+        let ref = global.$wd.sync().ref(file.pageWdRef);
+        ref.update({
+            bgUrl: `http://${file.url}`,
+        });
     };
 
 
@@ -146,40 +180,52 @@ class com extends Component {
         let that = this;
         const css = that.props.classes;
         let stream = this.props.wdStream;
+        let slider = that.state.slider;
+        let sid = that.props.sliderId || that.props.public.sliderId;
+
+        let pageElArr = [];
+        if(slider && slider.pages) {
+            for(let key in slider.pages) {
+                let page = slider.pages[key];
+                console.log('>>>>uuuu', page);
+                pageElArr.push(h(SliderPage, {
+                    wdRef: `slider/${sid}/pages/${key}`,
+                    data: page,
+                    mode: 'edit',
+                }));
+            };
+        };
 
         return h('div', {
-            className: css.cardsBox,
+            className: css.sliderBox,
         }, [
+            h('div', {
+                className: css.sliderLabel,
+            }, [
+                h('span', '编辑演示'),
+                h('span', {
+                    className: css.sliderLabel2,
+                }, '以下修改自动保存，无须手动')
+            ]),
+            h('div', {
+                className: css.pageList,
+            }, pageElArr),
+            h('div', { style: { height: 16 } }),
             h(MyUpload, {
                 raised: true,
                 color: 'primary',
-                label: ' 上传页面图片',
-                style: { padding: '8px 16px' },
+                label: ' 新增页面图片',
+                style: { padding: '8px 16px', display: 'inline-block' },
                 multiple: true,
                 onChange: that.createPageByImg,
+                success: that.uploadImgSuccess,
             }),
-            h('div', {
-                className: css.pageLabel,
-            }, 'PAGE-1'),
-            h('div', {
-                className: css.card,
-            }, [
-                false && h(TextField, {
-                    className: css.textField,
-                    label: '页面标题',
-                    placeholder: '画面顶部显示的标题,32字以内',
-                    value: that.state.slider ? that.state.slider.title : '',
-                    onChange: (e) => { that.setState({ title: e.target.value }) },
-                }),
-                false && h(TextField, {
-                    className: css.textField,
-                    label: '页面文字',
-                    multiline: true,
-                    placeholder: '画面中间显示的文字,256字以内',
-                    value: that.state.slider ? that.state.slider.text : '',
-                    onChange: (e) => { that.setState({ text: e.target.value }) },
-                }),
-            ]),
+            pageElArr.length > 0 ? h(Button, {
+                style: { marginLeft: 8 },
+                onClick: () => {
+                    that.autoSortPage();
+                },
+            }, '自动排序') : undefined,
         ]);
     }
 };

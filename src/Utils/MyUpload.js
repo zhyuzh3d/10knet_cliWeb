@@ -57,7 +57,10 @@ const _style = theme => ({
     },
     vmid: {
         verticalAlign: 'middle'
-    }
+    },
+    box: {
+        display: 'inline-block',
+    },
 });
 
 const freezeDefault = 3000;
@@ -76,9 +79,11 @@ class MyComponent extends Component {
 
     genInputDom = () => {
         let that = this;
+        let css = that.props.classes;
         return h('input', {
             type: "file",
             multiple: that.props.multiple,
+            className: css.finput,
             accept: (that.props.accept || ''),
             ref: (dom) => { that.state.inputDom = dom },
             onChange: (event) => { that.onChange(event.target.files) },
@@ -204,8 +209,14 @@ class MyComponent extends Component {
     //文件被选择，选择文件改变
     onChange = (files) => {
         let that = this;
-        var file = (FileList.length >= 0) ? files[0] : null;
-        if(!file) return;
+        let fileArr = [];
+        for(let key in files) {
+            files[key].path && fileArr.push(files[key]);
+        };
+        if(fileArr.length <= 0) return;
+        fileArr.forEach((item, index) => {
+            item.index = index; //添加位置索引
+        });
 
         //延迟以清理原有input，避免重复选择文件不能触发事件
         that.setState({ inputDom: null });
@@ -213,20 +224,23 @@ class MyComponent extends Component {
             that.setState({ inputDom: that.genInputDom() });
         }, 100);
 
-        //检查文件格式
-        var regx = new RegExp(this.props.nameRegx || '^.+$');
-        if(!regx.test(file.name)) {
-            if(global.$alert) {
-                global.$alert.fn.show('文件格式错误', '上传被取消，请重新选择');
-            } else {
-                alert('文件格式错误', '上传被取消，请重新选择');
+        fileArr.forEach((file, index) => {
+            that.props.onChange && that.props.onChange(file, fileArr);
+            //检查文件格式
+            var regx = new RegExp(this.props.nameRegx || '^.+$');
+            if(!regx.test(file.name)) {
+                if(global.$alert) {
+                    global.$alert.fn.show('文件格式错误', '上传被取消，请重新选择');
+                } else {
+                    alert('文件格式错误', '上传被取消，请重新选择');
+                };
+                return;
             };
-            return;
-        };
 
-        //启动获取token的操作然后自动上传
-        that.start(file, that.upload, (err, res) => {
-            alert(`获取上传权限失败:${err||res.message}`);
+            //启动获取token的操作然后自动上传
+            that.start(file, that.upload, (err, res) => {
+                alert(`获取上传权限失败:${err||res.message}`);
+            });
         });
     };
 
@@ -235,7 +249,9 @@ class MyComponent extends Component {
         let that = this;
         let css = that.props.classes;
 
-        return h('div', {}, [
+        return h('div', {
+            className: css.box,
+        }, [
             h(Button, {
                 color: that.props.color || 'inherit',
                 raised: that.props.raised || false,
@@ -257,10 +273,10 @@ class MyComponent extends Component {
                     }
                 })
             ]),
-            h('input', {
-                className: css.finput,
+             h('input', {
                 type: "file",
                 multiple: that.props.multiple,
+                className: css.finput,
                 accept: (that.props.accept || ''),
                 ref: (dom) => { that.state.inputDom = dom },
                 onChange: (event) => { that.onChange(event.target.files) },
