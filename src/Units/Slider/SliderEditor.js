@@ -65,7 +65,7 @@ class com extends Component {
         slider: null,
     };
 
-    componentDidMount = async function() {
+    componentWillMount = async function() {
         let that = this;
         if(that.props.sliderId) {
             that.getSlider(that.props.sliderId);
@@ -74,13 +74,18 @@ class com extends Component {
         };
     };
 
-    //获取slider
+    //获取slider，对page根据index排序
     getSlider = (id) => {
         let that = this;
         if(!id) return;
         global.$wd.sync().ref(`slider/${id}`).on('value', (shot) => {
+            let data = shot.val();
+            let newData = data;
+            if(data.pages) {
+                newData.pages = global.$fn.sortObjByKey(data.pages, 'pos');
+            };
             that.setState({
-                slider: shot.val(),
+                slider: newData,
             });
         });
     };
@@ -142,8 +147,17 @@ class com extends Component {
         let sid = that.props.sliderId || that.props.public.sliderId;
         if(!sid) return;
         let ref = global.$wd.sync().ref(`slider/${sid}/pages/`);
+
+        //计算slider已有页面数量
+        let baseN = 0;
+        if(that.state.slider && that.state.slider.pages) {
+            for(let key in that.state.slider.pages) {
+                baseN++;
+            }
+        };
+
         ref.push({
-            index: file.index,
+            pos: baseN + Number(file.index),
         }).then((shot) => {
             file.pageWdRef = `slider/${sid}/pages/${shot.key()}`;
         });
@@ -157,12 +171,13 @@ class com extends Component {
         let ref = global.$wd.sync().ref(`slider/${sid}/pages/`);
         ref.once('value').then((shot) => {
             let data = shot.val();
-            let len = 0;
-            for(let key in data) {
-                data[key].index = len;
-                len++;
-            };
-            global.$wd.sync().ref(`slider/${sid}/pages/`).update(data || {});
+            let arr = global.$fn.sortObjByKey(data, 'pos');
+            let newData = {};
+            arr.forEach((item, index) => {
+                item.pos = index;
+                newData[item.key] = item;
+            });
+            global.$wd.sync().ref(`slider/${sid}/pages/`).update(newData || {});
         });
     };
 
@@ -185,15 +200,14 @@ class com extends Component {
 
         let pageElArr = [];
         if(slider && slider.pages) {
-            for(let key in slider.pages) {
-                let page = slider.pages[key];
-                console.log('>>>>uuuu', page);
+            slider.pages.forEach((page, index) => {
                 pageElArr.push(h(SliderPage, {
-                    wdRef: `slider/${sid}/pages/${key}`,
+                    pageId: page.key,
+                    wdRef: `slider/${sid}/pages/${page.key}`,
                     data: page,
                     mode: 'edit',
                 }));
-            };
+            });
         };
 
         return h('div', {
