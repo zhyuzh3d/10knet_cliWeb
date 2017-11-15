@@ -1,5 +1,5 @@
 /*
-直播面板，创建直播间或加入直播间
+视频直播面板
 props:{
     roomId,如果没有指定那么只能等待手工创建
     open,
@@ -17,7 +17,6 @@ import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
 import LiveVideo from '../../Units/Live/LiveVideo';
-import LiveRoom from '../../Units/Live/LiveRoom';
 import LiveBoard from '../../Units/Live/LiveBoard';
 import UserButton from '../../Units/User/UserButton';
 
@@ -25,38 +24,47 @@ import UserButton from '../../Units/User/UserButton';
 const style = theme => ({
     panelBox: {
         padding: 0,
-        margin: 0,
         width: '100%',
+        height: 'calc(100% + 8px)',
         flexDirection: 'column',
         flexWrap: 'nowrap',
-        height: '100%',
+        margin: -8,
     },
-    btnBar: {
-        width: '100%',
+    btnGrp: {
+        width: 128,
+        flexGrow: 'initial',
         padding: 0,
         margin: 0,
-        height: 48,
+    },
+    videoGrp: {
+        background: '#99a',
+        flexGrow: 1,
+        padding: 0,
+        margin: 0,
+    },
+    fullWidthBth: {
+        width: 128,
+        height: '50%',
+        margin: 0,
+        padding: 0,
         borderBottom: '1px solid #EEE',
-        background: '#F5F5F5',
     },
-    btn: {
+    widthBth6: {
+        width: 80,
+        height: '50%',
+        minWidth: 36,
         margin: 0,
         padding: 0,
-        height: 48,
+        borderBottom: '1px solid #EEE',
         borderRight: '1px solid #EEE',
-        minWidth: 56,
-        cursor: 'pointer',
-        background: '#FFF',
     },
-    btn2: {
+    widthBth4: {
+        width: 48,
+        minWidth: 36,
+        height: '50%',
         margin: 0,
         padding: 0,
-        height: 48,
-        borderLeft: '1px solid #EEE',
-        minWidth: 56,
-        cursor: 'pointer',
-        background: '#FFF',
-        float:'right',
+        borderBottom: '1px solid #EEE',
     },
     inviteName: {
         fontSize: 16,
@@ -65,6 +73,19 @@ const style = theme => ({
     invitePs: {
         fontSize: 12,
         fontWeight: 200,
+    },
+    liveEmpty: {
+        width: '100%',
+        marginTop: 30,
+        fontSize: 12,
+        color: '#DDD',
+        textAlign: 'center',
+    },
+    videoPanel: {
+        margin: 0,
+        padding: '8px 8px 0 8px',
+        maxHeight: 128,
+        flexGrow: 0,
     },
     boardPanel: {
         margin: 0,
@@ -77,15 +98,17 @@ const style = theme => ({
 global.$live = {};
 class com extends Component {
     state = {
-        roomInfo: null, //读取iroom数据库的info
-        wdRefArr: [], //所有需要取消的野狗监听
-        hasNewInvite: 0, //是否有新的邀请
+        currentRoom: null,
+        roomInfo: null,
+        streams: {}, //所有的媒体流
+        streamArr: [], //所有的媒体流
+        liveVideoElArr: [], //所有视频元素的列表
+        liveVideoEls: {}, //和Arr完全一致的id索引
         liveInviteArr: [], //收到的所有邀请
-        useRoom: false, //是否使用视频模块
-        useLiveCode: false, //是否使用同步代码模块
+        wdRefArr: [],
+        hasNewInvite: 0,
     };
 
-    //初始化邀请提示
     componentDidMount = async function() {
         let that = this;
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
@@ -118,7 +141,7 @@ class com extends Component {
         });
     };
 
-    //创建直播教室,默认自己主持，操作数据库iroom
+    //创建直播房间
     setRoom = global.$live.setRoom = (roomId) => {
         let that = this;
         let cuser = global.$wd.auth().currentUser;
@@ -127,18 +150,23 @@ class com extends Component {
             return;
         };
 
+        global.$wd.video.initialize({
+            appId: global.$conf.wd.videoAppId,
+            token: cuser.getToken(),
+        });
+
         if(!roomId && that.props.roomId === 0) {
             //需要创建新房间
             global.$wd.sync().ref(`iroom`).push({
                 author: cuser.uid,
                 chairMan: cuser.uid,
-                ts: global.$wd.sync().ServerValue.TIMESTAMP,
             }).then(function(newRef) {
                 let id = newRef.key();
                 newRef.on('value', (shot) => {
                     let info = Object.assign({ roomId: id }, shot.val());
                     that.setState({ roomInfo: info });
                 });
+                that.initRoom(id);
             });
         } else {
             //读取已有房间并加入
@@ -147,7 +175,87 @@ class com extends Component {
                 let info = Object.assign({ roomId: id }, shot.val());
                 that.setState({ roomInfo: info });
             });
+            that.initRoom(id);
         }
+    };
+
+    //设置当前直播间
+    initRoom = (roomId) => {
+        let that = this;
+        //创建房间，自动发布自己的摄像头视频流
+        var room = global.$wd.video.room(roomId);
+        room.connect();
+        room.on('connected', () => {
+            global.$wd.video.createLocalStream({
+                captureAudio: true,
+                captureVideo: true,
+                dimension: '480p',
+                maxFPS: 15,
+            }).then(function(localStream) {
+                that.setState({ currentRoom: room });
+
+                room.publish(localStream, function(error) {
+                    if(error == null) {
+                        global.$snackbar.fn.show('成功进入房间');
+                    }
+                });
+                localStream.muted = true;
+                that.addLiveVideo(localStream);
+            });
+        });
+
+        //监听新成员的加入
+        room.on('stream_added', function(roomStream) {
+            room.subscribe(roomStream, function(err) {
+                if(err != null) {
+                    console.log(`>[LivePanel:setRoom:stream_added]failed:${err.message}`);
+                }
+            })
+        });
+
+        room.on('stream_received', function(roomStream) {
+            roomStream.enableAudio(true);
+            that.addLiveVideo(roomStream);
+        });
+
+        //监听成员的退出,去掉对应的video
+        room.on('stream_removed', function(roomStream) {
+            that.removeLiveVideo(roomStream);
+        })
+    };
+
+    //离开房间，停止推送本地视频／停止所有订阅，不关闭房间
+    leaveRoom = global.$live.leaveRoom = () => {
+        if(!this.state.currentRoom) return;
+        this.setState({
+            currentRoom: null,
+            streamArr: []
+        });
+        this.state.currentRoom.disconnect();
+    };
+
+    //删除一个视频流
+    removeLiveVideo = (stream) => {
+        let that = this;
+        let arr = [];
+        that.state.streamArr.forEach((item) => {
+            if(item && stream && item.streamId !== stream.streamId) {
+                arr.push(item);
+            };
+        });
+        that.setState({
+            streamArr: arr,
+        });
+    };
+
+    //添加一个视频流
+    addLiveVideo = (stream) => {
+        let that = this;
+
+        that.state.streamArr.push(stream);
+        that.setState({
+            streamArr: that.state.streamArr,
+        });
     };
 
 
@@ -197,10 +305,11 @@ class com extends Component {
         });
     };
 
+
     //邀请某人，向liveInvite／uid字段push新对象
     inviteUser = (uid, tip) => {
         let that = this;
-        if(!that.state.roomInfo) return;
+        if(!that.state.currentRoom) return;
         if(!global.$wd.auth().currentUser) return;
 
         global.$wd.sync().ref(`uinvite/${uid}`).push({
@@ -208,7 +317,7 @@ class com extends Component {
             fromName: global.$currentUser.displayName || '未命名用户',
             ts: global.$wd.sync().ServerValue.TIMESTAMP,
             ps: tip || 'TA什么也没说...',
-            roomId: that.state.roomInfo.roomId,
+            roomId: that.state.currentRoom.roomId,
         });
     };
 
@@ -248,136 +357,106 @@ class com extends Component {
         });
     };
 
-    //离开房间，停用room，livecode等
-    leaveRoom = global.$live.leaveRoom = () => {
-        let that = this;
-        global.$confirm.fn.show({
-            title: '您即将离开房间',
-            text: '退出后无法返回，除非再次收到此房间人员的邀请',
-            okHandler: () => {
-                that.setState({
-                    roomInfo: null,
-                    useLiveCode: false,
-                    useRoom: false,
-                });
-            },
-        });
-    };
 
     render() {
         let that = this;
         const css = that.props.classes;
 
-        let roomInfo = that.state.roomInfo;
 
-        //开启或退出按钮
-        let exitBtn = h(Button, {
-            className: css.btn,
-            onClick: () => {
-                that.leaveRoom();
-            },
+        let btnGrp = h(Grid, {
+            item: true,
+            className: css.btnGrp,
+            style: { padding: 0 },
         }, [
-           h(FontA, {
-                name: 'close',
-            }),
-        ]);
-        let startBtn = h(Button, {
-            className: css.btn,
-            onClick: () => {
-                that.setRoom();
-                that.setState({ settingRoom: true });
-                setTimeout(() => {
-                    that.setState({ settingRoom: false });
-                }, 3000);
-            },
-            disabled: that.state.settingRoom,
-        }, [
-           h(FontA, {
-                name: 'flash',
-            })
-        ]);
-
-        //弹窗发起邀请按钮
-        let inviteBtn = h(Button, {
-            className: css.btn,
-            onClick: () => {
-                that.showInviteDiaolog();
-            },
-            disabled: !that.state.roomInfo,
-        }, [
-           h(FontA, {
-                name: 'user-circle-o',
-            }),
-        ]);
-
-        //显示我的邀请函按钮
-        let myInviteBtn = h(Button, {
-            className: css.btn,
-            style: {
-                background: that.state.hasNewInvite % 2 <= 0 ? '#FFF' : '#f50057',
-                color: that.state.hasNewInvite % 2 <= 0 ? (that.state.liveInviteArr.length < 1 ? '#AAA' : 'inherit') : '#FFF',
-            },
-            onClick: () => {
-                that.showMyInviteDiaolog();
-            },
-            disabled: !that.state.liveInviteArr.length > 0,
-        }, [
-           h(FontA, {
-                name: 'vcard-o',
-            }),
-        ]);
-
-        //使用代码模块按钮
-        let liveCodeBtn = h(Button, {
-            className: css.btn2,
-            style: {
-                background: 'inherit',
-                color: that.state.useLiveCode ? '#f50057' : '#AAA',
-            },
-            onClick: () => {
-                that.setState({ useLiveCode: !that.state.useLiveCode });
-            },
-        }, [
-           h(FontA, {
-                name: 'code',
-            }),
+           that.state.currentRoom ? h(Button, {
+                className: css.fullWidthBth,
+                onClick: () => {
+                    that.leaveRoom();
+                },
+            }, [
+               h(FontA, {
+                    name: 'close',
+                    style: { marginRight: 4 },
+                }),
+               h('span', '退出')
+            ]) : h(Button, {
+                className: css.fullWidthBth,
+                onClick: () => {
+                    that.setRoom();
+                    that.setState({ settingRoom: true });
+                    setTimeout(() => {
+                        that.setState({ settingRoom: false });
+                    }, 3000);
+                },
+                disabled: that.state.settingRoom,
+            }, [
+               h(FontA, {
+                    name: 'flash',
+                    style: { marginRight: 4 },
+                }),
+               h('span', '直播')
+            ]),
+            h(Button, {
+                className: css.widthBth6,
+                onClick: () => {
+                    that.showInviteDiaolog();
+                },
+                disabled: !that.state.currentRoom,
+            }, [
+               h(FontA, {
+                    name: 'user-circle-o',
+                    style: { marginRight: 4 },
+                }),
+               h('span', '邀请')
+            ]),
+            h(Button, {
+                className: css.widthBth4,
+                style: {
+                    background: that.state.hasNewInvite % 2 <= 0 ? 'inherit' : '#f50057',
+                    color: that.state.hasNewInvite % 2 <= 0 ? (that.state.liveInviteArr.length < 0 ? '#CCC' : 'inherit') : '#FFF',
+                },
+                onClick: () => {
+                    that.showMyInviteDiaolog();
+                },
+                disabled: !that.state.liveInviteArr.length > 0,
+            }, [
+               h(FontA, {
+                    name: 'vcard-o',
+                    style: {
+                        marginRight: 4,
+                    },
+                }),
+            ]),
         ]);
 
-        //使用直播视频模块按钮
-        let liveRoomBtn = h(Button, {
-            className: css.btn2,
-            style: {
-                background: 'inherit',
-                color: that.state.useLiveCode ? '#f50057' : '#AAA',
-            },
-            onClick: () => {
-                that.setState({ useLiveRoom: !that.state.useLiveRoom });
-            },
-        }, [
-           h(FontA, {
-                name: 'youtube-play',
-            }),
-        ]);
+
+        let videoArr = that.state.streamArr.map((stream, index) => {
+            return h(LiveVideo, {
+                wdStream: stream,
+            });
+        });
+
+        let videoGrp = h(Grid, {
+            item: true,
+            className: css.videoGrp,
+            style: { padding: 0 },
+        }, videoArr.length > 0 ? videoArr : h('div', {
+            className: css.liveEmpty,
+        }, '遇到困难？开启直播邀请大神帮你忙！'));
+
 
         return that.props.open ? h(Grid, {
             container: true,
             className: css.panelBox,
         }, [
-            roomInfo && that.state.useLiveRoom ? h(LiveRoom, {
-                roomId: roomInfo.roomId,
-            }) : undefined,
-
-            h('div', {
-                className: css.btnBar,
+            h(Grid, {
+                container: true,
+                className: css.videoPanel,
             }, [
-                roomInfo ? exitBtn : startBtn,
-                inviteBtn,
-                myInviteBtn,
-                liveCodeBtn,
-                liveRoomBtn,
+                btnGrp,
+                videoGrp,
             ]),
-
-            roomInfo && that.state.useLiveCode ? h(Grid, {
+            that.state.currentRoom && that.state.roomInfo ? h(Grid, {
                 container: true,
                 className: css.boardPanel,
             }, h(LiveBoard, {

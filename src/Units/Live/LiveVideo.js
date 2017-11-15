@@ -1,5 +1,5 @@
 /*
-直播视频窗口
+用户直播视频
 props:{
     wdStream,媒体流
     style,样式
