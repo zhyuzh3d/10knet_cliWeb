@@ -81,7 +81,7 @@ class com extends Component {
         wdRefArr: [], //所有需要取消的野狗监听
         hasNewInvite: 0, //是否有新的邀请
         liveInviteArr: [], //收到的所有邀请
-        useRoom: false, //是否使用视频模块
+        useRoom: true, //是否使用视频模块
         useLiveCode: false, //是否使用同步代码模块
     };
 
