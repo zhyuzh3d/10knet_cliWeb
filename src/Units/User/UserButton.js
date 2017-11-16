@@ -64,18 +64,17 @@ class com extends Component {
         user: {},
     };
 
-    //参数变更时候
-    componentWillReceiveProps = async function() {
-        this.getUserInfo();
-    };
-
     //获取用户基本信息
     getUserInfo = () => {
         let that = this;
         let userId = that.props.userId;
         global.$wd.sync().ref(`user/${userId}`).once('value', (shot) => {
             let user = merge({ uid: userId }, shot.val() || {});
-            that.setState({ user: user });
+            try {
+                that.setState({ user: user });
+            } catch(err) {
+                console.log(`[UserButton:getUserInfo:Err]${err.message}`);
+            }
         });
     };
 
@@ -101,7 +100,7 @@ class com extends Component {
             h('img', {
                 src: user.photoURL ? `http://${user.photoURL}-thumb64` : global.$conf.defaultIcon,
                 className: css.userImg,
-                style: Object.assign(that.props.iconStyle || {}, {
+                style: merge(that.props.iconStyle || {}, {
                     width: size.img,
                     height: size.img,
                     borderRadius: size.img,
@@ -109,7 +108,7 @@ class com extends Component {
             }),
             h('div', {
                 className: css.userName,
-                style: Object.assign(that.props.nameStyle || {}, {
+                style: merge(that.props.nameStyle || {}, {
                     fontSize: size.font,
                     verticalAlign: 'middle',
                 }),

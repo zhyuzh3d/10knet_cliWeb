@@ -20,75 +20,17 @@ import UserButton from '../../Units/User/UserButton';
 
 
 const style = theme => ({
-    panelBox: {
-        padding: 0,
+    videosBox: {
+        height: '100%',
         width: '100%',
-        height: 'calc(100% + 8px)',
-        flexDirection: 'column',
-        flexWrap: 'nowrap',
-        margin: -8,
-    },
-    btnGrp: {
-        width: 128,
-        flexGrow: 'initial',
-        padding: 0,
-        margin: 0,
+        position: 'relative',
     },
     videoGrp: {
+        height: '100%',
         background: '#99a',
         flexGrow: 1,
         padding: 0,
         margin: 0,
-    },
-    fullWidthBth: {
-        width: 128,
-        height: '50%',
-        margin: 0,
-        padding: 0,
-        borderBottom: '1px solid #EEE',
-    },
-    widthBth6: {
-        width: 80,
-        height: '50%',
-        minWidth: 36,
-        margin: 0,
-        padding: 0,
-        borderBottom: '1px solid #EEE',
-        borderRight: '1px solid #EEE',
-    },
-    widthBth4: {
-        width: 48,
-        minWidth: 36,
-        height: '50%',
-        margin: 0,
-        padding: 0,
-        borderBottom: '1px solid #EEE',
-    },
-    inviteName: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    invitePs: {
-        fontSize: 12,
-        fontWeight: 200,
-    },
-    liveEmpty: {
-        width: '100%',
-        marginTop: 30,
-        fontSize: 12,
-        color: '#DDD',
-        textAlign: 'center',
-    },
-    videoPanel: {
-        margin: 0,
-        padding: '8px 8px 0 8px',
-        maxHeight: 128,
-        flexGrow: 0,
-    },
-    boardPanel: {
-        margin: 0,
-        padding: '0px 8px',
-        flexGrow: 1,
     },
 });
 
@@ -102,6 +44,7 @@ class com extends Component {
         liveVideoElArr: [], //所有视频元素的列表
         liveVideoEls: {}, //和Arr完全一致的id索引
         wdRefArr: [], //全部野狗监听
+        localStream: null, //本地流，以便于停止
     };
 
     componentWillMount = async function() {
@@ -114,7 +57,23 @@ class com extends Component {
             item.off();
         });
         //关闭后自动断开直播
-        this.state.room.disconnect();
+        this.quitRoom();
+    };
+
+    //退出房间清理
+    quitRoom = () => {
+        let that = this;
+        let room = that.state.room;
+        if(!room) return;
+
+        let lstream = that.state.localStream;
+        if(lstream) {
+            room.unpublish(lstream, (err) => {
+                console.log(`[LiveRoom:quitRoom:unpublish]${err.message}`);
+            });
+        };
+
+        room.disconnect();
     };
 
     //创建直播房间
@@ -142,16 +101,14 @@ class com extends Component {
             global.$wd.video.createLocalStream({
                 captureAudio: true,
                 captureVideo: true,
-                dimension: '480p',
+                dimension: '120p',
                 maxFPS: 15,
             }).then(function(localStream) {
-                that.setState({ room: room });
-
-                room.publish(localStream, function(error) {
-                    if(error == null) {
-                        global.$snackbar.fn.show('成功进入房间');
-                    }
+                that.setState({
+                    room: room,
+                    localStream: localStream
                 });
+
                 localStream.muted = true;
                 that.addLiveVideo(localStream);
             });
@@ -159,6 +116,8 @@ class com extends Component {
 
         //监听新成员的加入
         room.on('stream_added', function(roomStream) {
+            console.log('>>>>stream_added', roomStream);
+            if(!roomStream) return;
             room.subscribe(roomStream, function(err) {
                 if(err != null) {
                     console.log(`>[LivePanel:setRoom:stream_added]failed:${err.message}`);
@@ -167,12 +126,14 @@ class com extends Component {
         });
 
         room.on('stream_received', function(roomStream) {
+            if(!roomStream) return;
             roomStream.enableAudio(true);
             that.addLiveVideo(roomStream);
         });
 
         //监听成员的退出,去掉对应的video
         room.on('stream_removed', function(roomStream) {
+            if(!roomStream) return;
             that.removeLiveVideo(roomStream);
         })
     };
@@ -224,14 +185,10 @@ class com extends Component {
             item: true,
             className: css.videoGrp,
             style: { padding: 0 },
-        }, videoArr.length > 0 ? videoArr : h('div', {
-            className: css.liveEmpty,
-        }, '遇到困难？开启直播邀请大神帮你忙！'));
+        }, videoArr.length > 0 ? videoArr : undefined);
 
-
-        return that.props.roomInfo && that.state.room ? h(Grid, {
-            container: true,
-            className: css.videoPanel,
+        return that.props.roomInfo && that.state.room ? h('div', {
+            className: css.videosBox,
         }, [
             videoGrp,
         ]) : null;

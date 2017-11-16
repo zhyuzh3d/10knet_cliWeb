@@ -24,7 +24,6 @@ import Grid from 'material-ui/Grid';
 import style from './_style';
 import FontA from 'react-fa';
 
-//import wilddogVideo from '../Libs/wilddog/wilddog-video-room.js';
 import LivePanel from '../Units/Live/LivePanel';
 
 

@@ -31,6 +31,11 @@ const style = theme => ({
         flexWrap: 'nowrap',
         height: '100%',
     },
+    liveRoomBox: {
+        height: 120,
+        width: '100%',
+        positin: 'relative',
+    },
     btnBar: {
         width: '100%',
         padding: 0,
@@ -56,7 +61,7 @@ const style = theme => ({
         minWidth: 56,
         cursor: 'pointer',
         background: '#FFF',
-        float:'right',
+        float: 'right',
     },
     inviteName: {
         fontSize: 16,
@@ -81,7 +86,7 @@ class com extends Component {
         wdRefArr: [], //所有需要取消的野狗监听
         hasNewInvite: 0, //是否有新的邀请
         liveInviteArr: [], //收到的所有邀请
-        useRoom: true, //是否使用视频模块
+        useLiveRoom: true, //是否使用视频模块
         useLiveCode: false, //是否使用同步代码模块
     };
 
@@ -238,31 +243,43 @@ class com extends Component {
             itemArr: itemArr,
             labelKey: 'el',
             okHandler: (item) => {
-                that.leaveRoom();
-                that.setRoom(item.roomId);
-                that.setState({ settingRoom: true });
-                setTimeout(() => {
-                    that.setState({ settingRoom: false });
-                }, 3000);
+                that.leaveRoom(() => {
+                    that.setRoom(item.roomId);
+                    that.setState({ settingRoom: true });
+                    setTimeout(() => {
+                        that.setState({ settingRoom: false });
+                    }, 3000);
+                });
             },
         });
     };
 
     //离开房间，停用room，livecode等
-    leaveRoom = global.$live.leaveRoom = () => {
+    leaveRoom = global.$live.leaveRoom = (callBack) => {
         let that = this;
-        global.$confirm.fn.show({
-            title: '您即将离开房间',
-            text: '退出后无法返回，除非再次收到此房间人员的邀请',
-            okHandler: () => {
-                that.setState({
-                    roomInfo: null,
-                    useLiveCode: false,
-                    useRoom: false,
-                });
-            },
+        if(that.state.roomInfo) {
+            global.$confirm.fn.show({
+                title: '您即将离开房间',
+                text: '退出后无法返回，除非再次收到此房间人员的邀请',
+                okHandler: () => {
+                    that.clearRoomInfo();
+                    if(callBack) callBack();
+                },
+            });
+        } else {
+            that.clearRoomInfo();
+            if(callBack) callBack();
+        };
+    };
+
+    clearRoomInfo = () => {
+        this.setState({
+            roomInfo: null,
+            useLiveCode: false,
+            useRoom: false,
         });
     };
+
 
     render() {
         let that = this;
@@ -348,7 +365,7 @@ class com extends Component {
             className: css.btn2,
             style: {
                 background: 'inherit',
-                color: that.state.useLiveCode ? '#f50057' : '#AAA',
+                color: that.state.useLiveRoom ? '#f50057' : '#AAA',
             },
             onClick: () => {
                 that.setState({ useLiveRoom: !that.state.useLiveRoom });
@@ -363,9 +380,11 @@ class com extends Component {
             container: true,
             className: css.panelBox,
         }, [
-            roomInfo && that.state.useLiveRoom ? h(LiveRoom, {
-                roomId: roomInfo.roomId,
-            }) : undefined,
+            roomInfo && that.state.useLiveRoom ? h('div', {
+                className: css.liveRoomBox,
+            }, h(LiveRoom, {
+                roomInfo: roomInfo,
+            })) : undefined,
 
             h('div', {
                 className: css.btnBar,
