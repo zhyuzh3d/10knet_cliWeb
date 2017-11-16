@@ -70,17 +70,19 @@ class com extends Component {
         let userId = that.props.userId;
         global.$wd.sync().ref(`user/${userId}`).once('value', (shot) => {
             let user = merge({ uid: userId }, shot.val() || {});
-            try {
-                that.setState({ user: user });
-            } catch(err) {
-                console.log(`[UserButton:getUserInfo:Err]${err.message}`);
-            }
+            !that.hasUnmounted && that.setState({ user: user });
         });
     };
+
 
     //界面完成后的初始化函数-退出现有账号
     componentDidMount = async function() {
         this.getUserInfo();
+    };
+
+    hasUnmounted = false;
+    componentWillUnmount = () => {
+        this.hasUnmounted = true;
     };
 
     //渲染实现
@@ -112,7 +114,7 @@ class com extends Component {
                     fontSize: size.font,
                     verticalAlign: 'middle',
                 }),
-            }, user.displayName || '无名'),
+            }, user.displayName || '未命名'),
         ]);
     }
 };

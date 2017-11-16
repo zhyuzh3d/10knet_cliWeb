@@ -18,7 +18,6 @@ const style = theme => ({
     container: {
         height: '100%',
         display: 'inline-block',
-        positin: 'relative',
     },
     video: {
         height: '100%',

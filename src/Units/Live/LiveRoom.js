@@ -23,7 +23,6 @@ const style = theme => ({
     videosBox: {
         height: '100%',
         width: '100%',
-        position: 'relative',
     },
     videoGrp: {
         height: '100%',
@@ -31,6 +30,13 @@ const style = theme => ({
         flexGrow: 1,
         padding: 0,
         margin: 0,
+    },
+    liveEmpty: {
+        width: '100%',
+        paddingTop: 50,
+        fontSize: 12,
+        color: '#DDD',
+        textAlign: 'center',
     },
 });
 
@@ -69,7 +75,7 @@ class com extends Component {
         let lstream = that.state.localStream;
         if(lstream) {
             room.unpublish(lstream, (err) => {
-                console.log(`[LiveRoom:quitRoom:unpublish]${err.message}`);
+                console.log(`[LiveRoom:quitRoom:unpublish]${err}`);
             });
         };
 
@@ -109,6 +115,12 @@ class com extends Component {
                     localStream: localStream
                 });
 
+                room.publish(localStream, function(error) {
+                    if(error == null) {
+                        global.$snackbar.fn.show('成功进入房间');
+                    }
+                });
+
                 localStream.muted = true;
                 that.addLiveVideo(localStream);
             });
@@ -116,11 +128,10 @@ class com extends Component {
 
         //监听新成员的加入
         room.on('stream_added', function(roomStream) {
-            console.log('>>>>stream_added', roomStream);
             if(!roomStream) return;
             room.subscribe(roomStream, function(err) {
                 if(err != null) {
-                    console.log(`>[LivePanel:setRoom:stream_added]failed:${err.message}`);
+                    console.log(`>[LivePanel:setRoom:stream_added]failed:${err}`);
                 }
             })
         });
@@ -185,7 +196,9 @@ class com extends Component {
             item: true,
             className: css.videoGrp,
             style: { padding: 0 },
-        }, videoArr.length > 0 ? videoArr : undefined);
+        }, videoArr.length > 0 ? videoArr : h('div', {
+            className: css.liveEmpty,
+        }, '遇到困难？开启直播邀请大神帮你忙！'));
 
         return that.props.roomInfo && that.state.room ? h('div', {
             className: css.videosBox,
