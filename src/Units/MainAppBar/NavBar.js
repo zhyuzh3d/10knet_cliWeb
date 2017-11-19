@@ -73,17 +73,15 @@ class com extends Component {
             let ref = global.$wd.sync().ref(`user/${cuser.uid}`)
             ref.once('value', (shot) => {
                 cuser = merge(cuser, shot.val() || {});
-                try {
-                    that && that.setState({ currentUser: cuser });
-                } catch(err) {}
+                !that.hasUnmounted && that.setState({ currentUser: cuser });
             });
         });
     };
 
+    hasUnmounted = false;
     componentWillUnmount = async function() {
-        try {
-            this.wdAuthListen && this.wdAuthListen();
-        } catch(err) {};
+        this.hasUnmounted = true;
+        this.wdAuthListen && this.wdAuthListen();
     };
 
     //渲染实现

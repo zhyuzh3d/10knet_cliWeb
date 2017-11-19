@@ -241,7 +241,9 @@ class com extends Component {
                     color: 'primary',
                     className: css.contentBtn,
                     onClick: () => {
-                        window.open(asset.url);
+                        global.openAsset && global.openAsset(asset);
+                        console.log('>>openasset', asset);
+                        //window.open(asset.url);
                     },
                 }, [
                     h(FontA, { name: 'fire', style: { marginRight: 8 } }),

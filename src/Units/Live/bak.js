@@ -1,3 +1,25 @@
+    //开始同步代码
+    startSync = () => {
+        let that = this;
+        let ref1=global.$wd.sync().ref(`${that.props.wdRef}/value`);
+        ref1.on('value', (shot) => {
+            if(that.state.editorPublic) {
+                that.state.editorPublic.setValue(shot.val() || '');
+            }
+        });
+        let ref2=global.$wd.sync().ref(`${that.props.wdRef}/sel`);
+        ref2.on('value', (shot) => {
+            if(that.state.editorPublic) {
+                let data = shot.val ? JSON.parse(shot.val()) : {};
+                that.state.editorPublic.setSelection(data);
+            }
+        });
+    }
+
+
+
+
+
 /*
 视频直播面板
 props:{

@@ -11,12 +11,8 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
-import Button from 'material-ui/Button';
-import FontA from 'react-fa';
 
 import LiveVideo from '../../Units/Live/LiveVideo';
-import LiveBoard from '../../Units/Live/LiveBoard';
-import UserButton from '../../Units/User/UserButton';
 
 
 const style = theme => ({

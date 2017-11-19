@@ -12,14 +12,8 @@ import { Component } from 'react';
 import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
-import UserButton from '../../Units/User/UserButton';
 
-import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
-import TextField from 'material-ui/TextField';
-import Menu, { MenuItem } from 'material-ui/Menu';
-import FontA from 'react-fa';
-import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
 
 import MyUpload from '../../Utils/MyUpload';
 import SliderPage from '../../Units/Slider/SliderPage';
@@ -98,7 +92,9 @@ class com extends Component {
             text: '',
         }).then((res) => {
             let key = res.key();
-            that.props.public ? that.props.public.sliderId = key : null;
+            if(that.props.public) {
+                that.props.public.sliderId = key
+            };
             global.$snackbar.fn.show('创建演示成功', 2000);
             that.getSlider(key);
         });
@@ -142,6 +138,7 @@ class com extends Component {
     };
 
     //通过图像添加一个页面
+    nouse = {};
     createPageByImg = (file) => {
         let that = this;
         let sid = that.props.sliderId || that.props.public.sliderId;
@@ -153,6 +150,7 @@ class com extends Component {
         if(that.state.slider && that.state.slider.pages) {
             for(let key in that.state.slider.pages) {
                 baseN++;
+                that.nouse.a = key;
             }
         };
 
@@ -194,7 +192,6 @@ class com extends Component {
     render() {
         let that = this;
         const css = that.props.classes;
-        let stream = this.props.wdStream;
         let slider = that.state.slider;
         let sid = that.props.sliderId || that.props.public.sliderId;
 

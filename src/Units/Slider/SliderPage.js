@@ -180,7 +180,6 @@ class com extends Component {
     render() {
         let that = this;
         const css = that.props.classes;
-        let stream = this.props.wdStream;
         let page = that.props.data || {};
 
         return h('div', {

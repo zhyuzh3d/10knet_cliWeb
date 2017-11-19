@@ -106,7 +106,7 @@ class com extends Component {
             return;
         };
 
-        if(!global.$conf.regx.assetUrl.test(that.state.assetUrl)) {
+        if(that.state.curType !== global.$conf.assetTypes.slider && !global.$conf.regx.assetUrl.test(that.state.assetUrl)) {
             global.$alert.fn.show('链接格式错误', '请检查确认以http开头的完整链接');
             return;
         };
@@ -116,6 +116,10 @@ class com extends Component {
         };
         if(!global.$conf.regx.assetTitle.test(that.state.assetTitle)) {
             global.$alert.fn.show('标题格式错误', '请确认字符数量<256个');
+            return;
+        };
+        if(that.state.curType === global.$conf.assetTypes.slider && !that.state.sliderPublic.sliderId) {
+            global.$alert.fn.show('演示没有创建', '请您刷新后再试');
             return;
         };
 

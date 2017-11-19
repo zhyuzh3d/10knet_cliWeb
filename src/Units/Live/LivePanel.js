@@ -16,10 +16,10 @@ import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
-import LiveVideo from '../../Units/Live/LiveVideo';
 import LiveRoom from '../../Units/Live/LiveRoom';
-import LiveBoard from '../../Units/Live/LiveBoard';
+import LiveCoder from '../../Units/Live/LiveCoder';
 import UserButton from '../../Units/User/UserButton';
+
 
 
 const style = theme => ({
@@ -58,7 +58,7 @@ const style = theme => ({
         padding: 0,
         height: 48,
         borderLeft: '1px solid #EEE',
-        minWidth: 56,
+        minWidth: 48,
         cursor: 'pointer',
         background: '#FFF',
         float: 'right',
@@ -76,6 +76,13 @@ const style = theme => ({
         padding: '0px 8px',
         flexGrow: 1,
     },
+    empty: {
+        width: '100%',
+        paddingTop: 50,
+        fontSize: 12,
+        color: '#DDD',
+        textAlign: 'center',
+    }
 });
 
 //元件
@@ -87,7 +94,7 @@ class com extends Component {
         hasNewInvite: 0, //是否有新的邀请
         liveInviteArr: [], //收到的所有邀请
         useLiveRoom: true, //是否使用视频模块
-        useLiveCode: false, //是否使用同步代码模块
+        boardType: 'slider', //互动板类型，coder，board
     };
 
     //初始化邀请提示
@@ -344,21 +351,6 @@ class com extends Component {
             }),
         ]);
 
-        //使用代码模块按钮
-        let liveCodeBtn = h(Button, {
-            className: css.btn2,
-            style: {
-                background: 'inherit',
-                color: that.state.useLiveCode ? '#f50057' : '#AAA',
-            },
-            onClick: () => {
-                that.setState({ useLiveCode: !that.state.useLiveCode });
-            },
-        }, [
-           h(FontA, {
-                name: 'code',
-            }),
-        ]);
 
         //使用直播视频模块按钮
         let liveRoomBtn = h(Button, {
@@ -372,9 +364,63 @@ class com extends Component {
             },
         }, [
            h(FontA, {
-                name: 'youtube-play',
+                name: 'video-camera',
             }),
         ]);
+
+        //使用代码模块按钮
+        let liveCodeBtn = h(Button, {
+            className: css.btn2,
+            style: {
+                background: 'inherit',
+                color: that.state.boardType === 'coder' ? '#f50057' : '#AAA',
+            },
+            onClick: () => {
+                that.setState({ boardType: 'coder' });
+            },
+        }, [
+           h(FontA, {
+                name: 'code',
+            }),
+        ]);
+
+
+        //使用PPT演示模块按钮
+        let liveSliderBtn = h(Button, {
+            className: css.btn2,
+            style: {
+                background: 'inherit',
+                color: that.state.boardType === 'slider' ? '#f50057' : '#AAA',
+            },
+            onClick: () => {
+                that.setState({ boardType: 'slider' });
+            },
+        }, [
+           h(FontA, {
+                name: 'caret-square-o-right',
+            }),
+        ]);
+
+        //主持人
+        let liveBoard;
+        if(roomInfo) {
+            let onChair = roomInfo.chairMan === global.$wd.auth().currentUser.uid ? true : false;
+            let roomId = roomInfo.roomId;
+
+            switch(that.state.boardType) {
+                case 'coder':
+                    liveBoard = h(LiveCoder, {
+                        onChair: onChair,
+                        wdRef: roomId ? `icoder/${roomId}` : undefined,
+                    });
+                    break;
+                default:
+                    liveBoard = h('div', {
+                        className: css.empty,
+                    }, '...没有开启任何同步内容...');
+                    break;
+            }
+        };
 
         return that.props.open ? h(Grid, {
             container: true,
@@ -393,15 +439,14 @@ class com extends Component {
                 inviteBtn,
                 myInviteBtn,
                 liveCodeBtn,
+                liveSliderBtn,
                 liveRoomBtn,
             ]),
 
-            roomInfo && that.state.useLiveCode ? h(Grid, {
+            roomInfo ? h(Grid, {
                 container: true,
                 className: css.boardPanel,
-            }, h(LiveBoard, {
-                roomInfo: that.state.roomInfo,
-            })) : null,
+            }, liveBoard) : null,
         ]) : null;
     };
 };

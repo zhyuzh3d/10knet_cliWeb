@@ -46,15 +46,14 @@ class com extends Component {
     //开始同步代码
     startSync = () => {
         let that = this;
-        global.$wd.sync().ref(`${that.props.wdRef}/value`).on('value', (shot) => {
+        let ref=global.$wd.sync().ref(`${that.props.wdRef}`);
+        ref.on('value', (shot) => {
+            let value=shot.val().value;
+            let sel=shot.val().sel;
             if(that.state.editorPublic) {
-                that.state.editorPublic.setValue(shot.val() || '');
-            }
-        });
-        global.$wd.sync().ref(`${that.props.wdRef}/sel`).on('value', (shot) => {
-            if(that.state.editorPublic) {
-                let data = shot.val ? JSON.parse(shot.val()) : {};
-                that.state.editorPublic.setSelection(data);
+                that.state.editorPublic.setValue(value || '');
+                let selObj = shot.val ? JSON.parse(sel) : {};
+                that.state.editorPublic.setSelection(selObj);
             }
         });
     }
@@ -62,8 +61,7 @@ class com extends Component {
     //停止同步代码
     stopSync = () => {
         let that = this;
-        global.$wd.sync().ref(`${that.props.wdRef}/value`).off();
-        global.$wd.sync().ref(`${that.props.wdRef}/sel`).off();
+        global.$wd.sync().ref(`${that.props.wdRef}`).off();
     }
 
     //代码变化回调函数，同步到野狗数据库
