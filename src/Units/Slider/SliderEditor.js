@@ -14,6 +14,8 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Button from 'material-ui/Button';
+import FontA from 'react-fa';
+
 
 import MyUpload from '../../Utils/MyUpload';
 import SliderPage from '../../Units/Slider/SliderPage';
@@ -59,12 +61,12 @@ class com extends Component {
         slider: null,
     };
 
-    componentWillMount = async function() {
+    //接收到sliderId
+    componentWillReceiveProps = async function() {
         let that = this;
         if(that.props.sliderId) {
             that.getSlider(that.props.sliderId);
-        } else {
-            that.newSlider();
+            that.props.public.sliderId = that.props.sliderId;
         };
     };
 
@@ -75,7 +77,8 @@ class com extends Component {
         global.$wd.sync().ref(`slider/${id}`).on('value', (shot) => {
             let data = shot.val();
             let newData = data;
-            if(data.pages) {
+
+            if(data && data.pages) {
                 newData.pages = global.$fn.sortObjByKey(data.pages, 'pos');
             };
             that.setState({
@@ -209,7 +212,22 @@ class com extends Component {
 
         return h('div', {
             className: css.sliderBox,
-        }, [
+        }, !sid ? [
+            h(Button, {
+                color: 'accent',
+                raised: true,
+                style: { padding: '8px 16px' },
+                onClick: () => {
+                    that.newSlider();
+                },
+            }, [
+                h(FontA, {
+                    name: 'caret-square-o-right',
+                    style: { marginRight: 8 }
+                }),
+                h('span', '创建演示'),
+            ])
+        ] : [
             h('div', {
                 className: css.sliderLabel,
             }, [

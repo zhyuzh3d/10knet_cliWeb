@@ -36,7 +36,11 @@ class com extends Component {
     setContentSize = () => {};
 
     componentDidMount = async function() {
-        !this.props.onChair && this.startSync();
+        if(!this.props.onChair) {
+            this.startSync();
+        } else {
+            this.stopSync();
+        }
     };
 
     componentWillUnmount = async function() {
@@ -46,10 +50,10 @@ class com extends Component {
     //开始同步代码
     startSync = () => {
         let that = this;
-        let ref=global.$wd.sync().ref(`${that.props.wdRef}`);
+        let ref = global.$wd.sync().ref(`${that.props.wdRef}`);
         ref.on('value', (shot) => {
-            let value=shot.val().value;
-            let sel=shot.val().sel;
+            let value = shot.val().value;
+            let sel = shot.val().sel;
             if(that.state.editorPublic) {
                 that.state.editorPublic.setValue(value || '');
                 let selObj = shot.val ? JSON.parse(sel) : {};

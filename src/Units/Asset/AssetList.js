@@ -138,7 +138,7 @@ class com extends Component {
         } else {
             let userId = cuser.uid;
             global.$wd.sync().ref(`ufbasket/${userId}/${basketId}/ts`).once('value', (shot) => {
-                if(!shot.val()) {
+                if(!shot.val() && !that.hasUnmounted) {
                     that.setState({ hasFocus: false });
                 } else {
                     that.setState({ hasFocus: true });
@@ -150,7 +150,9 @@ class com extends Component {
 
 
     //取消野狗监听
+    hasUnmounted = false;
     componentWillUnmount = () => {
+        this.hasUnmounted = true;
         global.$wd.sync().ref('asset').off('value');
         this.wdAuthListen && this.wdAuthListen();
         let wdRef = this.props.wdRef;

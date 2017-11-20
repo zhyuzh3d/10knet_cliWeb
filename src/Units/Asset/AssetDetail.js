@@ -204,6 +204,20 @@ class com extends Component {
         });
     };
 
+    //打开素材,
+    openAsset = (asset) => {
+        switch(asset.type) {
+            case 'slider':
+                //在liveSlider中打开slider
+                if(global.$live && global.$live.setIslider) {
+                    global.$live.setIslider(asset.sliderId);
+                };
+                break;
+            default:
+                break;
+        }
+    };
+
 
     //渲染实现
     render() {
@@ -241,9 +255,7 @@ class com extends Component {
                     color: 'primary',
                     className: css.contentBtn,
                     onClick: () => {
-                        global.openAsset && global.openAsset(asset);
-                        console.log('>>openasset', asset);
-                        //window.open(asset.url);
+                        that.openAsset(asset);
                     },
                 }, [
                     h(FontA, { name: 'fire', style: { marginRight: 8 } }),

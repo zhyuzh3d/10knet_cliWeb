@@ -60,12 +60,14 @@ class com extends Component {
             if(!cuser) return;
             global.$wd.sync().ref(`user/${cuser.uid}`).once('value', (shot) => {
                 cuser = merge(cuser, shot.val() || {});
-                that.setState({ currentUser: cuser });
+                !that.hasUnmounted && that.setState({ currentUser: cuser });
             });
         });
     };
 
+    hasUnmounted = false;
     componentWillUnmount = async function() {
+        this.hasUnmounted = true;
         this.wdAuthListen && this.wdAuthListen();
     };
 

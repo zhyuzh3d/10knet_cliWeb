@@ -118,6 +118,7 @@ class com extends Component {
             global.$alert.fn.show('标题格式错误', '请确认字符数量<256个');
             return;
         };
+
         if(that.state.curType === global.$conf.assetTypes.slider && !that.state.sliderPublic.sliderId) {
             global.$alert.fn.show('演示没有创建', '请您刷新后再试');
             return;
@@ -139,11 +140,11 @@ class com extends Component {
             pos: global.$wd.sync().ServerValue.TIMESTAMP,
         };
 
+
         //清理
         for(let key in newAsset) {
             if(!newAsset[key]) delete newAsset[key];
         };
-
 
         let assetId = that.state.assetId;
         let basketId = that.state.curBasket.key;
@@ -669,7 +670,7 @@ class com extends Component {
 
             //编辑创建幻灯片
             that.state.curType === AssetTypes.slider ? h(SliderEditor, {
-                silderId: that.state.asset ? that.state.asset.sliderId : null,
+                sliderId: that.state.asset ? that.state.asset.sliderId : null,
                 public: that.state.sliderPublic,
             }) : undefined,
 

@@ -1,5 +1,5 @@
 /*
-PPT互动面板，根据主持人slider尺寸同步缩放大小，带有覆盖层的画板功能
+PPT互动面板，根据主持人islider尺寸同步缩放大小，带有覆盖层的画板功能
 props:{
     wdRef,{sliderId,width,height}房间对应的islider地址
     onChair,是否主持人，由外部的panel控制
@@ -31,13 +31,11 @@ class com extends Component {
 
     wdRefArr = [];
 
-    componentWillMount = async function() {};
-
-    setContentSize = () => {};
-
     componentDidMount = async function() {
-        !this.props.onChair && this.startSync();
+        this.startSync();
     };
+
+    componentWillReceiveProps = async function() {};
 
     componentWillUnmount = async function() {
         this.wdRefArr.forEach((item) => {
@@ -46,20 +44,25 @@ class com extends Component {
     };
 
     //开始同步,并且同步slider数据
-    startSync = () => {
+    startSync = global.$live.test = () => {
         let that = this;
         let ref = global.$wd.sync().ref(`${that.props.wdRef}`);
         that.wdRefArr.push(ref);
+
         ref.on('value', (shot) => {
             let islider = shot.val();
+
+            console.log('>>>>liveslider start sync', islider);
+
             if(!islider || !islider.sliderId) return;
             that.setState({
                 sliderId: islider.sliderId,
                 conf: islider.conf,
             });
+
             let sref = global.$wd.sync().ref(`slider/${islider.sliderId}`);
             that.wdRefArr.push(sref);
-            sref.on('value', (shot) => {
+            sref.once('value', (shot) => {
                 that.setState({
                     slider: shot.val(),
                 });
@@ -106,7 +109,6 @@ class com extends Component {
         let pageId;
 
         return h('div', {
-            container: true,
             className: css.codersBox,
         }, [
            h(SliderPage, {

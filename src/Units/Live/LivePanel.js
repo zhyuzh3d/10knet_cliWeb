@@ -18,6 +18,7 @@ import FontA from 'react-fa';
 
 import LiveRoom from '../../Units/Live/LiveRoom';
 import LiveCoder from '../../Units/Live/LiveCoder';
+import LiveSlider from '../../Units/Live/LiveSlider';
 import UserButton from '../../Units/User/UserButton';
 
 
@@ -93,7 +94,7 @@ class com extends Component {
         wdRefArr: [], //所有需要取消的野狗监听
         hasNewInvite: 0, //是否有新的邀请
         liveInviteArr: [], //收到的所有邀请
-        useLiveRoom: true, //是否使用视频模块
+        useLiveRoom: false, //是否使用视频模块
         boardType: 'slider', //互动板类型，coder，board
     };
 
@@ -161,6 +162,7 @@ class com extends Component {
             });
         }
     };
+
 
 
     //弹窗显示当前在线的人员列表，使用selector
@@ -287,6 +289,22 @@ class com extends Component {
         });
     };
 
+    //全局设置islider的方法,设置为当前房间
+    setIslider = global.$live.setIslider = (sliderId) => {
+        let that = this;
+        let roomId = that.state.roomInfo ? that.state.roomInfo.roomId : null;
+        if(!roomId) {
+            global.$snackbar.fn.show('请先开启直播，然后才能打开实时演示');
+            return;
+        };
+        let ref = global.$wd.sync().ref(`islider/${roomId}`);
+        ref.update({
+            sliderId: sliderId,
+            width: 1280,
+            height: 720,
+        });
+    };
+
 
     render() {
         let that = this;
@@ -384,7 +402,6 @@ class com extends Component {
             }),
         ]);
 
-
         //使用PPT演示模块按钮
         let liveSliderBtn = h(Button, {
             className: css.btn2,
@@ -401,25 +418,27 @@ class com extends Component {
             }),
         ]);
 
-        //主持人
         let liveBoard;
-        if(roomInfo) {
+        if(that.state.roomInfo) {
             let onChair = roomInfo.chairMan === global.$wd.auth().currentUser.uid ? true : false;
             let roomId = roomInfo.roomId;
+            let type = that.state.boardType;
 
-            switch(that.state.boardType) {
-                case 'coder':
-                    liveBoard = h(LiveCoder, {
-                        onChair: onChair,
-                        wdRef: roomId ? `icoder/${roomId}` : undefined,
-                    });
-                    break;
-                default:
-                    liveBoard = h('div', {
-                        className: css.empty,
-                    }, '...没有开启任何同步内容...');
-                    break;
-            }
+            if(type === 'slider') {
+                liveBoard = h(LiveSlider, {
+                    onChair: false,
+                    wdRef: that.state.roomInfo.roomId ? `islider/${that.state.roomInfo.roomId}` : undefined,
+                })
+            } else if(type === 'coder') {
+                liveBoard = h(LiveCoder, {
+                    onChair: onChair,
+                    wdRef: roomId ? `icoder/${roomId}` : undefined,
+                });
+            } else {
+                liveBoard = h('div', {
+                    className: css.empty,
+                }, '...没有开启任何同步内容...');
+            };
         };
 
         return that.props.open ? h(Grid, {
