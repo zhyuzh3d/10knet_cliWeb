@@ -24,11 +24,11 @@ const style = theme => ({
     pageBox: {
         marginTop: 16,
         boxShadow: '8px 0 16px #EEE',
+        border: '1px solid #AAA',
     },
     page: {
         padding: 16,
         position: 'relative',
-        border: '1px solid #AAA',
         fontSize: 0,
         minHeight: 96,
     },

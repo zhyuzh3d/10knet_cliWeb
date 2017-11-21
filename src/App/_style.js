@@ -8,6 +8,7 @@ const styles = theme => ({
         padding: 0,
     },
     slavePart: {
+        flex: 'initial',
         flexGrow: 1,
         borderRight: '1px solid #CCC',
         margin: 0,
@@ -59,8 +60,8 @@ const styles = theme => ({
         background: '#FCFCFC',
         height: '100%',
         flexGrow: 'initial',
-        margin:0,
-        padding:0,
+        margin: 0,
+        padding: 0,
     },
     viewer: {
         background: '#FFF',

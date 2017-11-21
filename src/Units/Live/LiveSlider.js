@@ -19,7 +19,16 @@ const style = theme => ({
     comBox: {
         margin: 0,
         padding: 0,
+        width: '100%',
+        background: '#000',
     },
+    empty: {
+        width: '100%',
+        paddingTop: 50,
+        fontSize: 12,
+        color: '#DDD',
+        textAlign: 'center',
+    }
 });
 
 //元件
@@ -44,6 +53,7 @@ class com extends Component {
     };
 
     //开始同步,并且同步slider数据
+    lastSliderRef = null; //上一个同步的slider，避免多个同时存在
     startSync = global.$live.test = () => {
         let that = this;
         let ref = global.$wd.sync().ref(`${that.props.wdRef}`);
@@ -51,9 +61,6 @@ class com extends Component {
 
         ref.on('value', (shot) => {
             let islider = shot.val();
-
-            console.log('>>>>liveslider start sync', islider);
-
             if(!islider || !islider.sliderId) return;
             that.setState({
                 sliderId: islider.sliderId,
@@ -61,10 +68,27 @@ class com extends Component {
             });
 
             let sref = global.$wd.sync().ref(`slider/${islider.sliderId}`);
-            that.wdRefArr.push(sref);
+
+            that.wdRefArr.push(sref); //避免最后一个不能清理
+            that.lastSliderRef && that.lastSliderRef.off();
+            that.lastSliderRef = ref;
+
             sref.once('value', (shot) => {
+                let slider = shot.val();
+                let pageArr = [];
+                if(slider.pages) {
+                    for(let key in slider.pages) {
+                        slider.pages[key].key = key;
+                        pageArr.push(slider.pages[key]);
+                    };
+                };
+                pageArr.sort((a, b) => { return a.pos - b.pos });
+                slider.curPos = slider.curPos || 0;
+
                 that.setState({
                     slider: shot.val(),
+                    pageArr: pageArr,
+                    curPos: slider.curPos,
                 });
             });
         });
@@ -107,18 +131,28 @@ class com extends Component {
         };
 
         let pageId;
+        let page;
+        if(that.state.pageArr) {
+            page = that.state.pageArr[that.state.curPos];
+            pageId = page ? page.key : undefined;
+        };
 
         return h('div', {
-            className: css.codersBox,
+            className: css.comBox,
         }, [
-           h(SliderPage, {
+           page ? h(SliderPage, {
                 pageId: pageId,
                 wdRef: null,
-                data: null,
+                data: page,
                 mode: 'play',
-                style: {},
-            }),
-            h('h2', 'hello!'),
+                style: {
+                    boxShadow: 'none',
+                    border: 'none',
+                    marginTop: 0,
+                },
+            }) : h('div', {
+                className: css.empty,
+            }, '...正在等待同步，请稍后...'),
         ]);
     }
 };

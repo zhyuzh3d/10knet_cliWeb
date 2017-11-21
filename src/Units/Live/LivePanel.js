@@ -74,8 +74,9 @@ const style = theme => ({
     },
     boardPanel: {
         margin: 0,
-        padding: '0px 8px',
+        padding: 0,
         flexGrow: 1,
+        display:'flex',
     },
     empty: {
         width: '100%',
@@ -462,8 +463,7 @@ class com extends Component {
                 liveRoomBtn,
             ]),
 
-            roomInfo ? h(Grid, {
-                container: true,
+            roomInfo ? h('div', {
                 className: css.boardPanel,
             }, liveBoard) : null,
         ]) : null;
