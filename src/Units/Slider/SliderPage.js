@@ -192,25 +192,25 @@ class com extends Component {
                 className: css.bgImg,
                 src: page.bgUrl,
             }) : undefined,
-            h('div', {
+            that.props.mode === 'edit' ? h('div', {
                 className: css.indexBox,
             }, [
                 h('div', {
                     className: css.pos,
-                }, page.pos),
-                 that.props.mode === 'edit' ? h('div', {
+                }, page.pos + 1),
+                h('div', {
                     className: css.upDown,
                     onClick: () => {
                         that.moveUp(false);
                     },
-                }, h(FontA, { name: 'caret-up' })) : undefined,
-                 that.props.mode === 'edit' ? h('div', {
+                }, h(FontA, { name: 'caret-up' })),
+                h('div', {
                     className: css.upDown,
                     onClick: () => {
                         that.moveUp(true);
                     },
-                }, h(FontA, { name: 'caret-down' })) : undefined,
-            ]),
+                }, h(FontA, { name: 'caret-down' })),
+            ]) : undefined,
 
             that.props.mode === 'edit' ? h('div', {
                 className: css.delete,

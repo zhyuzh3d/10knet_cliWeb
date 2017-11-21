@@ -76,7 +76,7 @@ const style = theme => ({
         margin: 0,
         padding: 0,
         flexGrow: 1,
-        display:'flex',
+        display: 'flex',
     },
     empty: {
         width: '100%',
@@ -301,17 +301,30 @@ class com extends Component {
         let ref = global.$wd.sync().ref(`islider/${roomId}`);
         ref.update({
             sliderId: sliderId,
-            width: 1280,
-            height: 720,
+            curPos: 0,
         });
     };
 
+    //设置boardType并保存到数据库
+    setBoardType = (type) => {
+        let that = this;
+        let roomId = that.state.roomInfo ? that.state.roomInfo.roomId : null;
+        if(!roomId) return;
+
+        let ref = global.$wd.sync().ref(`islider/${roomId}`);
+        ref.update({
+            boardType: type || 'slider',
+        });
+        that.setState({ boardType: type || 'slider' });
+    };
 
     render() {
         let that = this;
         const css = that.props.classes;
 
         let roomInfo = that.state.roomInfo;
+        let onChair = roomInfo && roomInfo.chairMan === global.$wd.auth().currentUser.uid ? true : false;
+        let type = onChair ? that.state.boardType : (roomInfo ? roomInfo.boardType : 'slider');
 
         //开启或退出按钮
         let exitBtn = h(Button, {
@@ -395,8 +408,9 @@ class com extends Component {
                 color: that.state.boardType === 'coder' ? '#f50057' : '#AAA',
             },
             onClick: () => {
-                that.setState({ boardType: 'coder' });
+                that.setBoardType('coder');
             },
+            disabled: !onChair,
         }, [
            h(FontA, {
                 name: 'code',
@@ -411,8 +425,9 @@ class com extends Component {
                 color: that.state.boardType === 'slider' ? '#f50057' : '#AAA',
             },
             onClick: () => {
-                that.setState({ boardType: 'slider' });
+                that.setBoardType('slider');
             },
+            disabled: !onChair,
         }, [
            h(FontA, {
                 name: 'caret-square-o-right',
@@ -420,14 +435,12 @@ class com extends Component {
         ]);
 
         let liveBoard;
-        if(that.state.roomInfo) {
-            let onChair = roomInfo.chairMan === global.$wd.auth().currentUser.uid ? true : false;
+        if(roomInfo) {
             let roomId = roomInfo.roomId;
-            let type = that.state.boardType;
 
             if(type === 'slider') {
                 liveBoard = h(LiveSlider, {
-                    onChair: false,
+                    onChair: onChair,
                     wdRef: that.state.roomInfo.roomId ? `islider/${that.state.roomInfo.roomId}` : undefined,
                 })
             } else if(type === 'coder') {

@@ -12,11 +12,15 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
+import Button from 'material-ui/Button';
+import FontA from 'react-fa';
+
 import SliderPage from '../../Units/Slider/SliderPage';
 
 
 const style = theme => ({
     comBox: {
+        position: 'relative',
         margin: 0,
         padding: 0,
         width: '100%',
@@ -28,7 +32,24 @@ const style = theme => ({
         fontSize: 12,
         color: '#DDD',
         textAlign: 'center',
-    }
+    },
+    btnGrp: {
+        float: 'right',
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        zIndex: 10,
+    },
+    arrBtn: {
+        Height: 24,
+        minHeight: 24,
+        width: 48,
+        minWidth: 48,
+        padding: 0,
+        margin: 0,
+        fontSize: 12,
+        color: '#666',
+    },
 });
 
 //元件
@@ -36,6 +57,8 @@ class com extends Component {
     state = {
         sliderId: null,
         conf: null, // {width,height,currentPage...}
+        pageArr: null,
+        curPos: 0,
     };
 
     wdRefArr = [];
@@ -62,9 +85,11 @@ class com extends Component {
         ref.on('value', (shot) => {
             let islider = shot.val();
             if(!islider || !islider.sliderId) return;
+            islider.curPos = islider.curPos || 0;
             that.setState({
                 sliderId: islider.sliderId,
                 conf: islider.conf,
+                curPos: islider.curPos,
             });
 
             let sref = global.$wd.sync().ref(`slider/${islider.sliderId}`);
@@ -76,19 +101,17 @@ class com extends Component {
             sref.once('value', (shot) => {
                 let slider = shot.val();
                 let pageArr = [];
-                if(slider.pages) {
+                if(slider && slider.pages) {
                     for(let key in slider.pages) {
                         slider.pages[key].key = key;
                         pageArr.push(slider.pages[key]);
                     };
                 };
                 pageArr.sort((a, b) => { return a.pos - b.pos });
-                slider.curPos = slider.curPos || 0;
 
                 that.setState({
                     slider: shot.val(),
                     pageArr: pageArr,
-                    curPos: slider.curPos,
                 });
             });
         });
@@ -104,43 +127,82 @@ class com extends Component {
     //向上翻页,主持人
     nextPage = () => {
         let that = this;
-
+        let arr = that.state.pageArr;
+        let pos = that.state.curPos;
+        if(arr) {
+            let n = pos + 1 < arr.length ? pos + 1 : pos;
+            global.$wd.sync().ref(`${that.props.wdRef}`).update({
+                curPos: n,
+            });
+            that.setState({ curPos: n });
+        };
     }
 
     //向下翻页，主持人
     prevPage = (editor, data) => {
         let that = this;
-
+        let arr = that.state.pageArr;
+        let pos = that.state.curPos;
+        if(arr) {
+            let n = pos - 1 >= 0 ? pos - 1 : 0;
+            global.$wd.sync().ref(`${that.props.wdRef}`).update({
+                curPos: n,
+            });
+            that.setState({ curPos: n });
+        };
     }
-
-    onChair = false;
 
     //渲染实现
     render() {
         let that = this;
         const css = that.props.classes;
 
-        //如果主持身份发生变化，那么启动或者暂停代码同步
-        if(that.onChair !== that.props.onChair) {
-            if(that.props.onChair) {
-                that.stopSync();
-            } else {
-                that.stopSync();
-                that.startSync();
-            }
-        };
-
+        let pageArr = that.state.pageArr;
         let pageId;
         let page;
         if(that.state.pageArr) {
-            page = that.state.pageArr[that.state.curPos];
+            page = pageArr[that.state.curPos];
             pageId = page ? page.key : undefined;
         };
+
+        let btnGrp = h('div', {
+            className: css.btnGrp,
+        }, [
+            h(Button, {
+                className: css.arrBtn,
+                raised: true,
+                onClick: () => {
+                    that.prevPage();
+                },
+            }, [
+                h(FontA, { name: 'arrow-left' }),
+            ]),
+            h(Button, {
+                className: css.arrBtn,
+                style: {
+                    borderLeft: '1px solid #AAA',
+                    borderRight: '1px solid #AAA',
+                    background: '#e0e0e0',
+                },
+                raised: true,
+                disabled: true,
+            }, `${that.state.curPos+1}/${pageArr?pageArr.length:0}`),
+            h(Button, {
+                className: css.arrBtn,
+                raised: true,
+                onClick: () => {
+                    that.nextPage();
+                },
+            }, [
+                h(FontA, { name: 'arrow-right' })
+            ])
+        ]);
 
         return h('div', {
             className: css.comBox,
         }, [
-           page ? h(SliderPage, {
+            page && that.props.onChair ? btnGrp : undefined,
+            page ? h(SliderPage, {
                 pageId: pageId,
                 wdRef: null,
                 data: page,
