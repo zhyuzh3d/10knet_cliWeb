@@ -147,10 +147,13 @@ class com extends Component {
                 author: cuser.uid,
                 chairMan: cuser.uid,
                 ts: global.$wd.sync().ServerValue.TIMESTAMP,
+                boardType: that.state.boardType,
             }).then(function(newRef) {
                 let id = newRef.key();
                 newRef.on('value', (shot) => {
-                    let info = Object.assign({ roomId: id }, shot.val());
+                    let info = Object.assign({
+                        roomId: id,
+                    }, shot.val());
                     that.setState({ roomInfo: info });
                 });
             });
@@ -160,6 +163,7 @@ class com extends Component {
             global.$wd.sync().ref(`iroom/${id}`).on('value', (shot) => {
                 let info = Object.assign({ roomId: id }, shot.val());
                 that.setState({ roomInfo: info });
+                console.log('>>>>>value roominfo', shot.val(), id);
             });
         }
     };
@@ -305,13 +309,13 @@ class com extends Component {
         });
     };
 
-    //设置boardType并保存到数据库
+    //主持人设置boardType并保存到数据库
     setBoardType = (type) => {
         let that = this;
         let roomId = that.state.roomInfo ? that.state.roomInfo.roomId : null;
         if(!roomId) return;
 
-        let ref = global.$wd.sync().ref(`islider/${roomId}`);
+        let ref = global.$wd.sync().ref(`iroom/${roomId}`);
         ref.update({
             boardType: type || 'slider',
         });
@@ -441,7 +445,7 @@ class com extends Component {
             if(type === 'slider') {
                 liveBoard = h(LiveSlider, {
                     onChair: onChair,
-                    wdRef: that.state.roomInfo.roomId ? `islider/${that.state.roomInfo.roomId}` : undefined,
+                    wdRef: roomId ? `islider/${roomId}` : undefined,
                 })
             } else if(type === 'coder') {
                 liveBoard = h(LiveCoder, {
@@ -453,6 +457,21 @@ class com extends Component {
                     className: css.empty,
                 }, '...没有开启任何同步内容...');
             };
+
+
+
+
+
+           /* if(roomId) {
+                global.$wd.sync().ref(`islider/${roomId}`).on('value', (shot) => {
+                    console.log('>>>>shot', shot.val());
+                });
+            };*/
+
+
+
+
+
         };
 
         return that.props.open ? h(Grid, {

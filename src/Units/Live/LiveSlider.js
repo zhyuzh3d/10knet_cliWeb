@@ -56,7 +56,6 @@ const style = theme => ({
 class com extends Component {
     state = {
         sliderId: null,
-        conf: null, // {width,height,currentPage...}
         pageArr: null,
         curPos: 0,
     };
@@ -83,12 +82,12 @@ class com extends Component {
         that.wdRefArr.push(ref);
 
         ref.on('value', (shot) => {
+
             let islider = shot.val();
             if(!islider || !islider.sliderId) return;
             islider.curPos = islider.curPos || 0;
             that.setState({
                 sliderId: islider.sliderId,
-                conf: islider.conf,
                 curPos: islider.curPos,
             });
 
@@ -96,9 +95,9 @@ class com extends Component {
 
             that.wdRefArr.push(sref); //避免最后一个不能清理
             that.lastSliderRef && that.lastSliderRef.off();
-            that.lastSliderRef = ref;
+            that.lastSliderRef = sref;
 
-            sref.once('value', (shot) => {
+            sref.on('value', (shot) => {
                 let slider = shot.val();
                 let pageArr = [];
                 if(slider && slider.pages) {
