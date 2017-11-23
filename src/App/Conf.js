@@ -23,7 +23,8 @@ let ConfBase = {
         assetDesc: /^[\s\S]{0,256}/,
         imgFile: /^.+(?:.[pP][nN][gG]|.[jJ][pP][eE]?[gG]|.[gG][iI][fF])$/,
         videoFile: /^.+(?:.[mM][pP]4)$/,
-        postText: /^.{0,64}/,
+        postText: /^.{0,256}/,
+        chatText: /^.{0,256}/,
         postUrl: /^https?:\/\//,
     },
     assetTypes: {

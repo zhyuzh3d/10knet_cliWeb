@@ -24,7 +24,7 @@ const style = theme => ({
     },
     infoLine: {
         paddingBottom: 0,
-        marginBottom:4,
+        marginBottom: 4,
         height: 28,
     },
     txtLine: {
@@ -51,7 +51,7 @@ const style = theme => ({
     linkBtn: {
         padding: '0 8px',
         margin: -8,
-        maxWidth: '66%',
+        maxWidth: '80%',
     },
     time: {
         fontSize: '10px',
@@ -74,6 +74,7 @@ class com extends Component {
         let that = this;
         const css = that.props.classes;
         let post = that.props.post || {};
+        let regx = global.$conf.regx;
 
         return h(Grid, { container: true, className: css.post }, [
             h(Grid, {
@@ -109,21 +110,25 @@ class com extends Component {
                     marginBottom: -4,
                 }
             }, [
-                global.$conf.regx.imgFile.test(post.url) ? h('img', {
-                    className: css.img,
-                    src: post.url,
-                    onClick: () => {
-                        window.open(post.url);
-                    },
-                }) : h(Button, {
-                    color: 'primary',
-                    className: css.linkBtn,
-                    onClick: () => {
-                        window.open(post.url);
-                    },
+                h('a', {
+                    target: '_blank',
+                    href: post.url,
                 }, [
-                    h('span', { className: css.link }, post.url),
-                ]),
+                    !regx.postUrl.test(post.url) ? h('img', {
+                        className: css.img,
+                        src: post.url,
+                    }) : h(Button, {
+                        color: 'primary',
+                        className: css.linkBtn,
+                        style: {
+                            margin: '8px 0',
+                        }
+                    }, [
+                        h('span', {
+                            className: css.link,
+                        }, `附件 : ${post.url}`),
+                    ]),
+                ])
             ]) : undefined,
         ]);
     }

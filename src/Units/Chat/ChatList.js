@@ -1,7 +1,8 @@
 /*
-多个帖子列表,带有添加新帖功能
+多个发言的列表,带有添加新发言功能
+参照post设计，显示改为聊天显示
 props:{
-    wdRef:野狗posts路径
+    wdRef:野狗路径
 }
 */
 import { Component } from 'react';
@@ -9,34 +10,48 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
-import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
-import Post from '../../Units/Post/Post';
+import Chat from '../../Units/Chat/Chat';
 import MyUpload from '../../Utils/MyUpload';
 
 const style = theme => ({
-    newPost: {
-        width: 360,
+    comBox: {
+        overflowY: 'auto',
+        maxHeight: 150,
+        marginBottom: 48,
+        background: 'rgba(0,0,0,0.66)',
+    },
+    newItemBox: {
+
+    },
+    itemList: {
+
+    },
+    newItem: {
+        width: '100%',
         background: '#EEE',
         height: 48,
         position: 'absolute',
         bottom: 0,
-        right: 0,
+        left: 0,
         display: 'flex',
     },
-    newPostUrl: {
-        width: 360,
+    newItemUrl: {
+        width: '100%',
         background: '#EEE',
         height: 24,
-        position: 'fixed',
+        position: 'absolute',
         bottom: 48,
-        right: 0,
-        display: 'flex',
+        left: 0,
+        display: 'block',
+        zIndex: 10,
     },
-    newPostBtn: {},
-    newPostUrlBtn: {
+    newItemBtn: {
+
+    },
+    newItemUrlBtn: {
         width: '100%',
         minHeight: 20,
         padding: 6,
@@ -48,7 +63,7 @@ const style = theme => ({
         minWidth: 48,
         borderTop: '1px solid #CCC',
     },
-    newPostText: {
+    newItemText: {
         flex: 1,
         height: 46,
         padding: '0 16px',
@@ -59,26 +74,23 @@ const style = theme => ({
 //元件
 class com extends Component {
     state = {
-        posts: null,
-        newPostText: '',
-        newPostUrl: '',
+        data: null,
+        newItemText: '',
+        newItemUrl: '',
         currentUser: null,
     };
 
     wdAuthListen = null;
-    wdDataListen = null;
-    wdDataRef = null;
     componentDidMount = async function() {
         let that = this;
         const wdRef = that.props.wdRef;
         if(!wdRef) return;
 
         //读取跟帖数据
-        let ref = that.wdDataRef = global.$wd.sync().ref(wdRef);
-        let query = ref.orderByChild('ts').limitToFirst(10);
-        that.wdDataListen = query.on('value', (shot) => {
-            let posts = shot.val();
-            that.setState({ posts: posts });
+        let ref = global.$wd.sync().ref(wdRef);
+        ref.orderByChild('ts').limitToFirst(10).on('value', (shot) => {
+            let data = shot.val();
+            that.setState({ data: data });
         });
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
@@ -88,53 +100,49 @@ class com extends Component {
     };
 
     componentWillUnmount = () => {
-        try {
-            this.wdAuthListen();
-            this.wdDataRef.off('value', this.wdDataListen);
-        } catch(err) {};
+        this.wdAuthListen();
+        this.props.wdRef && global.$wd.sync().ref(this.props.wdRef).off();
     };
 
 
     //创建新帖子
-    addPost = () => {
+    addItem = () => {
         let that = this;
+        const wdRef = that.props.wdRef;
+        if(!wdRef) return;
+        let curUser = global.$wd.auth().currentUser;
 
-        if(!global.$wd.auth().currentUser) {
+        if(!curUser) {
             global.$alert.fn.show('您还没有登录', '请点右上角图标进行登录或注册');
             return;
         };
-        if(that.state.newPostUrl && !global.$conf.regx.postUrl.test(that.state.newPostUrl)) {
+        if(that.state.newItemUrl && !global.$conf.regx.postUrl.test(that.state.newItemUrl)) {
             global.$alert.fn.show('链接格式错误', '请检查确认以http开头的完整链接');
             return;
         };
-        if(!global.$conf.regx.postText.test(that.state.newPostText)) {
-            global.$alert.fn.show('标题格式错误', '请确认字符数量3～256个');
+        if(!global.$conf.regx.chatText.test(that.state.itemText)) {
+            global.$alert.fn.show('内容格式错误', '请确认字符数量3～256个');
             return;
         };
-
-        let curUser = global.$wd.auth().currentUser;
-        const wdRef = that.props.wdRef;
-        if(!wdRef) return;
 
         //屏蔽按钮避免重复发送
         that.setState({ sending: true });
         setTimeout(() => {
             that.setState({ sending: false });
-        }, 3000);
+        }, 1000);
 
-        let newPost = {
-            url: that.state.newPostUrl,
-            text: that.state.newPostText,
+        let newItem = {
+            url: that.state.newItemUrl,
+            text: that.state.newItemText,
             author: curUser.uid,
             ts: global.$wd.sync().ServerValue.TIMESTAMP,
         };
 
-        let ref = this.wdDataListen = global.$wd.sync().ref(wdRef);
-        ref.push(newPost).then((shot) => {
-            global.$snackbar.fn.show('发布成功！', 2000);
+        let ref = global.$wd.sync().ref(wdRef);
+        ref.push(newItem).then((shot) => {
             that.setState({
-                newPostUrl: '',
-                newPostText: '',
+                newItemUrl: '',
+                newItemText: '',
             });
         }).catch((err) => {
             global.$snackbar.fn.show(`发布失败:${err.message}`, 3000);
@@ -147,39 +155,36 @@ class com extends Component {
         const css = that.props.classes;
 
         let itemArr = [];
-        let posts = that.state.posts || {};
-        let postArr = [];
+        let data = that.state.data || {};
+        let itemElArr = [];
 
-        for(var key in posts) postArr.push(posts[key]);
-        postArr = postArr.sort((a, b) => { return b.ts - a.ts });
-        postArr.forEach((item, index) => {
-            itemArr.push(
-                h(Post, {
-                    post: item
+        for(var key in data) itemArr.push(data[key]);
+        itemArr = itemArr.sort((a, b) => { return b.ts - a.ts });
+        itemArr.forEach((item, index) => {
+            itemElArr.push(
+                h(Chat, {
+                    data: item
                 }),
             );
         });
 
-        //添加新帖子
-        let addPostDom = h(Grid, {
-            item: true,
-            xs: 12,
-            md: 8,
-            className: css.newPostBox,
+        //添加新项目
+        let addItemDom = h('div', {
+            className: css.newItemBox,
         }, [
-            that.state.newPostUrl ? h('div', { className: css.newPostUrl }, [
+            that.state.newItemUrl ? h('div', { className: css.newItemUrl }, [
                 h(Button, {
-                    className: css.newPostUrlBtn,
+                    className: css.newItemUrlBtn,
                     color: 'primary',
                     onClick: () => {
-                        that.setState({ newPostUrl: null });
+                        that.setState({ newItemUrl: null });
                     },
                 }, [
                     h(FontA, { name: 'close' }),
-                    h('span', { style: { marginLeft: 8 } }, that.state.newPostUrl),
+                    h('span', { style: { marginLeft: 8 } }, that.state.newItemUrl),
                 ]),
             ]) : undefined,
-            h('div', { className: css.newPost }, [
+            h('div', { className: css.newItem }, [
                 h(MyUpload, {
                     raised: true,
                     freeze: 10,
@@ -191,37 +196,40 @@ class com extends Component {
                         borderTop: '1px solid #CCC',
                     },
                     success: (file, err, res) => {
-                        that.setState({ newPostUrl: `http://${file.url}` });
+                        that.setState({ newItemUrl: `http://${file.url}` });
                     },
                 }),
                 h('input', {
-                    className: css.newPostText,
-                    placeholder: '留个言吧～',
-                    value: that.state.newPostText,
+                    className: css.newItemText,
+                    placeholder: '发个消息吧～',
+                    value: that.state.newItemText,
                     onChange: (e) => {
                         var val = e.target.value;
                         that.setState({
-                            newPostText: val,
+                            newItemText: val,
                         });
                     },
                 }),
-                 h(Button, {
+                h(Button, {
                     raised: true,
                     disabled: !that.state.currentUser || that.state.sending,
                     color: 'primary',
-                    className: css.newPostBtn,
+                    className: css.newItemBtn,
                     onClick: () => {
-                        that.addPost();
+                        that.addItem();
                     },
                 }, '发布'),
             ]),
         ]);
-        itemArr.push(addPostDom);
 
-        return h(Grid, {
-            container: true,
-            style: { marginBottom: 64 }
-        }, itemArr);
+        return h('div', {
+            className: css.comBox,
+        }, [
+            h('div', {
+                className: css.itemList,
+            }, itemElArr),
+            addItemDom,
+        ]);
     }
 };
 

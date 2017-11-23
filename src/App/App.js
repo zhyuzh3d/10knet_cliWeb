@@ -108,15 +108,15 @@ class App extends Component {
         });
 
         //替换window.open命令
+        /*
         window.open = (url) => {
             this.setState({ viewerUrl: url });
-            /*
             let wd = window.screen.availWidth;
             let hei = window.screen.availHeight;
             global.$ipc.run(`mainWindow.setSize(${wd},${hei})`);
             global.$ipc.run(`mainWindow.setPosition(0,0)`);
-            */
         };
+        */
 
 
         //野狗自动登录，自动定时签到

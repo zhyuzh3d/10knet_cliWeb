@@ -17,6 +17,7 @@ import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
 import LiveRoom from '../../Units/Live/LiveRoom';
+import ChatList from '../../Units/Chat/ChatList';
 import LiveCoder from '../../Units/Live/LiveCoder';
 import LiveSlider from '../../Units/Live/LiveSlider';
 import UserButton from '../../Units/User/UserButton';
@@ -31,6 +32,7 @@ const style = theme => ({
         flexDirection: 'column',
         flexWrap: 'nowrap',
         height: '100%',
+        position: 'relative',
     },
     liveRoomBox: {
         height: 120,
@@ -84,7 +86,14 @@ const style = theme => ({
         fontSize: 12,
         color: '#DDD',
         textAlign: 'center',
-    }
+    },
+    liveChatBox: {
+        position: 'absolute',
+        left: 0,
+        bottom: 0,
+        width: '100%',
+        zIndex: 10,
+    },
 });
 
 //元件
@@ -96,6 +105,7 @@ class com extends Component {
         hasNewInvite: 0, //是否有新的邀请
         liveInviteArr: [], //收到的所有邀请
         useLiveRoom: false, //是否使用视频模块
+        useLiveChat: true, //是否使用聊天模块
         boardType: 'slider', //互动板类型，coder，board
     };
 
@@ -404,6 +414,22 @@ class com extends Component {
             }),
         ]);
 
+        //使用聊天模块按钮
+        let liveChatBtn = h(Button, {
+            className: css.btn2,
+            style: {
+                background: 'inherit',
+                color: that.state.useLiveChat ? '#f50057' : '#AAA',
+            },
+            onClick: () => {
+                that.setState({ useLiveChat: !that.state.useLiveChat });
+            },
+        }, [
+           h(FontA, {
+                name: 'commenting',
+            }),
+        ]);
+
         //使用代码模块按钮
         let liveCodeBtn = h(Button, {
             className: css.btn2,
@@ -438,6 +464,7 @@ class com extends Component {
             }),
         ]);
 
+        //互动面板
         let liveBoard;
         if(roomInfo) {
             let roomId = roomInfo.roomId;
@@ -457,33 +484,27 @@ class com extends Component {
                     className: css.empty,
                 }, '...没有开启任何同步内容...');
             };
-
-
-
-
-
-           /* if(roomId) {
-                global.$wd.sync().ref(`islider/${roomId}`).on('value', (shot) => {
-                    console.log('>>>>shot', shot.val());
-                });
-            };*/
-
-
-
-
-
         };
 
         return that.props.open ? h(Grid, {
             container: true,
             className: css.panelBox,
         }, [
+            //视频聊天模块
             roomInfo && that.state.useLiveRoom ? h('div', {
                 className: css.liveRoomBox,
             }, h(LiveRoom, {
                 roomInfo: roomInfo,
             })) : undefined,
 
+            //文字聊天模块
+            roomInfo && that.state.useLiveChat ? h('div', {
+                className: css.liveChatBox,
+            }, h(ChatList, {
+                wdRef: `chats/${roomInfo.roomId}`,
+            })) : undefined,
+
+            //工具栏各种开关
             h('div', {
                 className: css.btnBar,
             }, [
@@ -492,12 +513,16 @@ class com extends Component {
                 myInviteBtn,
                 liveCodeBtn,
                 liveSliderBtn,
+                liveChatBtn,
                 liveRoomBtn,
             ]),
 
+            //互动面板
             roomInfo ? h('div', {
                 className: css.boardPanel,
             }, liveBoard) : null,
+
+
         ]) : null;
     };
 };
