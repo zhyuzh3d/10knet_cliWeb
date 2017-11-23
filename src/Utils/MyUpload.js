@@ -5,6 +5,7 @@
  * 如果props.file存在那么直接上传，用此方法可以实现借blob上传文字为文件，见下
  * 使用props.freeze和freezeTime实现上传过程中冻结按钮，实现单一上传
  * 多个文件上传进度条将多种颜色交替显示，也可以overlayColor使用单一颜色
+ * fn.start(file,successFn,errorFn)支持外部直接调用
  *
  * props:{
  *  color:'inherit'|'primary'|'accent'...按钮颜色
@@ -90,7 +91,7 @@ class MyComponent extends Component {
         })
     };
 
-    //请求token并发起上传
+    //请求token并发起上传,errorFn/successFn(file,err,res),
     start = $fn.start = async(file, successFn, errorFn) => {
         let that = this;
 
@@ -108,13 +109,13 @@ class MyComponent extends Component {
                     for(var k in data) {
                         file[k] = data[k];
                     };
-                    that.upload(file, data);
+                    that.upload(file, data, successFn, errorFn);
                 };
             });
     };
 
     //正式发起上传
-    upload = $fn.upload = async(file, tokenObj) => {
+    upload = $fn.upload = async(file, tokenObj, successFn, errorFn) => {
         var that = this;
 
         file.colorTag = colors[Math.floor(Math.random() * colors.length)];
@@ -174,9 +175,17 @@ class MyComponent extends Component {
                 });
                 that.props.complete && that.props.complete(file, err, res);
                 if(err) {
-                    that.props.error && that.props.error(file, err, res);
+                    if(errorFn) {
+                        errorFn(file, err, res);
+                    } else {
+                        that.props.error && that.props.error(file, err, res);
+                    }
                 } else {
-                    that.props.success && that.props.success(file, err, res);
+                    if(successFn) {
+                        successFn(file, err, res);
+                    } else {
+                        that.props.success && that.props.success(file, err, res);
+                    }
                 };
             });
 
@@ -198,7 +207,7 @@ class MyComponent extends Component {
     onClick = () => {
         let that = this;
         if(that.props.file) {
-            that.start(that.props.file, that.upload, (err, res) => {
+            that.start(that.props.file, undefined, (err, res) => {
                 alert(`获取上传权限失败:${err||res.message}`);
             });
         } else {

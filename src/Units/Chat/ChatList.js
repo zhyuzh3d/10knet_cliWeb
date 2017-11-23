@@ -78,6 +78,7 @@ class com extends Component {
         newItemText: '',
         newItemUrl: '',
         currentUser: null,
+        sending: false,
     };
 
     wdAuthListen = null;
@@ -97,6 +98,8 @@ class com extends Component {
             if(!cuser) return;
             that.setState({ currentUser: cuser });
         });
+
+        that.listenPast();
     };
 
     componentWillUnmount = () => {
@@ -104,6 +107,25 @@ class com extends Component {
         this.props.wdRef && global.$wd.sync().ref(this.props.wdRef).off();
     };
 
+    //开始监听剪贴板文件
+    listenPast = () => {
+        let that = this;
+        that.inputEl.addEventListener("paste", function(e) {
+            if(!(e.clipboardData && e.clipboardData.items)) {
+                return;
+            };
+            for(var i = 0, len = e.clipboardData.items.length; i < len; i++) {
+                var item = e.clipboardData.items[i];
+                if(item.kind === "file") {
+                    var pasteFile = item.getAsFile();
+                    that.setState({ pastFile: pasteFile });
+                    MyUpload.fn.start(pasteFile, (file, err, res) => {
+                        that.setState({ newItemUrl: `http://${file.url}` });
+                    });
+                }
+            }
+        });
+    };
 
     //创建新帖子
     addItem = () => {
@@ -188,6 +210,8 @@ class com extends Component {
                 h(MyUpload, {
                     raised: true,
                     freeze: 10,
+                    file: that.state.pastFile,
+                    ref: (uploadBtn) => { that.uploadBtn = uploadBtn },
                     children: h(FontA, { name: 'photo' }),
                     style: {
                         height: 48,
@@ -200,8 +224,9 @@ class com extends Component {
                     },
                 }),
                 h('input', {
+                    ref: (inputEl) => { that.inputEl = inputEl },
                     className: css.newItemText,
-                    placeholder: '发个消息吧～',
+                    placeholder: '发送文字或粘贴截图',
                     value: that.state.newItemText,
                     onChange: (e) => {
                         var val = e.target.value;
@@ -210,7 +235,7 @@ class com extends Component {
                         });
                     },
                     onKeyDown: (event) => {
-                        if(event.keyCode == 13) {
+                        if(event.keyCode === 13) {
                             that.addItem();
                         }
                     },
@@ -223,9 +248,10 @@ class com extends Component {
                     onClick: () => {
                         that.addItem();
                     },
-                }, '发布'),
+                }, h(FontA,{name:'send'})),
             ]),
         ]);
+
 
         return h('div', {
             className: css.comBox,

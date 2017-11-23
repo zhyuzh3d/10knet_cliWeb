@@ -9,7 +9,6 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
-import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import Moment from 'react-moment';
 
@@ -39,6 +38,7 @@ const style = theme => ({
     img: {
         maxHeight: 64,
         maxWidth: 256,
+        border: '1px solid #888',
     },
     link: {
         fontSize: '0.6rem',
