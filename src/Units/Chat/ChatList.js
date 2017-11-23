@@ -209,6 +209,11 @@ class com extends Component {
                             newItemText: val,
                         });
                     },
+                    onKeyDown: (event) => {
+                        if(event.keyCode == 13) {
+                            that.addItem();
+                        }
+                    },
                 }),
                 h(Button, {
                     raised: true,
