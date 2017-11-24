@@ -22,7 +22,7 @@ const style = theme => ({
         overflowY: 'auto',
         maxHeight: 150,
         marginBottom: 48,
-        background: 'rgba(0,0,0,0.66)',
+        background: 'rgba(25,25,25,0.5)',
     },
     newItemBox: {},
     itemList: {},
