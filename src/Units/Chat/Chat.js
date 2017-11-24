@@ -67,9 +67,27 @@ const style = theme => ({
 class com extends Component {
     state = {
         data: {},
+        regx: {
+
+        },
     };
 
-    componentDidMount = async function() {};
+    componentDidMount = async function() {
+        this.checkContentType();
+    };
+
+
+
+    //判断内容的格式，text,timage,image,file
+    checkContentType = () => {
+        let that = this;
+        let data = that.state.data;
+        console.log('>>>data', data)
+        let text = data ? data.text : null;
+        if(!text) return;
+
+
+    };
 
     render() {
         let that = this;

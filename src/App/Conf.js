@@ -1,6 +1,7 @@
 let ConfBase = {
     hostName: '',
     hostUrl: '',
+    uploadDomain: 'up.10knet.com',
     api: (apiPath) => {
         if(window.location.hostname === 'localhost') {
             return `http://localhost:3100${apiPath}`;
@@ -26,6 +27,7 @@ let ConfBase = {
         postText: /^.{0,256}/,
         chatText: /^.{0,256}/,
         postUrl: /^https?:\/\//,
+        upDomain: /^http[s]?\/\/up.10knet.com/,
     },
     assetTypes: {
         slider: {

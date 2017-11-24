@@ -109,7 +109,7 @@ class MyComponent extends Component {
                     for(var k in data) {
                         file[k] = data[k];
                     };
-                    that.upload(file, data, successFn, errorFn);
+                    data && that.upload(file, data, successFn, errorFn);
                 };
             });
     };
@@ -117,6 +117,7 @@ class MyComponent extends Component {
     //正式发起上传
     upload = $fn.upload = async(file, tokenObj, successFn, errorFn) => {
         var that = this;
+        if(!tokenObj) return;
 
         file.colorTag = colors[Math.floor(Math.random() * colors.length)];
         that.setState({
@@ -177,14 +178,14 @@ class MyComponent extends Component {
                 if(err) {
                     if(errorFn) {
                         errorFn(file, err, res);
-                    } else {
-                        that.props.error && that.props.error(file, err, res);
+                    } else if(that.props.error) {
+                        that.props.error(file, err, res);
                     }
                 } else {
                     if(successFn) {
                         successFn(file, err, res);
-                    } else {
-                        that.props.success && that.props.success(file, err, res);
+                    } else if(that.props.success) {
+                        that.props.success(file, err, res);
                     }
                 };
             });
@@ -247,7 +248,7 @@ class MyComponent extends Component {
             };
 
             //启动获取token的操作然后自动上传
-            that.start(file, that.upload, (err, res) => {
+            that.start(file, undefined, (err, res) => {
                 alert(`获取上传权限失败:${err||res.message}`);
             });
         });

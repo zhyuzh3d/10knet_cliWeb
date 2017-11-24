@@ -23,12 +23,8 @@ const style = theme => ({
         marginBottom: 48,
         background: 'rgba(0,0,0,0.66)',
     },
-    newItemBox: {
-
-    },
-    itemList: {
-
-    },
+    newItemBox: {},
+    itemList: {},
     newItem: {
         width: '100%',
         background: '#EEE',
@@ -38,26 +34,7 @@ const style = theme => ({
         left: 0,
         display: 'flex',
     },
-    newItemUrl: {
-        width: '100%',
-        background: '#EEE',
-        height: 24,
-        position: 'absolute',
-        bottom: 48,
-        left: 0,
-        display: 'block',
-        zIndex: 10,
-    },
-    newItemBtn: {
-
-    },
-    newItemUrlBtn: {
-        width: '100%',
-        minHeight: 20,
-        padding: 6,
-        fontSize: 10,
-        fontWeight: 400,
-    },
+    newItemBtn: {},
     newImgBtn: {
         width: 48,
         minWidth: 48,
@@ -76,7 +53,6 @@ class com extends Component {
     state = {
         data: null,
         newItemText: '',
-        newItemUrl: '',
         currentUser: null,
         sending: false,
     };
@@ -119,13 +95,18 @@ class com extends Component {
                 if(item.kind === "file") {
                     var pasteFile = item.getAsFile();
                     that.setState({ pastFile: pasteFile });
-                    MyUpload.fn.start(pasteFile, (file, err, res) => {
-                        that.setState({ newItemUrl: `http://${file.url}` });
-                    });
+                    MyUpload.fn.start(pasteFile, that.uploadSuccess);
                 }
             }
         });
     };
+
+    //上传完成后执行的方法，设置文字为url,发送聊天
+    uploadSuccess = (file, err, res) => {
+        this.setState({ newItemText: `http://${file.url}` });
+        console.log('>>>>url', res);
+        this.addItem();
+    }
 
     //创建新帖子
     addItem = () => {
@@ -136,10 +117,6 @@ class com extends Component {
 
         if(!curUser) {
             global.$alert.fn.show('您还没有登录', '请点右上角图标进行登录或注册');
-            return;
-        };
-        if(that.state.newItemUrl && !global.$conf.regx.postUrl.test(that.state.newItemUrl)) {
-            global.$alert.fn.show('链接格式错误', '请检查确认以http开头的完整链接');
             return;
         };
         if(!global.$conf.regx.chatText.test(that.state.itemText)) {
@@ -154,7 +131,6 @@ class com extends Component {
         }, 1000);
 
         let newItem = {
-            url: that.state.newItemUrl,
             text: that.state.newItemText,
             author: curUser.uid,
             ts: global.$wd.sync().ServerValue.TIMESTAMP,
@@ -163,11 +139,10 @@ class com extends Component {
         let ref = global.$wd.sync().ref(wdRef);
         ref.push(newItem).then((shot) => {
             that.setState({
-                newItemUrl: '',
                 newItemText: '',
             });
         }).catch((err) => {
-            global.$snackbar.fn.show(`发布失败:${err.message}`, 3000);
+            global.$snackbar.fn.show(`发送失败:${err.message}`, 3000);
         });
     };
 
@@ -194,18 +169,6 @@ class com extends Component {
         let addItemDom = h('div', {
             className: css.newItemBox,
         }, [
-            that.state.newItemUrl ? h('div', { className: css.newItemUrl }, [
-                h(Button, {
-                    className: css.newItemUrlBtn,
-                    color: 'primary',
-                    onClick: () => {
-                        that.setState({ newItemUrl: null });
-                    },
-                }, [
-                    h(FontA, { name: 'close' }),
-                    h('span', { style: { marginLeft: 8 } }, that.state.newItemUrl),
-                ]),
-            ]) : undefined,
             h('div', { className: css.newItem }, [
                 h(MyUpload, {
                     raised: true,
@@ -220,7 +183,7 @@ class com extends Component {
                         borderTop: '1px solid #CCC',
                     },
                     success: (file, err, res) => {
-                        that.setState({ newItemUrl: `http://${file.url}` });
+                        that.uploadSuccess(file, err, res);
                     },
                 }),
                 h('input', {
@@ -248,7 +211,7 @@ class com extends Component {
                     onClick: () => {
                         that.addItem();
                     },
-                }, h(FontA,{name:'send'})),
+                }, h(FontA, { name: 'send' })),
             ]),
         ]);
 
