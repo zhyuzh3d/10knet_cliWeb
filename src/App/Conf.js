@@ -27,7 +27,7 @@ let ConfBase = {
         postText: /^.{0,256}/,
         chatText: /^.{0,256}/,
         postUrl: /^https?:\/\//,
-        upDomain: /^http[s]?\/\/up.10knet.com/,
+        upDomain: /^https?:\/\/up.10knet.com/,
     },
     assetTypes: {
         slider: {
@@ -57,8 +57,6 @@ let ConfBase = {
         },
     }
 };
-
-
 
 //需要拼接的设定
 const Conf = Object.assign(ConfBase, {

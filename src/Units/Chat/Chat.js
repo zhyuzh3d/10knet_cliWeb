@@ -66,34 +66,40 @@ const style = theme => ({
 //元件
 class com extends Component {
     state = {
-        data: {},
-        regx: {
-
-        },
+        type: 'text',
+        useThumb: false, //对up.10knet.com图片添加-scale128
     };
 
-    componentDidMount = async function() {
+    componentWillReceiveProps = async function() {
+        this.setState({ type: 'text' });
         this.checkContentType();
     };
 
-
-
-    //判断内容的格式，text,timage,image,file
+    //判断内容的格式，data.type=text,image,link
     checkContentType = () => {
         let that = this;
-        let data = that.state.data;
-        console.log('>>>data', data)
+        let data = that.props.data;
+
         let text = data ? data.text : null;
         if(!text) return;
+        let regx = global.$conf.regx;
 
-
+        let type = 'text';
+        if(regx.imgFile.test(text)) {
+            if(regx.upDomain.test(text)) {
+                that.setState({ useThumb: true });
+            };
+            type = 'image';
+        } else if(regx.postUrl.test(text)) {
+            type = 'link';
+        };
+        that.setState({ type: type });
     };
 
     render() {
         let that = this;
         const css = that.props.classes;
         let data = that.props.data || {};
-        let regx = global.$conf.regx.imgFile;
 
         return h('div', {
             className: css.comBox
@@ -108,23 +114,23 @@ class com extends Component {
                         fontWeight: 300,
                     },
                 }),
-                data.text ? h('span', data.text) : undefined,
+                that.state.type === 'text' ? h('span', data.text) : undefined,
                 h(Moment, {
                     className: css.time,
                     format: 'hh:mm:ss'
                 }, data.ts),
             ]),
 
-            data.url ? h('div', {
+            that.state.type !== 'text' ? h('div', {
                 className: css.urlLine,
             }, [
                 h('a', {
-                    href: data.url,
+                    href: data.text,
                     target: '_blank',
                     className: css.alink,
-                }, regx.test(data.url) ? h('img', {
+                }, that.state.type === 'image' ? h('img', {
                     className: css.img,
-                    src: data.url,
+                    src: that.state.useThumb ? `${data.text}-scale128` : data.text,
                 }) : h(Button, {
                     color: 'primary',
                     raised: true,
@@ -138,7 +144,7 @@ class com extends Component {
                 }, [
                     h('span', {
                         className: css.link,
-                    }, `附件 : ${data.url}`),
+                    }, `附件 : ${data.text}`),
                 ])),
            ]) : undefined, ]);
     }

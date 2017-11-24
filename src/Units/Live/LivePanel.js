@@ -106,11 +106,12 @@ class com extends Component {
         liveInviteArr: [], //收到的所有邀请
         useLiveRoom: false, //是否使用视频模块
         useLiveChat: true, //是否使用聊天模块
-        boardType: 'slider', //互动板类型，coder，board
+        boardType: 'none', //互动板类型，coder，board
     };
 
     //初始化邀请提示
     componentDidMount = async function() {
+
         let that = this;
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
@@ -278,6 +279,7 @@ class com extends Component {
         });
     };
 
+
     //离开房间，停用room，livecode等
     leaveRoom = global.$live.leaveRoom = (callBack) => {
         let that = this;
@@ -335,9 +337,10 @@ class com extends Component {
     render() {
         let that = this;
         const css = that.props.classes;
+        let cuser = global.$wd.auth().currentUser;
 
         let roomInfo = that.state.roomInfo;
-        let onChair = roomInfo && roomInfo.chairMan === global.$wd.auth().currentUser.uid ? true : false;
+        let onChair = cuser && roomInfo && roomInfo.chairMan === cuser.uid ? true : false;
         let type = onChair ? that.state.boardType : (roomInfo ? roomInfo.boardType : 'slider');
 
         //开启或退出按钮
@@ -430,6 +433,7 @@ class com extends Component {
             }),
         ]);
 
+
         //使用代码模块按钮
         let liveCodeBtn = h(Button, {
             className: css.btn2,
@@ -502,6 +506,7 @@ class com extends Component {
                 className: css.liveChatBox,
             }, h(ChatList, {
                 wdRef: `chats/${roomInfo.roomId}`,
+                useViwer: that.state.boardType === 'none',
             })) : undefined,
 
             //工具栏各种开关
@@ -526,6 +531,7 @@ class com extends Component {
         ]) : null;
     };
 };
+
 
 
 

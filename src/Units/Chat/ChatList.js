@@ -3,6 +3,7 @@
 参照post设计，显示改为聊天显示
 props:{
     wdRef:野狗路径
+    useViwer:是否使用图片显示窗口
 }
 */
 import { Component } from 'react';
@@ -104,7 +105,6 @@ class com extends Component {
     //上传完成后执行的方法，设置文字为url,发送聊天
     uploadSuccess = (file, err, res) => {
         this.setState({ newItemText: `http://${file.url}` });
-        console.log('>>>>url', res);
         this.addItem();
     }
 
@@ -165,6 +165,15 @@ class com extends Component {
             );
         });
 
+        let viewerEL = h('div', {
+            className: css.viewer,
+        }, [
+            that.state.viewerImgUrl ? h('img', {
+                className: css.viewerImg,
+                src: that.state.viewerImgUrl,
+            }) : undefined,
+        ]);
+
         //添加新项目
         let addItemDom = h('div', {
             className: css.newItemBox,
@@ -173,7 +182,6 @@ class com extends Component {
                 h(MyUpload, {
                     raised: true,
                     freeze: 10,
-                    file: that.state.pastFile,
                     ref: (uploadBtn) => { that.uploadBtn = uploadBtn },
                     children: h(FontA, { name: 'photo' }),
                     style: {
