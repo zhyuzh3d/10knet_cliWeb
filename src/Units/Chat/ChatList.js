@@ -3,7 +3,7 @@
 参照post设计，显示改为聊天显示
 props:{
     wdRef:野狗路径
-    useViwer:是否使用图片显示窗口
+    showChat(author,text):大屏显示chat的方法，新增聊天时候自动显示，传递到chat
 }
 */
 import { Component } from 'react';
@@ -19,13 +19,17 @@ import MyUpload from '../../Utils/MyUpload';
 
 const style = theme => ({
     comBox: {
+
+    },
+    listBox: {
         overflowY: 'auto',
         maxHeight: 150,
+        minHeight: 50,
         marginBottom: 48,
-        background: 'rgba(25,25,25,0.5)',
+        background: 'rgba(25,25,25,0.66)',
+        padding: '12px 0',
     },
     newItemBox: {},
-    itemList: {},
     newItem: {
         width: '100%',
         background: '#EEE',
@@ -53,6 +57,7 @@ const style = theme => ({
 class com extends Component {
     state = {
         data: null,
+        itemArr: [],
         newItemText: '',
         currentUser: null,
         sending: false,
@@ -65,10 +70,16 @@ class com extends Component {
         if(!wdRef) return;
 
         //读取跟帖数据
-        let ref = global.$wd.sync().ref(wdRef);
-        ref.orderByChild('ts').limitToFirst(10).on('value', (shot) => {
+        let ref = global.$wd.sync().ref(`${wdRef}/list`);
+        //ref.orderByChild('ts').limitToFirst(10).on('child_added', (shot) => {
+        ref.on('child_added', (shot) => {
             let data = shot.val();
-            that.setState({ data: data });
+            if(!data) return;
+
+            let itemArr = that.state.itemArr;
+            itemArr.push(data);
+            itemArr = itemArr.sort((a, b) => { return b.ts - a.ts });
+            that.setState({ itemArr: itemArr });
         });
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
@@ -136,7 +147,7 @@ class com extends Component {
             ts: global.$wd.sync().ServerValue.TIMESTAMP,
         };
 
-        let ref = global.$wd.sync().ref(wdRef);
+        let ref = global.$wd.sync().ref(`${wdRef}/list`);
         ref.push(newItem).then((shot) => {
             that.setState({
                 newItemText: '',
@@ -151,16 +162,16 @@ class com extends Component {
         let that = this;
         const css = that.props.classes;
 
-        let itemArr = [];
-        let data = that.state.data || {};
+        let itemArr = that.state.itemArr;
         let itemElArr = [];
 
-        for(var key in data) itemArr.push(data[key]);
-        itemArr = itemArr.sort((a, b) => { return b.ts - a.ts });
         itemArr.forEach((item, index) => {
             itemElArr.push(
                 h(Chat, {
-                    data: item
+                    data: item,
+                    showChat: that.props.showChat ? () => {
+                        that.props.showChat(item);
+                    } : undefined,
                 }),
             );
         });
@@ -228,7 +239,7 @@ class com extends Component {
             className: css.comBox,
         }, [
             h('div', {
-                className: css.itemList,
+                className: css.listBox,
             }, itemElArr),
             addItemDom,
         ]);

@@ -1,5 +1,5 @@
 /*
-PPT互动面板，根据主持人islider尺寸同步缩放大小，带有覆盖层的画板功能
+PPT互动面板，
 props:{
     wdRef,{sliderId,width,height}房间对应的islider地址
     onChair,是否主持人，由外部的panel控制
@@ -39,6 +39,7 @@ const style = theme => ({
         right: 0,
         top: 0,
         zIndex: 10,
+        opacity: 0.66,
     },
     arrBtn: {
         Height: 24,

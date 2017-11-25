@@ -72,7 +72,8 @@ class com extends Component {
 
     componentWillReceiveProps = async function() {
         this.setState({ type: 'text' });
-        this.checkContentType();
+        let type = this.checkContentType();
+        this.setState({ type: type });
     };
 
     //判断内容的格式，data.type=text,image,link
@@ -93,7 +94,7 @@ class com extends Component {
         } else if(regx.postUrl.test(text)) {
             type = 'link';
         };
-        that.setState({ type: type });
+        return type;
     };
 
     render() {
@@ -124,14 +125,21 @@ class com extends Component {
             that.state.type !== 'text' ? h('div', {
                 className: css.urlLine,
             }, [
-                h('a', {
+               that.state.type === 'image' ? h(that.props.showChat ? 'div' : 'a', {
                     href: data.text,
                     target: '_blank',
                     className: css.alink,
-                }, that.state.type === 'image' ? h('img', {
+                    onClick: that.props.showChat ? () => {
+                        that.props.showChat(data);
+                    } : undefined,
+                }, h('img', {
                     className: css.img,
                     src: that.state.useThumb ? `${data.text}-scale128` : data.text,
-                }) : h(Button, {
+                })) : h('a', {
+                    href: data.text,
+                    target: '_blank',
+                    className: css.alink,
+                }, h(Button, {
                     color: 'primary',
                     raised: true,
                     className: css.linkBtn,
@@ -146,7 +154,8 @@ class com extends Component {
                         className: css.link,
                     }, `附件 : ${data.text}`),
                 ])),
-           ]) : undefined, ]);
+           ]) : undefined,
+        ]);
     }
 };
 

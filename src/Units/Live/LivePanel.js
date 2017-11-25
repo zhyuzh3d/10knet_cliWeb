@@ -17,6 +17,7 @@ import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
 import LiveRoom from '../../Units/Live/LiveRoom';
+import LiveViewer from '../../Units/Live/LiveViewer';
 import ChatList from '../../Units/Chat/ChatList';
 import LiveCoder from '../../Units/Live/LiveCoder';
 import LiveSlider from '../../Units/Live/LiveSlider';
@@ -106,7 +107,7 @@ class com extends Component {
         liveInviteArr: [], //收到的所有邀请
         useLiveRoom: false, //是否使用视频模块
         useLiveChat: true, //是否使用聊天模块
-        boardType: 'none', //互动板类型，coder，board
+        boardType: 'viewer', //互动板类型，coder，board
     };
 
     //初始化邀请提示
@@ -334,6 +335,7 @@ class com extends Component {
         that.setState({ boardType: type || 'slider' });
     };
 
+
     render() {
         let that = this;
         const css = that.props.classes;
@@ -468,11 +470,27 @@ class com extends Component {
             }),
         ]);
 
+        //使用PPT演示模块按钮
+        let liveViewerBtn = h(Button, {
+            className: css.btn2,
+            style: {
+                background: 'inherit',
+                color: that.state.boardType === 'viewer' ? '#f50057' : '#AAA',
+            },
+            onClick: () => {
+                that.setBoardType('viewer');
+            },
+            disabled: !onChair,
+        }, [
+           h(FontA, {
+                name: 'image',
+            }),
+        ]);
+
         //互动面板
         let liveBoard;
         if(roomInfo) {
             let roomId = roomInfo.roomId;
-
             if(type === 'slider') {
                 liveBoard = h(LiveSlider, {
                     onChair: onChair,
@@ -483,12 +501,19 @@ class com extends Component {
                     onChair: onChair,
                     wdRef: roomId ? `icoder/${roomId}` : undefined,
                 });
+            } else if(type === 'viewer') {
+                liveBoard = h(LiveViewer, {
+                    onChair: onChair,
+                    wdRef: roomId ? `iviewer/${roomId}` : undefined,
+                });
             } else {
                 liveBoard = h('div', {
                     className: css.empty,
                 }, '...没有开启任何同步内容...');
             };
         };
+
+
 
         return that.props.open ? h(Grid, {
             container: true,
@@ -501,14 +526,6 @@ class com extends Component {
                 roomInfo: roomInfo,
             })) : undefined,
 
-            //文字聊天模块
-            roomInfo && that.state.useLiveChat ? h('div', {
-                className: css.liveChatBox,
-            }, h(ChatList, {
-                wdRef: `chats/${roomInfo.roomId}`,
-                useViwer: that.state.boardType === 'none',
-            })) : undefined,
-
             //工具栏各种开关
             h('div', {
                 className: css.btnBar,
@@ -516,8 +533,9 @@ class com extends Component {
                 roomInfo ? exitBtn : startBtn,
                 inviteBtn,
                 myInviteBtn,
-                liveCodeBtn,
-                liveSliderBtn,
+                onChair ? liveViewerBtn : null,
+                onChair ? liveCodeBtn : null,
+                onChair ? liveSliderBtn : null,
                 liveChatBtn,
                 liveRoomBtn,
             ]),
@@ -526,6 +544,20 @@ class com extends Component {
             roomInfo ? h('div', {
                 className: css.boardPanel,
             }, liveBoard) : null,
+
+            //文字聊天模块
+            roomInfo && that.state.useLiveChat ? h('div', {
+                className: css.liveChatBox,
+            }, h(ChatList, {
+                wdRef: `chats/${roomInfo.roomId}`,
+                showChat: roomInfo && onChair && type === 'viewer' ? (chat) => {
+                    if(!chat || !LiveViewer.fn || !LiveViewer.fn.showUrl) return;
+                    LiveViewer.fn.showUrl({
+                        author: chat.author,
+                        url: chat.text,
+                    });
+                } : undefined,
+            })) : undefined,
 
 
         ]) : null;
