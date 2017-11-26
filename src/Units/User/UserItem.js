@@ -134,6 +134,7 @@ class com extends Component {
         });
     };
 
+
     //取消关注当前用户
     unFollowUser = () => {
         let that = this;

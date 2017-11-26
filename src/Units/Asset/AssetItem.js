@@ -101,7 +101,7 @@ class com extends Component {
     renameItem = () => {
         let that = this;
         let item = that.props.item;
-        if(!item || !item.basket || item.id) return;
+        if(!item || !item.basket || !item.id) return;
 
         global.$confirm.fn.show({
             title: '请输入素材新标题',
@@ -111,7 +111,8 @@ class com extends Component {
                 regx: /^.{2,32}$/,
                 value: item.title,
             },
-            okHandler: (ipt) => {                global.$wd.sync().ref(`basket/${item.basket}/arr/${item.id}`).update({
+            okHandler: (ipt) => {
+                global.$wd.sync().ref(`basket/${item.basket}/arr/${item.id}`).update({
                     title: ipt,
                 }).then((res) => {
                     global.$snackbar.fn.show('修改成功', 2000);
@@ -226,7 +227,6 @@ class com extends Component {
             }, [
                  h(FontA, { name: 'arrow-down' }),
             ]);
-
 
             cuserMenuGrp = h('div', { className: css.cuserMenuGrp }, [
                 cuserMenuBtn,

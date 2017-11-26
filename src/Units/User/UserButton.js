@@ -65,9 +65,9 @@ class com extends Component {
     };
 
     //获取用户基本信息
-    getUserInfo = () => {
+    getUserInfo = (uid) => {
         let that = this;
-        let userId = that.props.userId;
+        let userId = uid || that.props.userId;
         global.$wd.sync().ref(`user/${userId}`).once('value', (shot) => {
             let user = merge({ uid: userId }, shot.val() || {});
             !that.hasUnmounted && that.setState({ user: user });
@@ -76,8 +76,12 @@ class com extends Component {
 
 
     //界面完成后的初始化函数-退出现有账号
-    componentDidMount = async function() {
+    componentWillMount = async function() {
         this.getUserInfo();
+    };
+
+    componentWillReceiveProps = async function(props) {
+        props.userId !== this.props.userId && this.getUserInfo(props.userId);
     };
 
     hasUnmounted = false;

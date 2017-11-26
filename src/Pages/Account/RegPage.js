@@ -1,6 +1,7 @@
 import { Component } from 'react';
 
 import h from 'react-hyperscript';
+import md5 from 'md5';
 
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
@@ -58,6 +59,10 @@ class com extends Component {
             global.$app.userCheck(user.uid);
             global.$app.startAutoCheck(user.uid);
             global.$router.changePage();
+
+            //将手机号MD5加密存储到user/uid
+            global.$wd.sync().ref(`user/${user.uid}`).update({ phone: md5(phone) });
+
         }).catch(function(error) {
             global.$alert.fn.show('注册失败，请重试', error.message);
         });

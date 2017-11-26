@@ -118,7 +118,7 @@ class com extends Component {
         });
     };
 
-    //重命名
+    //重命名,同时更新info和ref
     renameItem = () => {
         let that = this;
         let info = that.props.info;
@@ -141,6 +141,7 @@ class com extends Component {
                 }).catch((err) => {
                     global.$snackbar.fn.show(`修改失败:${err.message}`, 3000);
                 });
+                global.$wd.sync().ref(`group/${info.id}/info`).update({ title: ipt });
             },
         });
     };
@@ -205,7 +206,7 @@ class com extends Component {
             ]);
         };
 
-        return  h(ListItem, {
+        return h(ListItem, {
             className: css.item,
             button: true,
         }, [
@@ -214,7 +215,7 @@ class com extends Component {
                     item: true,
                     className: css.itemIcon,
                     onClick: that.clickHandler,
-                }, h(FontA, { name: info.top ? 'address-book':'address-book-o' })),
+                }, h(FontA, { name: info.top ? 'address-book' : 'address-book-o' })),
                 h(Grid, {
                     item: true,
                     className: css.itemText,

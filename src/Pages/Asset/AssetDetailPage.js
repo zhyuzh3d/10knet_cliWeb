@@ -75,7 +75,7 @@ class com extends Component {
             paddingBottom: 128,
         };
         return h('div', {}, [
-            h(NavBar, { title: that.state.title }),
+            h(NavBar, { title: that.state.appBarTitle }),
             h(Grid, { container: true, justify: 'center' },
                 h(Grid, { item: true, xs: 12, style: contentStyle }, content),
             ),

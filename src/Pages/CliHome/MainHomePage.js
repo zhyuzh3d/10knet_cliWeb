@@ -113,7 +113,7 @@ class com extends Component {
                     h(Tab, {
                         icon: h('div', {}, [
                             h(FontA, { name: 'leaf', className: css.tabBtnIcon }),
-                            h('span', { className: css.tabBtnTxt }, '收集')
+                            h('span', { className: css.tabBtnTxt }, '采集')
                         ]),
                     }),
                     h(Tab, {
@@ -124,8 +124,8 @@ class com extends Component {
                     }),
                     h(Tab, {
                         icon: h('div', {}, [
-                            h(FontA, { name: 'user-plus', className: css.tabBtnIcon }),
-                            h('span', { className: css.tabBtnTxt }, '发现')
+                            h(FontA, { name: 'group', className: css.tabBtnIcon }),
+                            h('span', { className: css.tabBtnTxt }, '小组')
                         ]),
                     }),
                     h(Tab, {
@@ -139,12 +139,12 @@ class com extends Component {
             h('div', { className: css.listBox }, [
                 this.state.tabValue === 0 ? h(BasketList) : undefined,
                 this.state.tabValue === 1 ? h(BasketList, { isFocus: true }) : undefined,
-                this.state.tabValue === 2 && cuser ? h(UserList, {
-                    wdRefObj: global.$wd.sync().ref(`ucheck`).limitToLast(10),
-                }) : undefined,
-                this.state.tabValue === 3 && cuser ? h(GroupList, {
+                this.state.tabValue === 2 && cuser ? h(GroupList, {
                     userId: cuser.uid,
                     useMenu: true,
+                }) : undefined,
+                this.state.tabValue === 3 && cuser ? h(UserList, {
+                    wdRefObj: global.$wd.sync().ref(`ufollow/${cuser.uid}`),
                 }) : undefined,
             ]),
         ]);

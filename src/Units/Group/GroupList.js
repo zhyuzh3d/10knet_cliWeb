@@ -90,7 +90,9 @@ class com extends Component {
         if(!userId) return;
 
         let ref = global.$wd.sync().ref(`group`);
-        ref.push({ author: userId }).then((res) => {
+        let info = { author: userId }
+
+        ref.push({ info: info }).then((res) => {
             if(!res || !res.key()) return;
             let key = res.key();
             let info = {
