@@ -142,8 +142,8 @@ class com extends Component {
                         arr.push(res[key]);
                     };
                     if(arr.length < 1) {
-                        return;
                         global.$snackbar.fn.show(`没找到符合条件的用户`, 3000);
+                        return;
                     };
 
                     global.$selector.fn.show({

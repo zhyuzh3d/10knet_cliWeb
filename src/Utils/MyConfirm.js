@@ -10,7 +10,8 @@
         tip,
         regx,正则表达式，非法则禁用确定按钮
         value,
-    }
+    },
+    hideCancelBtn,禁用取消按钮
 });
 */
 import React from 'react';
@@ -133,13 +134,13 @@ class MyComponent extends Component {
                 }) : undefined,
             ]),
             h('div', [
-                h(Button, {
+                !that.props.hideCancelBtn ? h(Button, {
                     onClick: () => {
                         that.hide();
                         that.state.cancelHandler();
                     },
                     className: css.dialogBtn,
-                }, '取 消'),
+                }, '取 消') : undefined,
                 h(Button, {
                     disabled: that.state.useInput && that.state.btnDisabled,
                     raised: true,

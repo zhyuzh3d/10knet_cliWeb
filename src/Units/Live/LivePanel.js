@@ -1,5 +1,5 @@
 /*
-直播面板，创建直播间或加入直播间
+整个左侧互动面板，包含视频直播、图文聊天、liveboard等
 props:{
     roomId,如果没有指定那么只能等待手工创建
     open,
@@ -15,6 +15,7 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import FontA from 'react-fa';
+import Tooltip from 'material-ui/Tooltip';
 
 import LiveRoom from '../../Units/Live/LiveRoom';
 import LiveViewer from '../../Units/Live/LiveViewer';
@@ -53,7 +54,7 @@ const style = theme => ({
         padding: 0,
         height: 48,
         borderRight: '1px solid #EEE',
-        minWidth: 56,
+        minWidth: 48,
         cursor: 'pointer',
         background: '#FFF',
     },
@@ -61,7 +62,7 @@ const style = theme => ({
         margin: 0,
         padding: 0,
         height: 48,
-        borderLeft: '1px solid #EEE',
+        borderLeft: '1px solid #DFDFDF',
         minWidth: 48,
         cursor: 'pointer',
         background: '#FFF',
@@ -122,7 +123,7 @@ class com extends Component {
             let ref = global.$wd.sync().ref(`uinvite/${cuser.uid}`);
             that.state.wdRefArr.push(ref);
             let nows = new Date().getTime();
-            nows -= 600000; //10分钟之内
+            nows -= 1800000; //30分钟之内
             ref.orderByChild('ts').startAt(nows).limitToLast(6).on('child_added', (shot) => {
                 let arr = that.state.liveInviteArr;
                 arr.push(shot.val());
@@ -175,7 +176,6 @@ class com extends Component {
             global.$wd.sync().ref(`iroom/${id}`).on('value', (shot) => {
                 let info = Object.assign({ roomId: id }, shot.val());
                 that.setState({ roomInfo: info });
-                console.log('>>>>>value roominfo', shot.val(), id);
             });
         }
     };
@@ -208,6 +208,7 @@ class com extends Component {
                 title: `为您推荐了${itemArr.length}位在线对象`,
                 itemArr: itemArr,
                 labelKey: 'el',
+                hideCancelBtn: true,
                 okHandler: (item) => {
                     global.$confirm.fn.show({
                         title: '请输入邀请附言',
@@ -219,14 +220,72 @@ class com extends Component {
                         okHandler: (iptVal) => {
                             that.inviteUser(item.uid, iptVal);
                         },
-                        cancelHandler: (iptVal) => {
-                            that.inviteUser(item.uid, iptVal);
+                    });
+                },
+            });
+        });
+    };
+
+    //邀请整组用户的方法
+    showInviteGroupDiaolog = () => {
+        let that = this;
+        let roomInfo = that.state.roomInfo;
+        let cuser = global.$wd.auth().currentUser;
+        if(!roomInfo || !cuser) return;
+
+        //获取我的分组列表
+        let ref = global.$wd.sync().ref(`ugroup/${cuser.uid}`);
+        ref.once('value', (shot) => {
+            if(!shot) return;
+            let groups = shot.val();
+
+            let groupArr = [];
+            for(let key in groups) {
+                groups[key].id = key;
+                groupArr.push(groups[key]);
+            };
+            groupArr.sort((a, b) => { return b.ts - a.ts });
+            if(groupArr.length < 1) {
+                global.$alert.fn.show('您还没有创建小组', '请在右侧[小组]选项卡下面点击加号创建');
+                return;
+            };
+
+            global.$selector.fn.show({
+                title: `请选择将要邀请的分组`,
+                itemArr: groupArr,
+                item: groupArr[0],
+                hideCancelBtn: true,
+                okHandler: (group) => {
+                    //弹窗输入提示然后批量发起邀请
+                    global.$confirm.fn.show({
+                        title: '请输入邀请附言',
+                        input: {
+                            tip: '邀请附言不多于32字符',
+                            regx: /^[\S\s]{0,32}$/,
+                            value: '',
+                        },
+                        okHandler: (iptVal) => {
+                            that.inviteGroup(group, iptVal);
                         },
                     });
                 },
             });
         });
     };
+
+    //邀请全组
+    inviteGroup = (group, ipt) => {
+        let that = this;
+        let ref = global.$wd.sync().ref(`group/${group.id}/members`);
+        ref.once('value', (shot) => {
+            if(!shot) return;
+            let users = shot.val();
+            for(let key in users) {
+                that.inviteUser(key, ipt);
+            };
+        });
+    };
+
 
     //邀请某人，向liveInvite／uid字段push新对象
     inviteUser = (uid, tip) => {
@@ -265,7 +324,7 @@ class com extends Component {
         });
 
         global.$selector.fn.show({
-            title: `最近10分钟您收到的直播邀请`,
+            title: `最近您收到的直播邀请`,
             itemArr: itemArr,
             labelKey: 'el',
             okHandler: (item) => {
@@ -279,6 +338,7 @@ class com extends Component {
             },
         });
     };
+
 
 
     //离开房间，停用room，livecode等
@@ -346,7 +406,7 @@ class com extends Component {
         let type = onChair ? that.state.boardType : (roomInfo ? roomInfo.boardType : 'slider');
 
         //开启或退出按钮
-        let exitBtn = h(Button, {
+        let exitBtn = h(Tooltip, { title: '退出房间' }, h(Button, {
             className: css.btn,
             onClick: () => {
                 that.leaveRoom();
@@ -355,8 +415,8 @@ class com extends Component {
            h(FontA, {
                 name: 'close',
             }),
-        ]);
-        let startBtn = h(Button, {
+        ]));
+        let startBtn = h(Tooltip, { title: '快速创建房间' }, h(Button, {
             className: css.btn,
             onClick: () => {
                 that.setRoom();
@@ -370,10 +430,10 @@ class com extends Component {
            h(FontA, {
                 name: 'flash',
             })
-        ]);
+        ]));
 
         //弹窗发起邀请按钮
-        let inviteBtn = h(Button, {
+        let inviteBtn = h(Tooltip, { title: '邀请其他在线用户' }, h(Button, {
             className: css.btn,
             onClick: () => {
                 that.showInviteDiaolog();
@@ -381,12 +441,25 @@ class com extends Component {
             disabled: !that.state.roomInfo,
         }, [
            h(FontA, {
-                name: 'user-circle-o',
+                name: 'user-plus',
             }),
-        ]);
+        ]));
+
+        //弹窗发起分组邀请按钮
+        let inviteGroupBtn = h(Tooltip, { title: '批量邀请小组用户' }, h(Button, {
+            className: css.btn,
+            onClick: () => {
+                that.showInviteGroupDiaolog();
+            },
+            disabled: !that.state.roomInfo,
+        }, [
+           h(FontA, {
+                name: 'group',
+            }),
+        ]));
 
         //显示我的邀请函按钮
-        let myInviteBtn = h(Button, {
+        let myInviteBtn = h(Tooltip, { title: '最近收到的邀请' }, h(Button, {
             className: css.btn,
             style: {
                 background: that.state.hasNewInvite % 2 <= 0 ? '#FFF' : '#f50057',
@@ -400,11 +473,11 @@ class com extends Component {
            h(FontA, {
                 name: 'vcard-o',
             }),
-        ]);
+        ]));
 
 
         //使用直播视频模块按钮
-        let liveRoomBtn = h(Button, {
+        let liveRoomBtn = h(Tooltip, { title: '视频直播面板' }, h(Button, {
             className: css.btn2,
             style: {
                 background: 'inherit',
@@ -417,10 +490,10 @@ class com extends Component {
            h(FontA, {
                 name: 'video-camera',
             }),
-        ]);
+        ]));
 
         //使用聊天模块按钮
-        let liveChatBtn = h(Button, {
+        let liveChatBtn = h(Tooltip, { title: '图文聊天面板' }, h(Button, {
             className: css.btn2,
             style: {
                 background: 'inherit',
@@ -433,11 +506,11 @@ class com extends Component {
            h(FontA, {
                 name: 'commenting',
             }),
-        ]);
+        ]));
 
 
         //使用代码模块按钮
-        let liveCodeBtn = h(Button, {
+        let liveCodeBtn = h(Tooltip, { title: '实时互动编码' }, h(Button, {
             className: css.btn2,
             style: {
                 background: 'inherit',
@@ -451,10 +524,10 @@ class com extends Component {
            h(FontA, {
                 name: 'code',
             }),
-        ]);
+        ]));
 
         //使用PPT演示模块按钮
-        let liveSliderBtn = h(Button, {
+        let liveSliderBtn = h(Tooltip, { title: '实时演示' }, h(Button, {
             className: css.btn2,
             style: {
                 background: 'inherit',
@@ -468,10 +541,10 @@ class com extends Component {
            h(FontA, {
                 name: 'caret-square-o-right',
             }),
-        ]);
+        ]));
 
         //使用PPT演示模块按钮
-        let liveViewerBtn = h(Button, {
+        let liveViewerBtn = h(Tooltip, { title: '互动图文展示' }, h(Button, {
             className: css.btn2,
             style: {
                 background: 'inherit',
@@ -485,7 +558,7 @@ class com extends Component {
            h(FontA, {
                 name: 'image',
             }),
-        ]);
+        ]));
 
         //互动面板
         let liveBoard;
@@ -532,6 +605,7 @@ class com extends Component {
             }, [
                 roomInfo ? exitBtn : startBtn,
                 inviteBtn,
+                inviteGroupBtn,
                 myInviteBtn,
                 onChair ? liveViewerBtn : null,
                 onChair ? liveCodeBtn : null,
@@ -558,7 +632,6 @@ class com extends Component {
                     });
                 } : undefined,
             })) : undefined,
-
 
         ]) : null;
     };
