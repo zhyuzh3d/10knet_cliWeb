@@ -1,4 +1,3 @@
-<<<<<<< 375266a84b77882ec2b0ce4e2881f1cc1a201891
 # 10knet_web
 web for cli
 =======
