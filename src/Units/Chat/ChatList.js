@@ -176,15 +176,6 @@ class com extends Component {
             );
         });
 
-        let viewerEL = h('div', {
-            className: css.viewer,
-        }, [
-            that.state.viewerImgUrl ? h('img', {
-                className: css.viewerImg,
-                src: that.state.viewerImgUrl,
-            }) : undefined,
-        ]);
-
         //添加新项目
         let addItemDom = h('div', {
             className: css.newItemBox,

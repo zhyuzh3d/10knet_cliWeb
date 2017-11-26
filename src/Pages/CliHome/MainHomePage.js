@@ -18,6 +18,7 @@ import MainAppBar from '../../Units/MainAppBar/MainAppBar';
 import BasketList from '../../Units/Basket/BasketList';
 
 import UserList from '../../Units/User/UserList';
+import GroupList from '../../Units/Group/GroupList';
 
 const style = theme => ({
     tabBar: {
@@ -36,6 +37,18 @@ const style = theme => ({
     },
     tabBtn: {
         minWidth: 30,
+        fontSize: 12,
+    },
+    tabBtnIcon: {
+        margin: 4,
+        fontSize: 16,
+        display: 'block',
+    },
+    tabBtnTxt: {
+        marginRight: 4,
+        fontSize: 12,
+        display: 'block',
+        marginBottom: 16,
     }
 });
 
@@ -99,38 +112,39 @@ class com extends Component {
                 }, [
                     h(Tab, {
                         icon: h('div', {}, [
-                            h(FontA, { name: 'leaf', style: { marginRight: 8 } }),
-                            h('span', '收集')
+                            h(FontA, { name: 'leaf', className: css.tabBtnIcon }),
+                            h('span', { className: css.tabBtnTxt }, '收集')
                         ]),
                     }),
                     h(Tab, {
                         icon: h('div', {}, [
-                            h(FontA, { name: 'user-plus', style: { marginRight: 8 } }),
-                            h('span', '发现')
+                            h(FontA, { name: 'star', className: css.tabBtnIcon }),
+                            h('span', { className: css.tabBtnTxt }, '收藏')
                         ]),
                     }),
                     h(Tab, {
                         icon: h('div', {}, [
-                            h(FontA, { name: 'star', style: { marginRight: 8 } }),
-                            h('span', '收藏')
+                            h(FontA, { name: 'user-plus', className: css.tabBtnIcon }),
+                            h('span', { className: css.tabBtnTxt }, '发现')
                         ]),
                     }),
                     h(Tab, {
                         icon: h('div', {}, [
-                            h(FontA, { name: 'user', style: { marginRight: 8 } }),
-                            h('span', '关注')
+                            h(FontA, { name: 'heart', className: css.tabBtnIcon }),
+                            h('span', { className: css.tabBtnTxt }, '关注')
                         ]),
                     }),
                 ])
             ]),
             h('div', { className: css.listBox }, [
                 this.state.tabValue === 0 ? h(BasketList) : undefined,
-                this.state.tabValue === 1 && cuser ? h(UserList, {
+                this.state.tabValue === 1 ? h(BasketList, { isFocus: true }) : undefined,
+                this.state.tabValue === 2 && cuser ? h(UserList, {
                     wdRefObj: global.$wd.sync().ref(`ucheck`).limitToLast(10),
                 }) : undefined,
-                this.state.tabValue === 2 ? h(BasketList, { isFocus: true }) : undefined,
-                this.state.tabValue === 3 && cuser ? h(UserList, {
-                    wdRefObj: global.$wd.sync().ref(`ufollow/${cuser.uid}`),
+                this.state.tabValue === 3 && cuser ? h(GroupList, {
+                    userId: cuser.uid,
+                    useMenu: true,
                 }) : undefined,
             ]),
         ]);

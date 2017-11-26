@@ -12,6 +12,7 @@ import AssetDetailPage from '../Pages/Asset/AssetDetailPage';
 import AssetListPage from '../Pages/Asset/AssetListPage';
 import UserDetailPage from '../Pages/User/UserDetailPage';
 import FollowListPage from '../Pages/User/FollowListPage';
+import GroupDetailPage from '../Pages/User/GroupDetailPage';
 
 import TestPage from '../Pages/Temp/TestPage.jsx';
 
@@ -28,6 +29,7 @@ const pages = {
     AssetListPage,
     UserDetailPage,
     FollowListPage,
+    GroupDetailPage,
     TestPage,
 };
 

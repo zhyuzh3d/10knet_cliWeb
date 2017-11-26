@@ -58,14 +58,14 @@ class com extends Component {
             let curUser = global.$wd.auth().currentUser;
             if(curUser && !userId) {
                 userId = curUser.uid;
-                that.setState({
+                !this.hasUnmounted && that.setState({
                     userId: userId,
                     currentUser: curUser
                 });
             };
 
             if(curUser && userId === curUser.uid) {
-                that.setState({ isCurrentUser: true });
+                !this.hasUnmounted && that.setState({ isCurrentUser: true });
             };
 
             if(wdRef) {
@@ -86,7 +86,7 @@ class com extends Component {
             ref = global.$wd.sync().ref(`ubasket/${userId}`);
         };
         ref.on('value', (shot) => {
-            that.setState({ list: shot.val() });
+            !this.hasUnmounted && that.setState({ list: shot.val() });
         });
     };
 
@@ -100,7 +100,9 @@ class com extends Component {
 
 
     //取消野狗监听
+    hasUnmounted = false;
     componentWillUnmount = () => {
+        this.hasUnmounted = true;
         let userId = this.state.userId;
         if(userId) global.$wd.sync().ref(`ubasket/${userId}`).off('value');
         this.wdAuthListen && this.wdAuthListen();
@@ -180,7 +182,7 @@ class com extends Component {
             itemArr.forEach((item, index) => {
                 let el = h(BasketItem, {
                     item: item,
-                    isFocus:that.props.isFocus,
+                    isFocus: that.props.isFocus,
                     currentUser: that.state.currentUser,
                 });
                 itemElArr.push(el);
