@@ -113,7 +113,6 @@ class com extends Component {
 
     //初始化邀请提示
     componentDidMount = async function() {
-
         let that = this;
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
@@ -143,6 +142,7 @@ class com extends Component {
         this.state.wdRefArr.forEach((item) => {
             item.off();
         });
+        this.autoCheckId && clearInterval(this.autoCheckId);
     };
 
     //创建直播教室,默认自己主持，操作数据库iroom
@@ -169,6 +169,7 @@ class com extends Component {
                     }, shot.val());
                     that.setState({ roomInfo: info });
                 });
+                that.startAutoCheck();
             });
         } else {
             //读取已有房间并加入
@@ -177,7 +178,26 @@ class com extends Component {
                 let info = Object.assign({ roomId: id }, shot.val());
                 that.setState({ roomInfo: info });
             });
+            that.startAutoCheck();
         }
+    };
+
+    //每分钟自动签到
+    autoCheckId = false;
+    startAutoCheck = () => {
+        let that = this;
+        let roomInfo = that.state.roomInfo;
+        if(!roomInfo) return;
+        let roomId = roomInfo.id;
+
+        let ref = global.$wd.sync().ref(`icheck/${roomId}`);
+        setInterval(() => {
+            ref.update({ ts: global.$wd.sync().ServerValue.TIMESTAMP });
+        }, 60000);
+
+    };
+    stopAutoCheck = () => {
+        this.autoCheckId && clearInterval(this.autoCheckId);
     };
 
 
@@ -351,11 +371,13 @@ class com extends Component {
                 okHandler: () => {
                     that.clearRoomInfo();
                     if(callBack) callBack();
+                    that.stopAutoCheck();
                 },
             });
         } else {
             that.clearRoomInfo();
             if(callBack) callBack();
+            that.stopAutoCheck();
         };
     };
 

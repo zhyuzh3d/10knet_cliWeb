@@ -1,5 +1,5 @@
 /*
-视频直播面板
+视频直播面板，列出所有直播成员
 props:{
     roomInfo,{roomId},必须，如果此直播房间还不存在那么直接创建
     style,样式
@@ -11,19 +11,29 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
+import Button from 'material-ui/Button';
+import FontA from 'react-fa';
+import Tooltip from 'material-ui/Tooltip';
 
 import LiveVideo from '../../Units/Live/LiveVideo';
-
 
 const style = theme => ({
     videosBox: {
         height: '100%',
         width: '100%',
+        display: 'flex',
     },
     videoGrp: {
         height: '100%',
         background: '#99a',
         flexGrow: 1,
+        padding: 0,
+        margin: 0,
+        display: 'flex',
+    },
+    btnGrp: {
+        height: '100%',
+        background: '#FFF',
         padding: 0,
         margin: 0,
     },
@@ -33,6 +43,17 @@ const style = theme => ({
         fontSize: 12,
         color: '#DDD',
         textAlign: 'center',
+    },
+    btn: {
+        margin: 0,
+        padding: 0,
+        height: 40,
+        borderRight: '1px solid #EEE',
+        borderBottom: '1px solid #EEE',
+        minWidth: 40,
+        cursor: 'pointer',
+        background: '#FFF',
+        display: 'block',
     },
 });
 
@@ -47,6 +68,9 @@ class com extends Component {
         liveVideoEls: {}, //和Arr完全一致的id索引
         wdRefArr: [], //全部野狗监听
         localStream: null, //本地流，以便于停止
+        videoOn: false,
+        audioOn: false,
+        filterOn: false,
     };
 
     componentWillMount = async function() {
@@ -178,6 +202,16 @@ class com extends Component {
         });
     };
 
+    //打开或关闭摄像头
+    switchVideo = () => {
+
+    };
+
+    //打开或关闭音频
+    switchAudio = () => {
+
+    };
+
     render() {
         let that = this;
         const css = that.props.classes;
@@ -196,9 +230,44 @@ class com extends Component {
             className: css.liveEmpty,
         }, '遇到困难？开启直播邀请大神帮你忙！'));
 
+        let btnGrp = h(Grid, {
+            item: true,
+            className: css.btnGrp,
+            style: { padding: 0 },
+        }, [
+            h(Tooltip, { title: '开启/关闭我的摄像头' }, h(Button, {
+                className: css.btn,
+                style: {
+                    color: that.state.videoOn ? '#f50057' : '#AAA',
+                },
+                onClick: () => {
+                    that.switchVideo();
+                },
+            }, h(FontA, { name: 'camera' }))),
+            h(Tooltip, { title: '开启/关闭我的话筒' }, h(Button, {
+                className: css.btn,
+                style: {
+                    color: that.state.audioOn ? '#f50057' : '#AAA',
+                },
+                onClick: () => {
+                    that.switchAudio();
+                },
+            }, h(FontA, { name: 'microphone' }))),
+            h(Tooltip, { title: '只显示视频用户' }, h(Button, {
+                className: css.btn,
+                style: {
+                    color: that.state.filterOn ? '#f50057' : '#AAA',
+                },
+                onClick: () => {
+                    that.setState({ filterOn: !that.state.filterOn });
+                },
+            }, h(FontA, { name: 'filter' }))),
+        ]);
+
         return that.props.roomInfo && that.state.room ? h('div', {
             className: css.videosBox,
         }, [
+            btnGrp,
             videoGrp,
         ]) : null;
     };
