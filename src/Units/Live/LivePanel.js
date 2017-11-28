@@ -103,11 +103,12 @@ global.$live = {};
 class com extends Component {
     state = {
         roomInfo: null, //读取iroom数据库的info
+        members: null, //成员对象
         wdRefArr: [], //所有需要取消的野狗监听
         hasNewInvite: 0, //是否有新的邀请
         liveInviteArr: [], //收到的所有邀请
-        useLiveRoom: false, //是否使用视频模块
-        useLiveChat: true, //是否使用聊天模块
+        useLiveRoom: true, //是否使用视频模块
+        useLiveChat: false, //是否使用聊天模块
         boardType: 'viewer', //互动板类型，coder，board
     };
 
@@ -170,6 +171,7 @@ class com extends Component {
                     that.setState({ roomInfo: info });
                 });
                 that.startAutoCheck();
+                that.getUsers(id);
             });
         } else {
             //读取已有房间并加入
@@ -182,7 +184,24 @@ class com extends Component {
         }
     };
 
-    //每分钟自动签到
+
+    //读取房间的全部icheck成员列表
+    getUsers = (roomId) => {
+        let that = this;
+        if(!roomId) return;
+        let ref = global.$wd.sync().ref(`icheck/${roomId}`);
+        let nows = new Date().getTime();
+        nows -= 90000; //1.5分钟之前
+        ref.orderByChild('ts').startAt(nows).on('value', (shot) => {
+            let users = shot ? shot.val() : null;
+            if(users) {
+                that.setState({ members: shot.val() });
+            };
+        });
+    };
+
+
+    //先签到，然后每分钟自动签到，并获取成员列表
     autoCheckId = false;
     startAutoCheck = () => {
         let that = this;
@@ -190,11 +209,16 @@ class com extends Component {
         if(!roomInfo) return;
         let roomId = roomInfo.id;
 
-        let ref = global.$wd.sync().ref(`icheck/${roomId}`);
-        setInterval(() => {
-            ref.update({ ts: global.$wd.sync().ServerValue.TIMESTAMP });
-        }, 60000);
+        that.stopAutoCheck();
+        let cuser = global.$wd.auth().currentUser;
+        if(!cuser) return;
 
+        let ref = global.$wd.sync().ref(`icheck/${roomId}/${cuser.uid}`);
+        ref.update({ ts: global.$wd.sync().ServerValue.TIMESTAMP });
+        that.autoCheckId = setInterval(() => {
+            ref.update({ ts: global.$wd.sync().ServerValue.TIMESTAMP });
+            that.getUsers(roomId);
+        }, 60000);
     };
     stopAutoCheck = () => {
         this.autoCheckId && clearInterval(this.autoCheckId);
@@ -619,6 +643,7 @@ class com extends Component {
                 className: css.liveRoomBox,
             }, h(LiveRoom, {
                 roomInfo: roomInfo,
+                members: that.state.members,
             })) : undefined,
 
             //工具栏各种开关

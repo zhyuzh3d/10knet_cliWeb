@@ -10,7 +10,6 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
-import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 import Tooltip from 'material-ui/Tooltip';
@@ -26,16 +25,20 @@ const style = theme => ({
     videoGrp: {
         height: '100%',
         background: '#99a',
-        flexGrow: 1,
         padding: 0,
         margin: 0,
-        display: 'flex',
+        display: 'inline-block',
+        whiteSpace: 'nowrap',
+        width: 'calc(100% - 40px)',
+        overflowX: 'auto',
     },
     btnGrp: {
         height: '100%',
         background: '#FFF',
         padding: 0,
         margin: 0,
+        display: 'inline-block',
+        verticalAlign: 'top',
     },
     liveEmpty: {
         width: '100%',
@@ -62,10 +65,7 @@ global.$live = {};
 class com extends Component {
     state = {
         room: null, //直播房间对象
-        streams: {}, //所有的媒体流
         streamArr: [], //所有的媒体流
-        liveVideoElArr: [], //所有视频元素的列表
-        liveVideoEls: {}, //和Arr完全一致的id索引
         wdRefArr: [], //全部野狗监听
         localStream: null, //本地流，以便于停止
         videoOn: false,
@@ -77,29 +77,16 @@ class com extends Component {
         this.setRoom();
     };
 
+    hasUnmounted = false;
     componentWillUnmount = () => {
         this.wdAuthListen && this.wdAuthListen();
         this.state.wdRefArr.forEach((item) => {
             item.off();
         });
         //关闭后自动断开直播
-        this.quitRoom();
-    };
-
-    //退出房间清理
-    quitRoom = () => {
-        let that = this;
-        let room = that.state.room;
-        if(!room) return;
-
-        let lstream = that.state.localStream;
-        if(lstream) {
-            room.unpublish(lstream, (err) => {
-                console.log(`[LiveRoom:quitRoom:unpublish]${err}`);
-            });
-        };
-
-        room.disconnect();
+        this.unpublishLocalStream();
+        this.state.room && this.state.room.disconnect();
+        this.hasUnmounted = true;
     };
 
     //创建直播房间
@@ -117,33 +104,21 @@ class com extends Component {
         that.initRoom(roomId || roomInfo.roomId);
     };
 
-    //设置当前直播间，自动开启自身视频流
+
+
+    //设置当前直播间，不自动开启自身视频流
     initRoom = (roomId) => {
         let that = this;
         //创建房间，自动发布自己的摄像头视频流
         var room = global.$wd.video.room(roomId);
         room.connect();
         room.on('connected', () => {
-            global.$wd.video.createLocalStream({
-                captureAudio: true,
-                captureVideo: true,
-                dimension: '120p',
-                maxFPS: 15,
-            }).then(function(localStream) {
-                that.setState({
-                    room: room,
-                    localStream: localStream
-                });
-
-                room.publish(localStream, function(error) {
-                    if(error == null) {
-                        global.$snackbar.fn.show('成功进入房间');
-                    }
-                });
-
-                localStream.muted = true;
-                that.addLiveVideo(localStream);
-            });
+            global.$snackbar.fn.show('成功进入房间');
+            if(that.hasUnmounted) {
+                this.state.room && this.state.room.disconnect();
+            } else {
+                that.setState({ room: room });
+            };
         });
 
         //监听新成员的加入
@@ -157,6 +132,7 @@ class com extends Component {
         });
 
         room.on('stream_received', function(roomStream) {
+            console.log('>>>>stream_received', roomStream);
             if(!roomStream) return;
             roomStream.enableAudio(true);
             that.addLiveVideo(roomStream);
@@ -193,45 +169,146 @@ class com extends Component {
         });
     };
 
-    //添加一个视频流
+    //添加一个视频流,同时清理不活动的视频流,将视频流指定到users
     addLiveVideo = (stream) => {
         let that = this;
-        that.state.streamArr.push(stream);
+        let members = that.props.members || {};
+
+
+        //把媒体流指定到对象
+        if(stream.type === 'LocalStream') {
+            let cuser = global.$wd.auth().currentUser;
+            if(cuser && cuser.uid) {
+                if(stream.constrains.video.FrameRate === 15) {
+                    members[cuser.uid].stream = stream;
+                } else {
+                    members[cuser.uid].scrStream = stream;
+                };
+                members[cuser.uid].uid = cuser.uid;
+            };
+        } else {
+            let isScr = stream.constrains.video.FrameRate === 15;
+            let uid = stream.streamOwners ? stream.streamOwners[0].userId : undefined;
+            if(!uid) return;
+            if(isScr) {
+                members[uid].stream = stream;
+            } else {
+                members[uid].scrStream = stream;
+            };
+            members[uid].uid = uid;
+        };
+
         that.setState({
-            streamArr: that.state.streamArr,
+            members: members,
         });
+
+        console.log('>>>>room', members);
+
     };
 
     //打开或关闭摄像头
     switchVideo = () => {
-
+        let that = this;
+        that.state.videoOn = !that.state.videoOn;
+        that.setState({ videoOn: that.state.videoOn });
+        that.publishLocalStream();
     };
 
     //打开或关闭音频
     switchAudio = () => {
+        let that = this;
+        that.state.audioOn = !that.state.audioOn;
+        that.setState({ audioOn: that.state.audioOn });
+        that.publishLocalStream();
+    };
 
+    //停止视频流服务，音视频都停止
+    unpublishLocalStream = () => {
+        this.setState({ videoOn: false, audioOn: false });
+        this.publishLocalStream();
+    };
+
+    //关闭本地流,清理streamArr的本地流
+    closeLocalStream = () => {
+        let that = this;
+        let localStream = that.state.localStream;
+
+        localStream && localStream.close();
+
+        let streamArr = that.state.streamArr;
+        let arr = [];
+        streamArr.forEach((item, index) => {
+            if(item.type === 'LocalStream') {
+                item.close();
+            } else {
+                arr.push(item);
+            }
+        });
+        that.setState({
+            localStream: null,
+            streamArr: arr,
+        });
+    };
+
+    //重新发布本地流
+    publishLocalStream = () => {
+        let that = this;
+        let room = that.state.room;
+        let videoOn = that.state.videoOn;
+        let audioOn = that.state.audioOn;
+
+        if(!room) return;
+
+        if(!videoOn && !audioOn) {
+            that.closeLocalStream();
+            return;
+        } else {
+            that.closeLocalStream();
+        }
+
+        global.$wd.video.createLocalStream({
+            captureVideo: videoOn,
+            captureAudio: audioOn,
+            dimension: '120p',
+            maxFPS: 15,
+        }).then(function(localStream) {
+            if(that.hasUnmounted) return;
+            that.setState({
+                localStream: localStream
+            });
+            room.publish(localStream, function(err) {
+                if(err == null) {
+                    global.$snackbar.fn.show('成功开启直播');
+                } else {
+                    global.$snackbar.fn.show(`进入房间失败：${err}`);
+                }
+            });
+
+            localStream.muted = true;
+            that.addLiveVideo(localStream);
+        });
     };
 
     render() {
         let that = this;
         const css = that.props.classes;
+        let members = that.props.members;
 
-        let videoArr = that.state.streamArr.map((stream, index) => {
-            return h(LiveVideo, {
-                wdStream: stream,
-            });
-        });
+        let videoArr = [];
+        for(let uid in members) {
+            videoArr.push(h(LiveVideo, {
+                info: members[uid],
+            }))
+        };
 
-        let videoGrp = h(Grid, {
-            item: true,
+        let videoGrp = h('div', {
             className: css.videoGrp,
             style: { padding: 0 },
         }, videoArr.length > 0 ? videoArr : h('div', {
             className: css.liveEmpty,
-        }, '遇到困难？开启直播邀请大神帮你忙！'));
+        }, '还没有人加入直播'));
 
-        let btnGrp = h(Grid, {
-            item: true,
+        let btnGrp = h('div', {
             className: css.btnGrp,
             style: { padding: 0 },
         }, [
@@ -263,6 +340,7 @@ class com extends Component {
                 },
             }, h(FontA, { name: 'filter' }))),
         ]);
+
 
         return that.props.roomInfo && that.state.room ? h('div', {
             className: css.videosBox,

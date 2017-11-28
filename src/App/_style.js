@@ -14,6 +14,7 @@ const styles = theme => ({
         margin: 0,
         padding: 0,
         height: '100%',
+        width: 'calc(100% - 372px)',
     },
     partsContainer: {
         flexWrap: 'nowrap',
