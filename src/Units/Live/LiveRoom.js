@@ -64,6 +64,7 @@ const style = theme => ({
 global.$live = {};
 class com extends Component {
     state = {
+        members: {}, //全部成员
         room: null, //直播房间对象
         streamArr: [], //所有的媒体流
         wdRefArr: [], //全部野狗监听
@@ -76,6 +77,23 @@ class com extends Component {
     componentWillMount = async function() {
         this.setRoom();
     };
+    componentWillReceiveProps = async function(newProps) {
+        let that = this;
+        let oldMembers = that.state.members;
+        let newMembers = newProps ? newProps.members : {};
+
+        for(let key in newMembers) {
+            if(oldMembers[key]) {
+                oldMembers[key].ts = newMembers[key].ts;
+            } else {
+                oldMembers[key] = newMembers[key];
+            }
+        };
+
+        console.log('>>>>oldmembers', oldMembers);
+        this.setState({ members: oldMembers });
+    };
+
 
     hasUnmounted = false;
     componentWillUnmount = () => {
@@ -104,8 +122,6 @@ class com extends Component {
         that.initRoom(roomId || roomInfo.roomId);
     };
 
-
-
     //设置当前直播间，不自动开启自身视频流
     initRoom = (roomId) => {
         let that = this;
@@ -123,6 +139,7 @@ class com extends Component {
 
         //监听新成员的加入
         room.on('stream_added', function(roomStream) {
+            console.log('>>>>stream_added', roomStream);
             if(!roomStream) return;
             room.subscribe(roomStream, function(err) {
                 if(err != null) {
@@ -140,6 +157,7 @@ class com extends Component {
 
         //监听成员的退出,去掉对应的video
         room.on('stream_removed', function(roomStream) {
+            console.log('>>>>stream_removed', roomStream);
             if(!roomStream) return;
             that.removeLiveVideo(roomStream);
         })
@@ -172,37 +190,31 @@ class com extends Component {
     //添加一个视频流,同时清理不活动的视频流,将视频流指定到users
     addLiveVideo = (stream) => {
         let that = this;
-        let members = that.props.members || {};
+        let members = that.state.members || {};
+        let cuser = global.$wd.auth().currentUser;
+        let uid = stream.streamOwners ? stream.streamOwners[0].userId : undefined;
+        console.log('>>>>addLiveVideo members stream', members, stream);
 
-
-        //把媒体流指定到对象
+        //把媒体流指定到member.stream
         if(stream.type === 'LocalStream') {
-            let cuser = global.$wd.auth().currentUser;
             if(cuser && cuser.uid) {
-                if(stream.constrains.video.FrameRate === 15) {
-                    members[cuser.uid].stream = stream;
-                } else {
-                    members[cuser.uid].scrStream = stream;
-                };
+                members[cuser.uid].stream = stream;
                 members[cuser.uid].uid = cuser.uid;
             };
-        } else {
-            let isScr = stream.constrains.video.FrameRate === 15;
-            let uid = stream.streamOwners ? stream.streamOwners[0].userId : undefined;
-            if(!uid) return;
-            if(isScr) {
-                members[uid].stream = stream;
-            } else {
-                members[uid].scrStream = stream;
+        } else if(uid) {
+            if(!members[uid]) {
+                members[uid] = { uid: uid };
             };
+            members[uid].stream = stream;
             members[uid].uid = uid;
         };
+
+        console.log('>>>>>oldmembers', members);
 
         that.setState({
             members: members,
         });
 
-        console.log('>>>>room', members);
 
     };
 
@@ -276,6 +288,10 @@ class com extends Component {
             that.setState({
                 localStream: localStream
             });
+            localStream.onactive = () => {
+                console.log('>>>>onactive', 8888);
+                return 9899;
+            };
             room.publish(localStream, function(err) {
                 if(err == null) {
                     global.$snackbar.fn.show('成功开启直播');

@@ -15,6 +15,7 @@ const styles = theme => ({
         padding: 0,
         height: '100%',
         width: 'calc(100% - 372px)',
+        overflowX:'scroll',
     },
     partsContainer: {
         flexWrap: 'nowrap',
@@ -51,6 +52,7 @@ const styles = theme => ({
     },
     slaveBox: {
         width: '100%',
+        minWidth:480,
         height: '100%',
         margin: 0,
         padding: 0,

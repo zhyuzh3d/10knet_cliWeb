@@ -169,9 +169,8 @@ class com extends Component {
                         roomId: id,
                     }, shot.val());
                     that.setState({ roomInfo: info });
+                    that.startAutoCheck();
                 });
-                that.startAutoCheck();
-                that.getUsers(id);
             });
         } else {
             //读取已有房间并加入
@@ -179,8 +178,8 @@ class com extends Component {
             global.$wd.sync().ref(`iroom/${id}`).on('value', (shot) => {
                 let info = Object.assign({ roomId: id }, shot.val());
                 that.setState({ roomInfo: info });
+                that.startAutoCheck();
             });
-            that.startAutoCheck();
         }
     };
 
@@ -197,6 +196,7 @@ class com extends Component {
             if(users) {
                 that.setState({ members: shot.val() });
             };
+            console.log('>>>>get members', shot.val());
         });
     };
 
@@ -207,14 +207,17 @@ class com extends Component {
         let that = this;
         let roomInfo = that.state.roomInfo;
         if(!roomInfo) return;
-        let roomId = roomInfo.id;
+        let roomId = roomInfo.roomId;
 
         that.stopAutoCheck();
         let cuser = global.$wd.auth().currentUser;
         if(!cuser) return;
 
         let ref = global.$wd.sync().ref(`icheck/${roomId}/${cuser.uid}`);
-        ref.update({ ts: global.$wd.sync().ServerValue.TIMESTAMP });
+        ref.update({ ts: global.$wd.sync().ServerValue.TIMESTAMP }).then((shot) => {
+            that.getUsers(roomId);
+        });
+
         that.autoCheckId = setInterval(() => {
             ref.update({ ts: global.$wd.sync().ServerValue.TIMESTAMP });
             that.getUsers(roomId);

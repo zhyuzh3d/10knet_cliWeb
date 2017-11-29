@@ -45,12 +45,31 @@ const style = theme => ({
 
 //元件
 class com extends Component {
-    state = {};
+    state = {
+        streamId: null,
+    };
 
     componentDidMount = async function() {
-        console.log('>>>>video info', this.props.info);
-        if(this.props.info.stream) {
-            this.props.info.stream.attach(this.refs.videoEl);
+        //let stream = this.props.info ? this.props.info.stream : null;
+        //this.setState({ info: this.props.info });
+    };
+
+    hasAttached = false;
+    componentWillReceiveProps = async function(newProps) {
+        let that = this;
+        let oldId = this.state.streamId;
+        let newStream = newProps && newProps.info ? newProps.info.stream : null;
+        let newId = newStream ? newStream.streamId : null;
+
+        if(newId && newId !== oldId) {
+            if(this.refs.videoEl && !that.hasAttached) {
+                console.log('>>>>refreshed');
+                this.setState({ streamId: newId });
+                that.hasAttached = true;
+                newStream.attach(this.refs.videoEl);
+            } else {
+                that.hasAttached = false;
+            }
         }
     };
 
@@ -60,11 +79,14 @@ class com extends Component {
         let stream = this.props.info.stream;
         let uid = this.props.info.uid;
 
+        let useVideoEl = stream && stream.stream && stream.stream.active && stream.captureVideo;
+        let useAudioEl = !useVideoEl && stream && stream.stream && stream.stream.active && stream.captureAudio;
+
         return h('div', {
             className: css.comBox,
             style: that.props.style,
             onClick: () => {
-                console.log('>liveVideo clicked:', this.props.wdStream);
+                console.log('>liveVideo clicked:', this.props.info);
             },
         }, [
             uid ? h('div', {
@@ -81,13 +103,13 @@ class com extends Component {
                     boxShadow: '0 0 12px #000',
                 },
             })) : undefined,
-            stream && stream.stream && stream.stream.active && stream.captureVideo ? h('video', {
+            useVideoEl ? h('video', {
                 className: css.video,
                 ref: 'videoEl',
                 autoPlay: true,
                 muted: stream.muted === true ? true : false,
             }) : null,
-            stream && stream.stream && stream.stream.active && stream.captureAudio ? h('div', {
+            useAudioEl ? h('div', {
                 className: css.audio,
             }, h(FontA, { name: 'volume-up' })) : null,
         ]);
