@@ -85,13 +85,14 @@ class com extends Component {
         for(let key in newMembers) {
             if(oldMembers[key]) {
                 oldMembers[key].ts = newMembers[key].ts;
+                oldMembers[key].uid = key;
             } else {
                 oldMembers[key] = newMembers[key];
             }
         };
+
         this.setState({ members: oldMembers });
     };
-
 
     hasUnmounted = false;
     componentWillUnmount = () => {
@@ -138,7 +139,6 @@ class com extends Component {
 
         //监听新成员的加入
         room.on('stream_added', function(roomStream) {
-            console.log('>>>>stream_added', roomStream);
             if(!roomStream) return;
             room.subscribe(roomStream, function(err) {
                 if(err != null) {
@@ -148,7 +148,6 @@ class com extends Component {
         });
 
         room.on('stream_received', function(roomStream) {
-            console.log('>>>>stream_received', roomStream);
             if(!roomStream) return;
             roomStream.enableAudio(true);
             that.addLiveVideo(roomStream);
@@ -156,7 +155,6 @@ class com extends Component {
 
         //监听成员的退出,去掉对应的video
         room.on('stream_removed', function(roomStream) {
-            console.log('>>>>stream_removed', roomStream);
             if(!roomStream) return;
             that.removeLiveVideo(roomStream);
         })
@@ -210,8 +208,6 @@ class com extends Component {
         that.setState({
             members: members,
         });
-
-
     };
 
     //打开或关闭摄像头
@@ -232,12 +228,14 @@ class com extends Component {
 
     //关闭本地流,清理streamArr的本地流
     closeLocalStream = () => {
-
         let that = this;
         let localStream = that.state.localStream;
         if(localStream) {
-            console.log('>>>close1', localStream);
             localStream.close();
+            let room = that.state.room;
+            room && room.unpublish(localStream, (err) => {
+                console.log(`>[LiveRoom:closeLocalStream]error:${err}`);
+            });
         };
 
         let streamArr = that.state.streamArr;
@@ -245,7 +243,6 @@ class com extends Component {
         streamArr.forEach((item, index) => {
             if(item.type === 'LocalStream') {
                 item.close();
-                console.log('>>>close2', localStream);
             } else {
                 arr.push(item);
             }
@@ -300,10 +297,17 @@ class com extends Component {
         const css = that.props.classes;
         let members = that.state.members;
 
+        let cuid = global.$wd.auth().currentUser ? global.$wd.auth().currentUser.uid : null;
+        let isAuthor = this.props.roomInfo.author && this.props.roomInfo.author === cuid;
+
         let videoArr = [];
         for(let uid in members) {
+            let usr = members[uid];
             videoArr.push(h(LiveVideo, {
-                info: members[uid],
+                info: usr,
+                isAuthor: isAuthor, //是否允许设置主持人
+                chairMan: this.props.roomInfo.chairMan, //当前是否主持人
+                roomId: this.props.roomInfo.roomId, //用于设置主持人
             }));
         };
 
