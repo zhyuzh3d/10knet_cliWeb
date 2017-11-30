@@ -79,7 +79,7 @@ class com extends Component {
     };
     componentWillReceiveProps = async function(newProps) {
         let that = this;
-        let oldMembers = that.state.members;
+        let oldMembers = that.state.members || {};
         let newMembers = newProps ? newProps.members : {};
 
         for(let key in newMembers) {
@@ -89,8 +89,6 @@ class com extends Component {
                 oldMembers[key] = newMembers[key];
             }
         };
-
-        console.log('>>>>oldmembers', oldMembers);
         this.setState({ members: oldMembers });
     };
 
@@ -102,7 +100,8 @@ class com extends Component {
             item.off();
         });
         //关闭后自动断开直播
-        this.unpublishLocalStream();
+        this.setState({ videoOn: false, audioOn: false });
+        this.closeLocalStream();
         this.state.room && this.state.room.disconnect();
         this.hasUnmounted = true;
     };
@@ -193,7 +192,6 @@ class com extends Component {
         let members = that.state.members || {};
         let cuser = global.$wd.auth().currentUser;
         let uid = stream.streamOwners ? stream.streamOwners[0].userId : undefined;
-        console.log('>>>>addLiveVideo members stream', members, stream);
 
         //把媒体流指定到member.stream
         if(stream.type === 'LocalStream') {
@@ -208,8 +206,6 @@ class com extends Component {
             members[uid].stream = stream;
             members[uid].uid = uid;
         };
-
-        console.log('>>>>>oldmembers', members);
 
         that.setState({
             members: members,
@@ -234,24 +230,22 @@ class com extends Component {
         that.publishLocalStream();
     };
 
-    //停止视频流服务，音视频都停止
-    unpublishLocalStream = () => {
-        this.setState({ videoOn: false, audioOn: false });
-        this.publishLocalStream();
-    };
-
     //关闭本地流,清理streamArr的本地流
     closeLocalStream = () => {
+
         let that = this;
         let localStream = that.state.localStream;
-
-        localStream && localStream.close();
+        if(localStream) {
+            console.log('>>>close1', localStream);
+            localStream.close();
+        };
 
         let streamArr = that.state.streamArr;
         let arr = [];
         streamArr.forEach((item, index) => {
             if(item.type === 'LocalStream') {
                 item.close();
+                console.log('>>>close2', localStream);
             } else {
                 arr.push(item);
             }
@@ -288,10 +282,6 @@ class com extends Component {
             that.setState({
                 localStream: localStream
             });
-            localStream.onactive = () => {
-                console.log('>>>>onactive', 8888);
-                return 9899;
-            };
             room.publish(localStream, function(err) {
                 if(err == null) {
                     global.$snackbar.fn.show('成功开启直播');
@@ -308,13 +298,13 @@ class com extends Component {
     render() {
         let that = this;
         const css = that.props.classes;
-        let members = that.props.members;
+        let members = that.state.members;
 
         let videoArr = [];
         for(let uid in members) {
             videoArr.push(h(LiveVideo, {
                 info: members[uid],
-            }))
+            }));
         };
 
         let videoGrp = h('div', {

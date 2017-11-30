@@ -196,7 +196,6 @@ class com extends Component {
             if(users) {
                 that.setState({ members: shot.val() });
             };
-            console.log('>>>>get members', shot.val());
         });
     };
 

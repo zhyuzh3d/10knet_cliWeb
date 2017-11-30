@@ -49,10 +49,7 @@ class com extends Component {
         streamId: null,
     };
 
-    componentDidMount = async function() {
-        //let stream = this.props.info ? this.props.info.stream : null;
-        //this.setState({ info: this.props.info });
-    };
+    componentDidMount = async function() {};
 
     hasAttached = false;
     componentWillReceiveProps = async function(newProps) {
