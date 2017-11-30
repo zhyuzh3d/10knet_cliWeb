@@ -299,17 +299,35 @@ class com extends Component {
 
         let cuid = global.$wd.auth().currentUser ? global.$wd.auth().currentUser.uid : null;
         let isAuthor = this.props.roomInfo.author && this.props.roomInfo.author === cuid;
+        let chairId = this.props.roomInfo.chairMan ? this.props.roomInfo.chairMan : null;
 
+        //调整顺序，把自己me放在最先，主持人其次
         let videoArr = [];
+        let memberArr = [];
+        let me;
+        let chairUsr;
         for(let uid in members) {
             let usr = members[uid];
+            usr.uid = uid;
+            if(uid && uid === cuid) {
+                me = usr;
+            } else if(uid && uid === chairId && chairId !== chairId) {
+                chairUsr = usr;
+            } else {
+                memberArr.push(members[uid]);
+            };
+        };
+        me && memberArr.unshift(me);
+        chairUsr && memberArr.unshift(chairUsr);
+
+        memberArr.forEach((usr, index) => {
             videoArr.push(h(LiveVideo, {
                 info: usr,
                 isAuthor: isAuthor, //是否允许设置主持人
                 chairMan: this.props.roomInfo.chairMan, //当前是否主持人
                 roomId: this.props.roomInfo.roomId, //用于设置主持人
             }));
-        };
+        });
 
         let videoGrp = h('div', {
             className: css.videoGrp,

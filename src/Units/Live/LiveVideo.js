@@ -148,8 +148,6 @@ class com extends Component {
         });
     };
 
-
-
     render() {
         let that = this;
         const css = that.props.classes;
@@ -172,7 +170,7 @@ class com extends Component {
         let audioBtn;
         if(!isMe) {
             audioBtn = h(Tooltip, {
-                title: '图像',
+                title: '声音开关',
             }, audioBtn = h('div', {
                 className: css.audioBtn,
                 style: { display: useAudioEl ? 'inline-block' : 'none' },
@@ -190,7 +188,7 @@ class com extends Component {
         let videoBtn;
         if(!isMe) {
             videoBtn = h(Tooltip, {
-                title: '声音',
+                title: '图像开关',
             }, h('div', {
                 className: css.videoBtn,
                 style: { display: useVideoEl ? 'inline-block' : 'none' },
@@ -206,7 +204,7 @@ class com extends Component {
 
         //设置主持人开关，仅author可用
         let chairBtn = h(Tooltip, {
-            title: '主持人',
+            title: isAuthor ? '设置主持人' : '是否主持人',
         }, h('div', {
             className: css.videoBtn,
             style: { cursor: isAuthor ? 'pointer' : 'auto' },
