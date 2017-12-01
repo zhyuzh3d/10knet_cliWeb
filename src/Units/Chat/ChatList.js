@@ -23,7 +23,7 @@ const style = theme => ({
     },
     listBox: {
         overflowY: 'auto',
-        maxHeight: 150,
+        maxHeight: 120,
         minHeight: 50,
         marginBottom: 48,
         background: 'rgba(25,25,25,0.66)',
@@ -71,15 +71,14 @@ class com extends Component {
 
         //读取跟帖数据
         let ref = global.$wd.sync().ref(`${wdRef}/list`);
-        //ref.orderByChild('ts').limitToFirst(10).on('child_added', (shot) => {
-        ref.on('child_added', (shot) => {
+        ref.orderByChild('ts').limitToFirst(10).on('child_added', (shot) => {
             let data = shot.val();
             if(!data) return;
 
             let itemArr = that.state.itemArr;
             itemArr.push(data);
             itemArr = itemArr.sort((a, b) => { return b.ts - a.ts });
-            that.setState({ itemArr: itemArr });
+            !that.hasUnmounted && that.setState({ itemArr: itemArr });
         });
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
@@ -90,9 +89,11 @@ class com extends Component {
         that.listenPast();
     };
 
+    hasUnmounted = false;
     componentWillUnmount = () => {
         this.wdAuthListen();
         this.props.wdRef && global.$wd.sync().ref(this.props.wdRef).off();
+        this.hasUnmounted = true;
     };
 
     //开始监听剪贴板文件

@@ -10,10 +10,6 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
-import Button from 'material-ui/Button';
-import FontA from 'react-fa';
-import Tooltip from 'material-ui/Tooltip';
-
 import LiveVideo from '../../Units/Live/LiveVideo';
 
 const style = theme => ({
@@ -29,7 +25,7 @@ const style = theme => ({
         margin: 0,
         display: 'inline-block',
         whiteSpace: 'nowrap',
-        width: 'calc(100% - 40px)',
+        width: '100%',
         overflowX: 'auto',
     },
     btnGrp: {
@@ -211,19 +207,21 @@ class com extends Component {
     };
 
     //打开或关闭摄像头
-    switchVideo = () => {
+    switchVideo = global.$live.toggleLiveCamera = () => {
         let that = this;
         that.state.videoOn = !that.state.videoOn;
         that.setState({ videoOn: that.state.videoOn });
         that.publishLocalStream();
+        return that.state.videoOn;
     };
 
     //打开或关闭音频
-    switchAudio = () => {
+    switchAudio = global.$live.toggleLiveMicphone = () => {
         let that = this;
         that.state.audioOn = !that.state.audioOn;
         that.setState({ audioOn: that.state.audioOn });
         that.publishLocalStream();
+        return that.state.audioOn;
     };
 
     //关闭本地流,清理streamArr的本地流
@@ -336,44 +334,10 @@ class com extends Component {
             className: css.liveEmpty,
         }, '还没有人加入直播'));
 
-        let btnGrp = h('div', {
-            className: css.btnGrp,
-            style: { padding: 0 },
-        }, [
-            h(Tooltip, { title: '开启/关闭我的摄像头' }, h(Button, {
-                className: css.btn,
-                style: {
-                    color: that.state.videoOn ? '#f50057' : '#AAA',
-                },
-                onClick: () => {
-                    that.switchVideo();
-                },
-            }, h(FontA, { name: 'camera' }))),
-            h(Tooltip, { title: '开启/关闭我的话筒' }, h(Button, {
-                className: css.btn,
-                style: {
-                    color: that.state.audioOn ? '#f50057' : '#AAA',
-                },
-                onClick: () => {
-                    that.switchAudio();
-                },
-            }, h(FontA, { name: 'microphone' }))),
-            h(Tooltip, { title: '只显示视频用户' }, h(Button, {
-                className: css.btn,
-                style: {
-                    color: that.state.filterOn ? '#f50057' : '#AAA',
-                },
-                onClick: () => {
-                    that.setState({ filterOn: !that.state.filterOn });
-                },
-            }, h(FontA, { name: 'filter' }))),
-        ]);
-
 
         return that.props.roomInfo && that.state.room ? h('div', {
             className: css.videosBox,
         }, [
-            btnGrp,
             videoGrp,
         ]) : null;
     };
