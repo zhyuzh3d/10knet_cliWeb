@@ -70,7 +70,7 @@ const style = theme => ({
         marginLeft: 8,
         marginRight: 8,
         borderRadius: 100,
-        minWidth:200,
+        minWidth: 200,
     },
 
     inviteName: {
@@ -100,6 +100,12 @@ const style = theme => ({
         bottom: 0,
         width: '100%',
         zIndex: 10,
+    },
+    barDivider: {
+        height: 20,
+        width: 1,
+        background: '#CCC',
+        margin: '10px 8px',
     },
 
 });
@@ -162,6 +168,7 @@ class com extends Component {
             return;
         };
 
+        that.setState({ useBrowser: false });
         if(!roomId && that.props.roomId === 0) {
             //需要创建新房间
             global.$wd.sync().ref(`iroom`).push({
@@ -419,6 +426,7 @@ class com extends Component {
             roomInfo: null,
             useLiveCode: false,
             useRoom: false,
+            useBrowser: true,
         });
     };
 
@@ -656,6 +664,10 @@ class com extends Component {
             };
         };
 
+        //分割线
+        let barDivider = h('div', {
+            className: css.barDivider,
+        });
 
 
         return that.props.open ? h(Grid, {
@@ -678,12 +690,14 @@ class com extends Component {
                 roomInfo ? inviteBtn : null,
                 roomInfo ? inviteGroupBtn : null,
                 myInviteBtn,
-                that.state.useBrowser ? browserBtnGrp : null,
-                onChair ? liveViewerBtn : null,
+                roomInfo ? barDivider : null,
+                roomInfo ? liveRoomBtn : null,
+                roomInfo ? liveChatBtn : null,
+                onChair ? barDivider : null,
                 onChair ? liveCodeBtn : null,
                 onChair ? liveSliderBtn : null,
-                liveChatBtn,
-                liveRoomBtn,
+                onChair ? liveViewerBtn : null,
+                that.state.useBrowser ? browserBtnGrp : null,
             ]),
 
             //互动面板
