@@ -1,5 +1,10 @@
 /*
 整个左侧互动面板，包含视频直播、图文聊天、liveboard等
+global.$live.setRoom(roomId);
+global.$live.leaveRoom(callback);
+global.$live.setIslider(sliderId);
+global.$live.setIslider(sliderId);
+global.$live.setBrowserAddr(url);
 props:{
     roomId,如果没有指定那么只能等待手工创建
     open,
@@ -24,94 +29,10 @@ import LiveCoder from '../../Units/Live/LiveCoder';
 import LiveSlider from '../../Units/Live/LiveSlider';
 import UserButton from '../../Units/User/UserButton';
 
-
-
-const style = theme => ({
-    panelBox: {
-        padding: 0,
-        margin: 0,
-        width: '100%',
-        flexDirection: 'column',
-        flexWrap: 'nowrap',
-        height: '100%',
-        position: 'relative',
-    },
-    liveRoomBox: {
-        height: 120,
-        width: '100%',
-        positin: 'relative',
-    },
-    btnBar: {
-        width: 'calc(100% - 8px)',
-        padding: 4,
-        margin: 0,
-        height: 40,
-        borderBottom: '1px solid #EEE',
-        background: '#FFF',
-        display: 'flex',
-        position: 'relative',
-    },
-    btn: {
-        padding: 0,
-        height: 32,
-        width: 32,
-        minHeight: 32,
-        minWidth: 32,
-        cursor: 'pointer',
-        borderRadius: 100,
-        margin: 4,
-        background: '#FFF',
-    },
-    browserBtnGrp: {
-        background: '#DFDFDF',
-        height: 40,
-        display: 'flex',
-        flexGrow: 1,
-        marginLeft: 8,
-        marginRight: 8,
-        borderRadius: 100,
-        minWidth: 200,
-    },
-
-    inviteName: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    invitePs: {
-        fontSize: 12,
-        fontWeight: 200,
-    },
-    boardPanel: {
-        margin: 0,
-        padding: 0,
-        flexGrow: 1,
-        display: 'flex',
-    },
-    empty: {
-        width: '100%',
-        paddingTop: 50,
-        fontSize: 12,
-        color: '#DDD',
-        textAlign: 'center',
-    },
-    liveChatBox: {
-        position: 'absolute',
-        left: 0,
-        bottom: 0,
-        width: '100%',
-        zIndex: 10,
-    },
-    barDivider: {
-        height: 20,
-        width: 1,
-        background: '#CCC',
-        margin: '10px 8px',
-    },
-
-});
+import style from './LivePanelStyle.js';
 
 //元件
-global.$live = {};
+global.$live = global.$live || {};
 class com extends Component {
     state = {
         roomInfo: null, //读取iroom数据库的info
@@ -123,6 +44,8 @@ class com extends Component {
         useLiveChat: false, //是否使用聊天模块
         useBrowser: true, //是否启用浏览器模块
         boardType: 'viewer', //互动板类型，coder，board
+        browserAddr: 'http://www.10knet.com/', //默认浏览器页面
+        browserAddrTemp: 'http://www.10knet.com/', //浏览器地址输入栏地址，点击后更新
     };
 
     //初始化邀请提示
@@ -458,6 +381,36 @@ class com extends Component {
         that.setState({ boardType: type || 'slider' });
     };
 
+    //浏览器地址栏变化，自动判断是否需要增加http
+    setBrowserAddrTemp = (evt) => {
+        let that = this;
+        let url = evt.target.value;
+        let regx = global.$conf.regx.browserUrl;
+        console.log('>>>url', url);
+        that.setState({
+            browserAddrTemp: regx.test(url) ? url : `http://${url}`,
+            browserAddrChanged: true,
+        });
+    };
+
+    //刷新浏览器地址栏，触发页面刷新
+    setBrowserAddr = global.$live.setBrowserAddr = (url) => {
+        let that = this;
+        if(!url) url = that.state.browserAddrTemp;
+        let regx = global.$conf.regx.browserUrl;
+        that.setState({
+            browserAddr: '',
+        });
+        that.setState({
+            browserAddr: regx.test(url) ? url : `http://${url}`,
+            browserAddrChanged: false,
+        });
+    };
+
+    //将链接保存到素材篮子
+    saveUrlAsAsset = () => {
+
+    };
 
     render() {
         let that = this;
@@ -471,14 +424,8 @@ class com extends Component {
         //开启或退出按钮
         let exitBtn = h(Tooltip, { title: '退出房间' }, h(Button, {
             className: css.btn,
-            onClick: () => {
-                that.leaveRoom();
-            },
-        }, [
-           h(FontA, {
-                name: 'close',
-            }),
-        ]));
+            onClick: () => { that.leaveRoom() },
+        }, h(FontA, { name: 'close' })));
         let startBtn = h(Tooltip, { title: '快速创建房间' }, h(Button, {
             className: css.btn,
             onClick: () => {
@@ -489,56 +436,49 @@ class com extends Component {
                 }, 3000);
             },
             disabled: that.state.settingRoom,
-        }, [
-           h(FontA, {
-                name: 'flash',
-            })
-        ]));
+        }, h(FontA, { name: 'flash' })));
 
         //浏览器相关的按钮组，仅在浏览器启用时候有效
+        let browserAddrChanged = that.state.browserAddr !== that.state.browserAddrTemp;
         let browserBtnGrp = h('div', {
             className: css.browserBtnGrp,
         }, [
             h(Tooltip, {
-                title: '采集到我的素材篮3',
+                title: '采集到我的素材篮',
             }, h(Button, {
                 className: css.btn,
                 background: 'inherit',
-                style: {},
-                onClick: () => {},
-            }, [
-               h(FontA, {
-                    name: 'leaf',
-                })
-            ])),
+                onClick: () => { that.saveUrlAsAsset() },
+            }, h(FontA, { name: 'leaf' }))),
+            h('input', {
+                className: css.browserAddr,
+                onChange: (value) => { that.setBrowserAddrTemp(value) },
+                value: that.state.browserAddrTemp,
+            }),
+            h(Tooltip, {
+                title: browserAddrChanged ? '转到' : '刷新',
+            }, h(Button, {
+                className: css.btn,
+                background: 'inherit',
+                onClick: () => { that.setBrowserAddr() },
+            }, h(FontA, {
+                name: browserAddrChanged ? 'arrow-right' : 'refresh',
+            }))),
         ]);
-
 
         //弹窗发起邀请按钮
         let inviteBtn = h(Tooltip, { title: '邀请其他在线用户' }, h(Button, {
             className: css.btn,
-            onClick: () => {
-                that.showInviteDiaolog();
-            },
+            onClick: () => { that.showInviteDiaolog() },
             disabled: !that.state.roomInfo,
-        }, [
-           h(FontA, {
-                name: 'user-plus',
-            }),
-        ]));
+        }, h(FontA, { name: 'user-plus' })));
 
         //弹窗发起分组邀请按钮
         let inviteGroupBtn = h(Tooltip, { title: '批量邀请小组用户' }, h(Button, {
             className: css.btn,
-            onClick: () => {
-                that.showInviteGroupDiaolog();
-            },
+            onClick: () => { that.showInviteGroupDiaolog() },
             disabled: !that.state.roomInfo,
-        }, [
-           h(FontA, {
-                name: 'group',
-            }),
-        ]));
+        }, h(FontA, { name: 'group' })));
 
         //显示我的邀请函按钮
         let myInviteBtn = h(Tooltip, { title: '最近收到的邀请' }, h(Button, {
@@ -547,15 +487,9 @@ class com extends Component {
                 background: that.state.hasNewInvite % 2 <= 0 ? 'inherit' : '#f50057',
                 color: that.state.hasNewInvite % 2 <= 0 ? (that.state.liveInviteArr.length < 1 ? '#AAA' : 'inherit') : '#FFF',
             },
-            onClick: () => {
-                that.showMyInviteDiaolog();
-            },
+            onClick: () => { that.showMyInviteDiaolog() },
             disabled: that.state.liveInviteArr.length < 1,
-        }, [
-           h(FontA, {
-                name: 'vcard-o',
-            }),
-        ]));
+        }, h(FontA, { name: 'vcard-o' })));
 
 
         //使用直播视频模块按钮
@@ -568,11 +502,7 @@ class com extends Component {
             onClick: () => {
                 that.setState({ useLiveRoom: !that.state.useLiveRoom });
             },
-        }, [
-           h(FontA, {
-                name: 'video-camera',
-            }),
-        ]));
+        }, h(FontA, { name: 'video-camera' })));
 
         //使用聊天模块按钮
         let liveChatBtn = h(Tooltip, { title: '图文聊天面板' }, h(Button, {
@@ -583,11 +513,7 @@ class com extends Component {
             onClick: () => {
                 that.setState({ useLiveChat: !that.state.useLiveChat });
             },
-        }, [
-           h(FontA, {
-                name: 'commenting',
-            }),
-        ]));
+        }, h(FontA, { name: 'commenting' })));
 
 
         //使用代码模块按钮
@@ -596,15 +522,9 @@ class com extends Component {
             style: {
                 color: that.state.boardType === 'coder' ? '#f50057' : '#AAA',
             },
-            onClick: () => {
-                that.setBoardType('coder');
-            },
+            onClick: () => { that.setBoardType('coder') },
             disabled: !onChair,
-        }, [
-           h(FontA, {
-                name: 'code',
-            }),
-        ]));
+        }, h(FontA, { name: 'code' })));
 
         //使用PPT演示模块按钮
         let liveSliderBtn = h(Tooltip, { title: '实时演示' }, h(Button, {
@@ -612,15 +532,9 @@ class com extends Component {
             style: {
                 color: that.state.boardType === 'slider' ? '#f50057' : '#AAA',
             },
-            onClick: () => {
-                that.setBoardType('slider');
-            },
+            onClick: () => { that.setBoardType('slider') },
             disabled: !onChair,
-        }, [
-           h(FontA, {
-                name: 'caret-square-o-right',
-            }),
-        ]));
+        }, h(FontA, { name: 'caret-square-o-right' })));
 
         //使用PPT演示模块按钮
         let liveViewerBtn = h(Tooltip, { title: '互动图文展示' }, h(Button, {
@@ -628,15 +542,9 @@ class com extends Component {
             style: {
                 color: that.state.boardType === 'viewer' ? '#f50057' : '#AAA',
             },
-            onClick: () => {
-                that.setBoardType('viewer');
-            },
+            onClick: () => { that.setBoardType('viewer') },
             disabled: !onChair,
-        }, [
-           h(FontA, {
-                name: 'image',
-            }),
-        ]));
+        }, h(FontA, { name: 'image' })));
 
         //互动面板
         let liveBoard;

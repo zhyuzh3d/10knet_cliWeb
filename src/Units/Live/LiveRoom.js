@@ -1,5 +1,10 @@
 /*
 视频直播面板，列出所有直播成员
+global.$live.leaveVideoRoom();
+global.$live.setVideoRoom(roomId);
+global.$live.toggleLiveCamera();
+global.$live.toggleLiveMicphone();
+
 props:{
     roomInfo,{roomId},必须，如果此直播房间还不存在那么直接创建
     style,样式
@@ -57,7 +62,7 @@ const style = theme => ({
 });
 
 //元件
-global.$live = {};
+global.$live = global.$live || {};
 class com extends Component {
     state = {
         members: {}, //全部成员
@@ -71,7 +76,7 @@ class com extends Component {
     };
 
     componentWillMount = async function() {
-        this.setRoom();
+        this.setVideoRoom();
     };
     componentWillReceiveProps = async function(newProps) {
         let that = this;
@@ -104,7 +109,7 @@ class com extends Component {
     };
 
     //创建直播房间
-    setRoom = global.$live.setRoom = (roomId) => {
+    setVideoRoom = global.$live.setVideoRoom = (roomId) => {
         let that = this;
         let cuser = global.$wd.auth().currentUser;
         let roomInfo = that.props.roomInfo;
@@ -138,7 +143,7 @@ class com extends Component {
             if(!roomStream) return;
             room.subscribe(roomStream, function(err) {
                 if(err != null) {
-                    console.log(`>[LivePanel:setRoom:stream_added]failed:${err}`);
+                    console.log(`>[LivePanel:setVideoRoom:stream_added]err:${err}`);
                 }
             })
         });
@@ -157,7 +162,7 @@ class com extends Component {
     };
 
     //离开房间，停止推送本地视频／停止所有订阅，不关闭房间
-    leaveRoom = global.$live.leaveRoom = () => {
+    leaveVideoRoom = global.$live.leaveVideoRoom = () => {
         if(!this.state.room) return;
         this.setState({
             room: null,
