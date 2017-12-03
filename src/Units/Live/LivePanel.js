@@ -26,6 +26,7 @@ import LiveRoom from '../../Units/Live/LiveRoom';
 import LiveViewer from '../../Units/Live/LiveViewer';
 import ChatList from '../../Units/Chat/ChatList';
 import LiveCoder from '../../Units/Live/LiveCoder';
+import LiveBrowser from '../../Units/Live/LiveBrowser';
 import LiveSlider from '../../Units/Live/LiveSlider';
 import UserButton from '../../Units/User/UserButton';
 
@@ -46,6 +47,9 @@ class com extends Component {
         boardType: 'viewer', //互动板类型，coder，board
         browserAddr: 'http://www.10knet.com/', //默认浏览器页面
         browserAddrTemp: 'http://www.10knet.com/', //浏览器地址输入栏地址，点击后更新
+        browser: null, //由LiveBrowser设定的webview对象
+        browserCanBack: false, //浏览器是否可以后退
+        browserCanForward: false, //浏览器是否可以前进
     };
 
     //初始化邀请提示
@@ -386,31 +390,103 @@ class com extends Component {
         let that = this;
         let url = evt.target.value;
         let regx = global.$conf.regx.browserUrl;
-        console.log('>>>url', url);
         that.setState({
             browserAddrTemp: regx.test(url) ? url : `http://${url}`,
-            browserAddrChanged: true,
         });
     };
 
-    //刷新浏览器地址栏，触发页面刷新
+    //刷新浏览器地址栏,仅限onchair,此处的onchair与其他算法不同
     setBrowserAddr = global.$live.setBrowserAddr = (url) => {
         let that = this;
+        let browser = that.state.browser;
+        let roomInfo = that.state.roomInfo;
+        let cuser = global.$wd.auth().currentUser;
+        let onBrowserChair = roomInfo && cuser && roomInfo.chairMan !== cuser.uid ? false : true;
+
+        if(!browser || !onBrowserChair) return;
+
         if(!url) url = that.state.browserAddrTemp;
         let regx = global.$conf.regx.browserUrl;
-        that.setState({
-            browserAddr: '',
-        });
-        that.setState({
-            browserAddr: regx.test(url) ? url : `http://${url}`,
-            browserAddrChanged: false,
-        });
-    };
+        url = regx.test(url) ? url : `http://${url}`;
+        browser.loadUrl(url);
+        that.updateBrowserUrl(url);
 
-    //将链接保存到素材篮子
-    saveUrlAsAsset = () => {
+        console.log('>>>setBrowserAddr', url);
+        console.log('>>cango', browser.canGoNext(false), browser.canGoNext(true));
 
     };
+
+    //浏览器前进后退
+    browserBack = (back) => {
+        let that = this;
+        let browser = that.state.browser;
+        if(browser) {
+            let url;
+            if(back) {
+                url = browser.goNext(false);
+            } else {
+                url = browser.goNext(true);
+            };
+            that.updateBrowserUrl(url);
+        };
+    };
+
+    //更新ibrowser的url,自动判断是否onchair，同步到ibrowser/roomId/url
+    updateIbrowserUrl = (url) => {
+        let that = this;
+        let browser = that.state.browser;
+        let roomInfo = that.state.roomInfo;
+        let cuser = global.$wd.auth().currentUser;
+        let onBrowserChair = roomInfo && cuser && roomInfo.chairMan !== cuser.uid ? false : true;
+
+        if(roomInfo && roomInfo.roomId && onBrowserChair) {
+            that.setState({ browserAddr: url });
+            let ref = global.$wd.sync().ref(`ibrowser/${roomInfo.roomId}`);
+            ref.update({
+                url: url,
+                ts: global.$wd.sync().ServerValue.TIMESTAMP,
+            });
+        };
+    };
+
+    //更新浏览器地址栏内容,从浏览器内点击也能更新地址栏,仅主持人有效
+    updateBrowserUrl = (url) => {
+        let that = this;
+        let browser = that.state.browser;
+        let roomInfo = that.state.roomInfo;
+        let cuser = global.$wd.auth().currentUser;
+        let onBrowserChair = roomInfo && cuser && roomInfo.chairMan !== cuser.uid ? false : true;
+
+        if(!browser || !onBrowserChair) return;
+
+        that.setState({
+            browserAddr: url,
+            browserAddrTemp: url,
+            browserCanBack: browser.canGoNext(false),
+            browserCanForward: browser.canGoNext(true),
+        });
+
+        that.updateIbrowserUrl(url);
+    };
+
+
+    //是否打开浏览器
+    openIbrowser = (isOn) => {
+        let that = this;
+        isOn = isOn === undefined ? !that.state.useBrowser : isOn;
+        that.setState({ useBrowser: isOn });
+
+        let browser = that.state.browser;
+        let roomInfo = that.state.roomInfo;
+        let cuser = global.$wd.auth().currentUser;
+        let onBrowserChair = roomInfo && cuser && roomInfo.chairMan !== cuser.uid ? false : true;
+
+        if(onBrowserChair) {
+            let ref = global.$wd.sync().ref(`iroom/${roomInfo.roomId}`);
+            ref.update({ useBrowser: isOn });
+        };
+    };
+
 
     render() {
         let that = this;
@@ -443,21 +519,34 @@ class com extends Component {
         let browserBtnGrp = h('div', {
             className: css.browserBtnGrp,
         }, [
-            h(Tooltip, {
-                title: '采集到我的素材篮',
-            }, h(Button, {
+            h(Button, {
                 className: css.btn,
+                style: { background: 'none', marginRight: 0 },
                 background: 'inherit',
-                onClick: () => { that.saveUrlAsAsset() },
-            }, h(FontA, { name: 'leaf' }))),
+                disabled: !that.state.browserCanBack,
+                onClick: () => { that.browserBack(true) }
+            }, h(FontA, { name: 'arrow-left' })),
+            h(Button, {
+                className: css.btn,
+                style: { background: 'none', marginLeft: 0 },
+                background: 'inherit',
+                disabled: !that.state.browserCanForward,
+                onClick: () => { that.browserBack(false) }
+            }, h(FontA, { name: 'arrow-right' })),
             h('input', {
                 className: css.browserAddr,
                 onChange: (value) => { that.setBrowserAddrTemp(value) },
+                onKeyDown: (event) => {
+                    if(event.keyCode === 13) {
+                        that.setBrowserAddr();
+                    };
+                },
                 value: that.state.browserAddrTemp,
             }),
             h(Tooltip, {
                 title: browserAddrChanged ? '转到' : '刷新',
             }, h(Button, {
+                style: { background: 'none' },
                 className: css.btn,
                 background: 'inherit',
                 onClick: () => { that.setBrowserAddr() },
@@ -546,6 +635,16 @@ class com extends Component {
             disabled: !onChair,
         }, h(FontA, { name: 'image' })));
 
+        //使用浏览器模块按钮
+        let liveBrowserBtn = h(Tooltip, { title: '互动浏览器' }, h(Button, {
+            className: css.btn,
+            style: {
+                color: that.state.useBrowser ? '#f50057' : '#AAA',
+            },
+            onClick: () => { that.openIbrowser() },
+            disabled: !onChair,
+        }, h(FontA, { name: 'globe' })));
+
         //互动面板
         let liveBoard;
         if(roomInfo) {
@@ -605,13 +704,28 @@ class com extends Component {
                 onChair ? liveCodeBtn : null,
                 onChair ? liveSliderBtn : null,
                 onChair ? liveViewerBtn : null,
+                onChair ? barDivider : null,
+                onChair ? liveBrowserBtn : null,
                 that.state.useBrowser ? browserBtnGrp : null,
             ]),
 
-            //互动面板
-            roomInfo ? h('div', {
+            //互动面板和浏览器
+             h('div', {
                 className: css.boardPanel,
-            }, liveBoard) : null,
+            }, [
+                roomInfo ? liveBoard : null,
+                h(LiveBrowser, {
+                    url: that.state.browserAddr,
+                    onChair: onChair || !roomInfo, //不进房间等同于主持人
+                    setWebview: (webview) => {
+                        that.state.browser = webview; //外部获取webview
+                    },
+                    setUrl: (url) => { //浏览器内点击更新url
+                        that.updateBrowserUrl(url);
+                    },
+                    show: that.state.useBrowser ? true : false,
+                }),
+            ]),
 
             //文字聊天模块
             roomInfo && that.state.useLiveChat ? h('div', {

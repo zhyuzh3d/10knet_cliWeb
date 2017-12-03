@@ -152,7 +152,7 @@ class com extends Component {
                 }, [
                     h('span', {
                         className: css.link,
-                    }, `附件 : ${data.text}`),
+                    }, `链接 : ${data.text}`),
                 ])),
            ]) : undefined,
         ]);
