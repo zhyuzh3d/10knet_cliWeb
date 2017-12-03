@@ -15,8 +15,6 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
-import Button from 'material-ui/Button';
-import FontA from 'react-fa';
 
 global.$live = global.$live || {};
 const style = theme => ({
@@ -59,14 +57,16 @@ class com extends Component {
 
     wdRefArr = [];
 
-    //手工主动更新，仅在onchair的情况下使用props.url更新地址
-    componentWillReceiveProps = async function(newProps) {};
+    //当外部传来的wdPath改变时候，被动更新
+    componentWillReceiveProps = async function(newProps) {
+        let that = this;
+        if(newProps.wdPath && newProps.wdPath !== that.props.wdPath) {
+            that.stopSync(that.props.wdPath);
+            that.startSync(newProps.wdPath);
+        }
+    };
 
     componentDidMount = async function() {
-        let that = this;
-        if(that.props.wdRef) {
-            that.startSync();
-        };
         const webview = document.querySelector('webview');
         webview.addEventListener('dom-ready', this.webviewReady);
         webview.addEventListener('load-commit', this.loadCommit);
@@ -179,8 +179,7 @@ class com extends Component {
     //开始同步，被动更新
     startSync = global.$live.syncBrowser = (wdPath) => {
         let that = this;
-        wdPath = wdPath ? wdPath : that.props.wdRef;
-        if(wdPath) return;
+        if(!wdPath) return;
 
         let ref = global.$wd.sync().ref(`${wdPath}`);
         that.wdRefArr.push(ref);
@@ -189,17 +188,16 @@ class com extends Component {
             if(!that.webview || !that.webview.loadURL) return;
             let url = shot.val() ? shot.val().url : null;
             if(!url) return;
-            let oldUrl = that.state.hisArr.length > 0 ? that.state.hisArr[that.state.pos] : null;
+            let oldUrl = that.getUrl();
             if(url !== oldUrl) {
-                this.webview.loadURL(url);
+                this.webview.loadUrl(url);
             };
         });
     }
 
     //停止同步
-    stopSync = () => {
-        let that = this;
-        global.$wd.sync().ref(`${that.props.wdRef}/conf`).off();
+    stopSync = (wdPath) => {
+        global.$wd.sync().ref(`${wdPath}/conf`).off();
     }
 
 

@@ -314,7 +314,7 @@ class com extends Component {
             usr.uid = uid;
             if(uid && uid === cuid) {
                 me = usr;
-            } else if(uid && uid === chairId && chairId !== chairId) {
+            } else if(uid && uid === chairId && usr !== me) {
                 chairUsr = usr;
             } else {
                 memberArr.push(members[uid]);

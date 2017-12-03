@@ -40,7 +40,7 @@ const styles = theme => ({
         background: 'inherit',
         border: 'none',
         fontSize: '12px',
-        placeholder: '请在这里输入您的网址',
+        maxWidth:'calc(100% - 115px)',
     },
     browserBtnGrp: {
         background: '#DFDFDF',

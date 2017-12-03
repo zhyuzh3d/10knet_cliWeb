@@ -103,25 +103,32 @@ class com extends Component {
                 chairMan: cuser.uid,
                 ts: global.$wd.sync().ServerValue.TIMESTAMP,
                 boardType: that.state.boardType,
+                useBrowser: that.state.useBrowser
             }).then(function(newRef) {
                 let id = newRef.key();
-                newRef.on('value', (shot) => {
-                    let info = Object.assign({
-                        roomId: id,
-                    }, shot.val());
-                    that.setState({ roomInfo: info });
-                    that.startAutoCheck();
-                });
+                that.syncIroom(newRef, id);
             });
         } else {
             //读取已有房间并加入
             let id = roomId || that.props.roomId;
-            global.$wd.sync().ref(`iroom/${id}`).on('value', (shot) => {
-                let info = Object.assign({ roomId: id }, shot.val());
-                that.setState({ roomInfo: info });
-                that.startAutoCheck();
-            });
+            let ref = global.$wd.sync().ref(`iroom/${id}`);
+            that.syncIroom(ref, id);
         }
+    };
+
+    //更新iroominfo
+    syncIroom = (wdRef, id) => {
+        let that = this;
+        wdRef.on('value', (shot) => {
+            let info = Object.assign({
+                roomId: id,
+            }, shot.val());
+            that.setState({
+                roomInfo: info,
+                useBrowser: info.useBrowser
+            });
+            that.startAutoCheck();
+        });
     };
 
 
@@ -349,11 +356,21 @@ class com extends Component {
     };
 
     clearRoomInfo = () => {
+        let that = this;
         this.setState({
             roomInfo: null,
             useLiveCode: false,
             useRoom: false,
             useBrowser: true,
+        });
+
+        //确保地址栏同步
+        let browser = that.state.browser;
+        if(!browser) return;
+        let url = browser.getUrl();
+        that.setState({
+            browserAddr: url,
+            browserAddrTemp: url,
         });
     };
 
@@ -434,7 +451,6 @@ class com extends Component {
     //更新ibrowser的url,自动判断是否onchair，同步到ibrowser/roomId/url
     updateIbrowserUrl = (url) => {
         let that = this;
-        let browser = that.state.browser;
         let roomInfo = that.state.roomInfo;
         let cuser = global.$wd.auth().currentUser;
         let onBrowserChair = roomInfo && cuser && roomInfo.chairMan !== cuser.uid ? false : true;
@@ -476,7 +492,6 @@ class com extends Component {
         isOn = isOn === undefined ? !that.state.useBrowser : isOn;
         that.setState({ useBrowser: isOn });
 
-        let browser = that.state.browser;
         let roomInfo = that.state.roomInfo;
         let cuser = global.$wd.auth().currentUser;
         let onBrowserChair = roomInfo && cuser && roomInfo.chairMan !== cuser.uid ? false : true;
@@ -484,7 +499,7 @@ class com extends Component {
         if(onBrowserChair) {
             let ref = global.$wd.sync().ref(`iroom/${roomInfo.roomId}`);
             ref.update({ useBrowser: isOn });
-        };
+        }
     };
 
 
@@ -535,6 +550,7 @@ class com extends Component {
             }, h(FontA, { name: 'arrow-right' })),
             h('input', {
                 className: css.browserAddr,
+                placeholder: '请在这里输入您的网址',
                 onChange: (value) => { that.setBrowserAddrTemp(value) },
                 onKeyDown: (event) => {
                     if(event.keyCode === 13) {
@@ -695,7 +711,7 @@ class com extends Component {
             }, [
                 roomInfo ? exitBtn : startBtn,
                 roomInfo ? inviteBtn : null,
-                roomInfo ? inviteGroupBtn : null,
+                onChair ? inviteGroupBtn : null,
                 myInviteBtn,
                 roomInfo ? barDivider : null,
                 roomInfo ? liveRoomBtn : null,
@@ -706,7 +722,7 @@ class com extends Component {
                 onChair ? liveViewerBtn : null,
                 onChair ? barDivider : null,
                 onChair ? liveBrowserBtn : null,
-                that.state.useBrowser ? browserBtnGrp : null,
+                (roomInfo && onChair) || !roomInfo ? browserBtnGrp : null,
             ]),
 
             //互动面板和浏览器
@@ -716,6 +732,7 @@ class com extends Component {
                 roomInfo ? liveBoard : null,
                 h(LiveBrowser, {
                     url: that.state.browserAddr,
+                    wdPath: roomInfo ? `ibrowser/${roomInfo.roomId}` : null,
                     onChair: onChair || !roomInfo, //不进房间等同于主持人
                     setWebview: (webview) => {
                         that.state.browser = webview; //外部获取webview
