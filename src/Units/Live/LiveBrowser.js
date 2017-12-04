@@ -26,6 +26,7 @@ const style = theme => ({
         flexGrow: 4,
         display: 'flex',
         flexShrink: '1.5',
+        borderLeft: '1px solid #CCC',
     },
     empty: {
         width: '100%',
@@ -110,9 +111,10 @@ class com extends Component {
     };
 
 
-    //webview就绪回调,提供goNext和goPrev方法
+    //webview就绪回调,提供goNext和goPrev等方法
     webviewReady = () => {
         let that = this;
+        //that.webview.openDevTools();
         that.webview.loadUrl = this.loadUrl;
         that.webview.getUrl = this.getUrl;
         that.webview.goNext = this.goNext;

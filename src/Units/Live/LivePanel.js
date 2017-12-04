@@ -43,8 +43,8 @@ class com extends Component {
         liveInviteArr: [], //收到的所有邀请
         useLiveRoom: true, //是否使用视频模块
         useLiveChat: false, //是否使用聊天模块
-        useBrowser: true, //是否启用浏览器模块
-        boardType: 'viewer', //互动板类型，coder，board
+        useBrowser: false, //是否启用浏览器模块
+        boardType: 'coder', //互动板类型，coder，board
         browserAddr: 'http://www.10knet.com/', //默认浏览器页面
         browserAddrTemp: 'http://www.10knet.com/', //浏览器地址输入栏地址，点击后更新
         browser: null, //由LiveBrowser设定的webview对象
@@ -427,10 +427,6 @@ class com extends Component {
         url = regx.test(url) ? url : `http://${url}`;
         browser.loadUrl(url);
         that.updateBrowserUrl(url);
-
-        console.log('>>>setBrowserAddr', url);
-        console.log('>>cango', browser.canGoNext(false), browser.canGoNext(true));
-
     };
 
     //浏览器前进后退
@@ -722,7 +718,7 @@ class com extends Component {
                 onChair ? liveViewerBtn : null,
                 onChair ? barDivider : null,
                 onChair ? liveBrowserBtn : null,
-                (roomInfo && onChair) || !roomInfo ? browserBtnGrp : null,
+                (roomInfo && that.state.useBrowser) || !roomInfo ? browserBtnGrp : null,
             ]),
 
             //互动面板和浏览器
