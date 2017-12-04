@@ -80,6 +80,7 @@ var $fn = {};
 const _style = theme => ({
     reactCM: {
         width: '100%',
+        height:'100%',
     }
 });
 

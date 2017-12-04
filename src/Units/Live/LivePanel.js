@@ -736,7 +736,7 @@ class com extends Component {
                     setUrl: (url) => { //浏览器内点击更新url
                         that.updateBrowserUrl(url);
                     },
-                    show: that.state.useBrowser ? true : false,
+                    show: !roomInfo || that.state.useBrowser ? true : false,
                 }),
             ]),
 

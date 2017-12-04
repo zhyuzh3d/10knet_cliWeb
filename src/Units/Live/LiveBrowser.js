@@ -68,10 +68,11 @@ class com extends Component {
     };
 
     componentDidMount = async function() {
+        let that = this;
         const webview = document.querySelector('webview');
-        webview.addEventListener('dom-ready', this.webviewReady);
-        webview.addEventListener('load-commit', this.loadCommit);
-        webview.addEventListener('new-window', this.newWindow);
+        webview.addEventListener('dom-ready', that.webviewReady);
+        webview.addEventListener('load-commit', that.loadCommit);
+        webview.addEventListener('new-window', that.newWindow);
     };
 
     componentWillUnmount = async function() {

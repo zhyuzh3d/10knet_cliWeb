@@ -14,12 +14,23 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 
 import MyCoder from '../../Utils/MyCoder';
+import OJlist from '../../Units/OJ/OJlist';
+import OJdetails from '../../Units/OJ/OJdetails';
 
 
 const style = theme => ({
-    codersBox: {
+    comBox: {
         margin: 0,
         padding: 0,
+    },
+    coderBox: {
+        position: 'relative',
+        height: '100%',
+        width: '60%',
+    },
+    OJbox: {
+        position: 'relative',
+        width: '40%',
     },
 });
 
@@ -29,6 +40,7 @@ class com extends Component {
         value: '',
         editorPublic: {}, //用来放置子编辑器传递出来的函数
         editorMode: 'text/x-c++src',
+        OJpage: 'details', //显示OJ的页面
     };
 
     componentWillMount = async function() {};
@@ -56,6 +68,7 @@ class com extends Component {
             let sel = shot.val().sel;
             if(that.state.editorPublic) {
                 that.state.editorPublic.setValue(value || '');
+                that.setState({ value: value });
                 let selObj = shot.val ? JSON.parse(sel) : {};
                 that.state.editorPublic.setSelection(selObj);
             }
@@ -72,6 +85,7 @@ class com extends Component {
     onChange = (editor, metadata, value) => {
         let that = this;
         if(!that.props.wdRef || !that.props.onChair) return;
+        that.setState({ value: value });
         global.$wd.sync().ref(`${that.props.wdRef}/value`).set(value);
     }
 
@@ -83,6 +97,12 @@ class com extends Component {
     }
 
     onChair = false;
+
+    //切换到显示详细信息页面
+    showOJdetails = (item) => {
+
+    };
+
 
     //渲染实现
     render() {
@@ -102,9 +122,11 @@ class com extends Component {
 
         return h(Grid, {
             container: true,
-            className: css.codersBox,
+            className: css.comBox,
         }, [
-           h(MyCoder, {
+            h('div', {
+                className: css.coderBox
+            }, h(MyCoder, {
                 fontSize: 16,
                 value: that.state.value,
                 onChange: that.onChange,
@@ -113,11 +135,22 @@ class com extends Component {
                 options: {
                     mode: that.state.editorMode,
                 }
-            }),
+            })),
+            h('div', {
+                className: css.OJbox
+            }, [
+                that.state.OJpage === 'list' ? h(OJlist, {
+                    showDetails: that.showOJdetails,
+                }) : null,
+                that.state.OJpage === 'details' ? h(OJdetails, {
+                    code: that.state.value,
+                }) : null,
+            ]),
         ]);
-    }
-};
 
+
+    };
+};
 
 com.propTypes = {
     classes: PropTypes.object.isRequired,
