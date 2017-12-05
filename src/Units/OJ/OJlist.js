@@ -49,8 +49,7 @@ const style = theme => ({
         paddingLeft: 12,
     },
     searchGrp: {
-        margin: 16,
-        marginBottom: 4,
+        margin: '8px 16px',
     },
     searchIpt: {
         fontSize: 16,
@@ -77,23 +76,26 @@ class com extends Component {
         let that = this;
         let page = global.$store('OJlist', 'page') || 0;
         that.setState({ page: page });
-        this.getOjList();
+        this.getOJList();
     };
 
     componentWillUnmount = async function() {};
 
-    getOjList = async function(page) {
+    getOJList = async function(page, searchStr) {
         let that = this;
         page = page || that.state.page;
         let api = 'http://oj.xmgc360.com/problem/lists';
+        let opt = searchStr ? { search: searchStr } : { page: page };
         Request.get(api)
             .send({ page: page })
             .end((err, res) => {
-                if(!err) {
+                console.log('>getOJList', err, res);
+                if(!err && res.code === 1) {
                     global.$store('OJlist', 'page', that.state.page);
-                    console.log('>>>get oj list', err, res);
+                    let data = res.data;
+                    that.setState(searchStr ? { data: data } : { searchData: data });
                 } else {
-                    global.$snackbar.fn.show(`获取题目列表失败:${err}`);
+                    global.$snackbar.fn.show(`获取题目列表失败:${err||res.text}`);
                 };
             });
     };
@@ -104,6 +106,16 @@ class com extends Component {
         if(that.props.showDetails) {
             that.props.showDetails(item.problem_id);
         }
+    };
+
+    //执行搜索
+    doSearch = (str) => {
+        this.getOJList(str);
+    };
+
+    //清理搜索结果
+    clearSearch = () => {
+        this.setState({ searchData: null });
     };
 
     render() {
@@ -140,6 +152,7 @@ class com extends Component {
                 h(Button, {
                     color: 'primary',
                     className: css.searchBtn,
+                    onClick: () => { that.doSearch() },
                 }, h(FontA, { name: 'search' })),
             ]),
             h('div', {
@@ -149,6 +162,7 @@ class com extends Component {
                 that.state.searchData ? h(Button, {
                     color: 'primary',
                     className: css.searchBtn,
+                    onClick: () => { that.clearSeach() },
                 }, '返回列表') : null,
             ]),
             h('div', {
@@ -157,6 +171,15 @@ class com extends Component {
         ]);
     }
 };
+
+let arr = ['a', 'b', 'c'];
+if(arr.indexOf('cc') != -1) {
+    console.log('found')
+} else {
+    console.log('not found')
+}
+
+console.log('-10123', -1 == true, 0 == true, 1 == true, 2 == true, 3 == true);
 
 
 com.propTypes = {

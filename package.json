@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "beautify": "0.0.8",
+    "beautify": "^0.0.8",
     "codemirror": "^5.30.0",
     "deepmerge": "^1.5.2",
     "history": "^4.7.2",

@@ -22,7 +22,7 @@ import Moment from 'react-moment';
 
 const style = theme => ({
     item: {
-        padding: '8px 16px',
+        padding: '4px 8px',
         borderBottom: '1px solid #EEE',
     },
     itemIcon: {
@@ -40,7 +40,7 @@ const style = theme => ({
         flex: 1,
     },
     itemTitle: {
-        fontSize: '0.9rem',
+        fontSize: '14px',
         fontWeight: 'bold',
         color: '#333',
     },
@@ -236,7 +236,11 @@ class com extends Component {
             className: css.item,
             button: true,
         }, [
-            h(Grid, { container: true, align: 'center' }, [
+            h(Grid, {
+                container: true,
+                align: 'left',
+                alignItems: 'center'
+            }, [
                 h(Grid, {
                     item: true,
                     className: css.itemIcon,
