@@ -105,16 +105,19 @@ class com extends Component {
         page = page || that.state.page;
         let api = 'http://oj.xmgc360.com/problem/lists';
         let opt = searchStr ? { search: searchStr } : { page: page };
-        console.log('>>>search', searchStr, opt);
         Request.post(api)
             .send(opt)
             .end((err, res) => {
                 if(!err && res.text) {
                     let obj = JSON.parse(res.text);
-                    let data = obj.data;
-                    console.log('>getOJList', data);
-                    global.$store('OJlist', 'page', that.state.page);
-                    that.setState(searchStr ? { data: data } : { searchData: data });
+                    console.log('>getOJList', obj);
+                    if(obj.code === 1) {
+                        let data = obj.data;
+                        global.$store('OJlist', 'page', that.state.page);
+                        that.setState(searchStr ? { data: data } : { searchData: data });
+                    } else {
+                        global.$snackbar.fn.show(`获取题目失败:${obj.text}`);
+                    };
                 } else {
                     global.$snackbar.fn.show(`获取题目列表失败:${err}`);
                 };
@@ -132,7 +135,6 @@ class com extends Component {
     //执行搜索
     doSearch = () => {
         let val = this.searchIpt.value;
-        console.log('>>>seachipt', val);
         this.getOJList(undefined, val);
     };
 

@@ -2,6 +2,8 @@
 动态元件，单个OJ题目的详情
 props:{
     code,外部传来的代码
+    id,题目的id
+    back(),返回函数
 }
 */
 import { Component } from 'react';
@@ -64,13 +66,11 @@ const style = theme => ({
     },
 });
 
-let fake = { "code": 1, "text": "", "data": { "problem_id": "2383841", "origin_oj": "HDU", "origin_prob": "4150", "title": "Powerful Incantation", time_limit: '1000 ms', memory_limit: '32768 kb', language: { '1': 'C++', '2': 'JAVA', 3: 'GCC' }, description: '这里是题目的描述，肯能有很多很多很多的字啊，非常多的字，不是一般的多而是特别的多特别的特点是多少' } };
 
 //元件
 class com extends Component {
     state = {
-        data: fake.data,
-        id: 0,
+        data: null,
         result: null, //判题结果
         judging: false, //正在判题，冻结判题按钮
     };
@@ -86,13 +86,12 @@ class com extends Component {
 
     getOJdetails = async function(page) {
         let that = this;
-        let api = 'http://oj.xmgc360.com/problem/detail';
-        Request.get(api)
-            .send({ problem_id: that.state.id })
+        let api = `http://oj.xmgc360.com/problem/detail`;
+        Request.post(api)
+            .send({ problem_id: that.props.id })
             .end((err, res) => {
                 if(!err) {
-                    global.$store('OJdetails', 'id', that.state.id);
-                    console.log('>>>get oj details', err, res);
+                    console.log('>OJdetails', err, res);
                 } else {
                     global.$snackbar.fn.show(`获取题目详情失败:${err}`);
                 };
@@ -174,9 +173,16 @@ class com extends Component {
         return h('div', {
             className: css.comBox,
         }, [
-            h('div', {
-                className: css.label,
-            }, '题目详情'),
+            h(Button, {
+                color: 'primary',
+                style: { marginTop: 12 },
+                onClick: () => {
+                    that.props.back && that.props.back();
+                },
+            }, [
+                h(FontA, { name: 'caret-left', style: { marginRight: 8 } }),
+                h('span', '返回')
+            ]),
             h('div', {
                 className: css.itemBox,
             }, [

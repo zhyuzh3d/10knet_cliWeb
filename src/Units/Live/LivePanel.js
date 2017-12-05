@@ -333,8 +333,6 @@ class com extends Component {
         });
     };
 
-
-
     //离开房间，停用room，livecode等
     leaveRoom = global.$live.leaveRoom = (callBack) => {
         let that = this;
@@ -361,7 +359,6 @@ class com extends Component {
             roomInfo: null,
             useLiveCode: false,
             useRoom: false,
-            useBrowser: true,
         });
 
         //确保地址栏同步
