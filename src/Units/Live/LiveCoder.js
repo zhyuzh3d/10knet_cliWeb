@@ -40,7 +40,7 @@ class com extends Component {
         value: '',
         editorPublic: {}, //用来放置子编辑器传递出来的函数
         editorMode: 'text/x-c++src',
-        OJpage: 'details', //显示OJ的页面
+        OJpage: 'list', //显示OJ的页面
     };
 
     componentWillMount = async function() {};
@@ -99,7 +99,7 @@ class com extends Component {
     onChair = false;
 
     //切换到显示详细信息页面
-    showOJdetails = (item) => {
+    showOJdetails = (id) => {
 
     };
 
