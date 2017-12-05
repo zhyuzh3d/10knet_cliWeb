@@ -52,7 +52,7 @@ const style = theme => ({
         margin: '8px 16px',
     },
     searchIpt: {
-        fontSize: 16,
+        fontSize: 14,
         height: 24,
         verticalAlign: 'middle',
     },
@@ -60,14 +60,33 @@ const style = theme => ({
         verticalAlign: 'middle',
         minWidth: 32,
     },
+    pageNavGrp: {
+        textAlign: 'right',
+        width: '100%',
+        margin: '8px 0',
+    },
+    pageBtn: {
+        minHeight: 32,
+        height: 32,
+        minWidth: 32,
+        width: 32,
+        marginRight: 8,
+        marginLeft: 8,
+        verticalAlign: 'middle',
+    },
+    pageIpt: {
+        width: 48,
+        height: 28,
+        fontSize: 14,
+        verticalAlign: 'middle',
+        textAlign: 'center',
+    },
 });
-
-let fake = { "code": 1, "text": "", "data": { "page": 0, "pages": 200, "count": "9951", "list": [{ "problem_id": "2383841", "origin_oj": "HDU", "origin_prob": "4150", "title": "Powerful Incantation" }, { "problem_id": "2383817", "origin_oj": "HYSBZ", "origin_prob": "3239", "title": "Discrete Logging" }, { "problem_id": "2383753", "origin_oj": "HDU", "origin_prob": "1159", "title": "Common Subsequence" }, { "problem_id": "2383737", "origin_oj": "HDU", "origin_prob": "1431", "title": "\u7d20\u6570\u56de\u6587" }, { "problem_id": "2383641", "origin_oj": "HDU", "origin_prob": "1517", "title": "A Multiplication Game" }, { "problem_id": "2383585", "origin_oj": "HYSBZ", "origin_prob": "1146", "title": "\u7f51\u7edc\u7ba1\u7406Network" }, { "problem_id": "2383601", "origin_oj": "HYSBZ", "origin_prob": "3102", "title": "[N\/A]" }] } }
 
 //元件
 class com extends Component {
     state = {
-        data: fake,
+        data: null,
         searchData: null, //搜索结果列表
         page: 0,
     };
@@ -86,16 +105,18 @@ class com extends Component {
         page = page || that.state.page;
         let api = 'http://oj.xmgc360.com/problem/lists';
         let opt = searchStr ? { search: searchStr } : { page: page };
-        Request.get(api)
-            .send({ page: page })
+        console.log('>>>search', searchStr, opt);
+        Request.post(api)
+            .send(opt)
             .end((err, res) => {
-                console.log('>getOJList', err, res);
-                if(!err && res.code === 1) {
+                if(!err && res.text) {
+                    let obj = JSON.parse(res.text);
+                    let data = obj.data;
+                    console.log('>getOJList', data);
                     global.$store('OJlist', 'page', that.state.page);
-                    let data = res.data;
                     that.setState(searchStr ? { data: data } : { searchData: data });
                 } else {
-                    global.$snackbar.fn.show(`获取题目列表失败:${err||res.text}`);
+                    global.$snackbar.fn.show(`获取题目列表失败:${err}`);
                 };
             });
     };
@@ -109,13 +130,38 @@ class com extends Component {
     };
 
     //执行搜索
-    doSearch = (str) => {
-        this.getOJList(str);
+    doSearch = () => {
+        let val = this.searchIpt.value;
+        console.log('>>>seachipt', val);
+        this.getOJList(undefined, val);
     };
 
     //清理搜索结果
     clearSearch = () => {
         this.setState({ searchData: null });
+    };
+
+    //上下翻页
+    prevPage = () => {
+        let that = this;
+        let page = this.state.page - 1;
+        if(page < 0) page = 0;
+        if(that.state.data && page > that.state.data.pages) page = that.state.data.pages;
+        this.setState({ page: page });
+        this.getOJList(page || 0);
+    };
+    //上下翻页
+    nextPage = () => {
+        let that = this;
+        let page = this.state.page + 1;
+        if(page < 0) page = 0;
+        if(that.state.data && page > that.state.data.pages) page = that.state.data.pages;
+        this.setState({ page: page });
+        this.getOJList(page || 0);
+    };
+    //页面跳转
+    goPage = () => {
+        this.getOJList(this.state.page || 0);
     };
 
     render() {
@@ -124,8 +170,9 @@ class com extends Component {
 
         let data = that.state.data || that.state.searchData;
         let itemElArr = [];
-        if(data && data.data && data.data.list) {
-            let list = data.data.list;
+
+        if(data && data.list) {
+            let list = data.list;
             itemElArr = list.map((item, index) => {
                 return h('div', {
                     className: css.item,
@@ -140,6 +187,40 @@ class com extends Component {
             });
         };
 
+        //分页符
+        let pageCount = data ? Math.ceil(data.pages / 50) : 0;
+        let pageNavGrp = h('div', {
+            className: css.pageNavGrp,
+        }, [
+            h(Button, {
+                className: css.pageBtn,
+                raised: true,
+                color: 'primary',
+                onClick: () => { that.prevPage() },
+            }, h(FontA, { name: 'caret-left' })),
+            h('input', {
+                className: css.pageIpt,
+                value: that.state.page + 1,
+                onChange: (e) => {
+                    var page = Math.floor(e.target.value);
+                    that.setState({
+                        page: page,
+                    });
+                    global.$store('OJlist', 'page', page);
+                },
+                onBlur: (event) => {
+                    that.goPage();
+                },
+            }),
+            h(Button, {
+                className: css.pageBtn,
+                raised: true,
+                color: 'primary',
+                onClick: () => { that.nextPage() },
+            }, h(FontA, { name: 'caret-right' })),
+        ])
+
+
         return h('div', {
             className: css.comBox,
         }, [
@@ -148,6 +229,7 @@ class com extends Component {
             }, [
                 h('input', {
                     className: css.searchIpt,
+                    ref: (searchIpt) => { this.searchIpt = searchIpt },
                 }),
                 h(Button, {
                     color: 'primary',
@@ -165,21 +247,15 @@ class com extends Component {
                     onClick: () => { that.clearSeach() },
                 }, '返回列表') : null,
             ]),
+            pageCount > 1 ? pageNavGrp : null,
             h('div', {
                 className: css.list,
             }, itemElArr),
+            pageCount > 1 ? pageNavGrp : null,
+            h('div', { style: { height: 100 } }),
         ]);
     }
 };
-
-let arr = ['a', 'b', 'c'];
-if(arr.indexOf('cc') != -1) {
-    console.log('found')
-} else {
-    console.log('not found')
-}
-
-console.log('-10123', -1 == true, 0 == true, 1 == true, 2 == true, 3 == true);
 
 
 com.propTypes = {

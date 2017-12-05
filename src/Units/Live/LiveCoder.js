@@ -41,6 +41,7 @@ class com extends Component {
         editorPublic: {}, //用来放置子编辑器传递出来的函数
         editorMode: 'text/x-c++src',
         OJpage: 'list', //显示OJ的页面
+        OJid: null, //OJ详细页面的ID，
     };
 
     componentWillMount = async function() {};
@@ -100,9 +101,15 @@ class com extends Component {
 
     //切换到显示详细信息页面
     showOJdetails = (id) => {
-
+        let that = this;
+        that.setState({ OJid: id });
+        that.setState({ OJpage: 'details' });
     };
 
+    //显示到OJ列表
+    showOJlist = () => {
+        this.setState({ OJpage: 'list' });
+    };
 
     //渲染实现
     render() {
@@ -143,7 +150,9 @@ class com extends Component {
                     showDetails: that.showOJdetails,
                 }) : null,
                 that.state.OJpage === 'details' ? h(OJdetails, {
+                    id: that.state.OJid,
                     code: that.state.value,
+                    back: that.showOJlist,
                 }) : null,
             ]),
         ]);

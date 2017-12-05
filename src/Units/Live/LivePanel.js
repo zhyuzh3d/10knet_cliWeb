@@ -509,11 +509,11 @@ class com extends Component {
         let type = onChair ? that.state.boardType : (roomInfo ? roomInfo.boardType : 'slider');
 
         //开启或退出按钮
-        let exitBtn = h(Tooltip, { title: '退出房间' }, h(Button, {
+        let exitBtn = h(Tooltip, { title: '退出房间' }, h('div',{},h(Button, {
             className: css.btn,
             onClick: () => { that.leaveRoom() },
-        }, h(FontA, { name: 'close' })));
-        let startBtn = h(Tooltip, { title: '快速创建房间' }, h(Button, {
+        }, h(FontA, { name: 'close' }))));
+        let startBtn = h(Tooltip, { title: '快速创建房间' }, h('div',{},h(Button, {
             className: css.btn,
             onClick: () => {
                 that.setRoom();
@@ -523,7 +523,7 @@ class com extends Component {
                 }, 3000);
             },
             disabled: that.state.settingRoom,
-        }, h(FontA, { name: 'flash' })));
+        }, h(FontA, { name: 'flash' }))));
 
         //浏览器相关的按钮组，仅在浏览器启用时候有效
         let browserAddrChanged = that.state.browserAddr !== that.state.browserAddrTemp;
@@ -568,21 +568,21 @@ class com extends Component {
         ]);
 
         //弹窗发起邀请按钮
-        let inviteBtn = h(Tooltip, { title: '邀请其他在线用户' }, h(Button, {
+        let inviteBtn = h(Tooltip, { title: '邀请其他在线用户' }, h('div',{},h(Button, {
             className: css.btn,
             onClick: () => { that.showInviteDiaolog() },
             disabled: !that.state.roomInfo,
-        }, h(FontA, { name: 'user-plus' })));
+        }, h(FontA, { name: 'user-plus' }))));
 
         //弹窗发起分组邀请按钮
-        let inviteGroupBtn = h(Tooltip, { title: '批量邀请小组用户' }, h(Button, {
+        let inviteGroupBtn = h(Tooltip, { title: '批量邀请小组用户' }, h('div',{},h(Button, {
             className: css.btn,
             onClick: () => { that.showInviteGroupDiaolog() },
             disabled: !that.state.roomInfo,
-        }, h(FontA, { name: 'group' })));
+        }, h(FontA, { name: 'group' }))));
 
         //显示我的邀请函按钮
-        let myInviteBtn = h(Tooltip, { title: '最近收到的邀请' }, h(Button, {
+        let myInviteBtn = h(Tooltip, { title: '最近收到的邀请' }, h('div',{},h(Button, {
             className: css.btn,
             style: {
                 background: that.state.hasNewInvite % 2 <= 0 ? 'inherit' : '#f50057',
@@ -590,11 +590,11 @@ class com extends Component {
             },
             onClick: () => { that.showMyInviteDiaolog() },
             disabled: that.state.liveInviteArr.length < 1,
-        }, h(FontA, { name: 'vcard-o' })));
+        }, h(FontA, { name: 'vcard-o' }))));
 
 
         //使用直播视频模块按钮
-        let liveRoomBtn = h(Tooltip, { title: '视频直播面板' }, h(Button, {
+        let liveRoomBtn = h(Tooltip, { title: '视频直播面板' }, [h(Button, {
             className: css.btn,
             style: {
                 background: 'inherit',
@@ -603,10 +603,10 @@ class com extends Component {
             onClick: () => {
                 that.setState({ useLiveRoom: !that.state.useLiveRoom });
             },
-        }, h(FontA, { name: 'video-camera' })));
+        }, h(FontA, { name: 'video-camera' }))]);
 
         //使用聊天模块按钮
-        let liveChatBtn = h(Tooltip, { title: '图文聊天面板' }, h(Button, {
+        let liveChatBtn = h(Tooltip, { title: '图文聊天面板' }, [h(Button, {
             className: css.btn,
             style: {
                 color: that.state.useLiveChat ? '#f50057' : '#AAA',
@@ -614,48 +614,48 @@ class com extends Component {
             onClick: () => {
                 that.setState({ useLiveChat: !that.state.useLiveChat });
             },
-        }, h(FontA, { name: 'commenting' })));
+        }, h(FontA, { name: 'commenting' }))]);
 
 
         //使用代码模块按钮
-        let liveCodeBtn = h(Tooltip, { title: '实时互动编码' }, h(Button, {
+        let liveCodeBtn = h(Tooltip, { title: '实时互动编码' }, h('div',{},h(Button, {
             className: css.btn,
             style: {
                 color: that.state.boardType === 'coder' ? '#f50057' : '#AAA',
             },
             onClick: () => { that.setBoardType('coder') },
             disabled: !onChair,
-        }, h(FontA, { name: 'code' })));
+        }, h(FontA, { name: 'code' }))));
 
         //使用PPT演示模块按钮
-        let liveSliderBtn = h(Tooltip, { title: '实时演示' }, h(Button, {
+        let liveSliderBtn = h(Tooltip, { title: '实时演示' }, h('div',{},h(Button, {
             className: css.btn,
             style: {
                 color: that.state.boardType === 'slider' ? '#f50057' : '#AAA',
             },
             onClick: () => { that.setBoardType('slider') },
             disabled: !onChair,
-        }, h(FontA, { name: 'caret-square-o-right' })));
+        }, h(FontA, { name: 'caret-square-o-right' }))));
 
         //使用PPT演示模块按钮
-        let liveViewerBtn = h(Tooltip, { title: '互动图文展示' }, h(Button, {
+        let liveViewerBtn = h(Tooltip, { title: '互动图文展示' }, h('div',{},h(Button, {
             className: css.btn,
             style: {
                 color: that.state.boardType === 'viewer' ? '#f50057' : '#AAA',
             },
             onClick: () => { that.setBoardType('viewer') },
             disabled: !onChair,
-        }, h(FontA, { name: 'image' })));
+        }, h(FontA, { name: 'image' }))));
 
         //使用浏览器模块按钮
-        let liveBrowserBtn = h(Tooltip, { title: '互动浏览器' }, h(Button, {
+        let liveBrowserBtn = h(Tooltip, { title: '互动浏览器' }, h('div',{},h(Button, {
             className: css.btn,
             style: {
                 color: that.state.useBrowser ? '#f50057' : '#AAA',
             },
             onClick: () => { that.openIbrowser() },
             disabled: !onChair,
-        }, h(FontA, { name: 'globe' })));
+        }, h(FontA, { name: 'globe' }))));
 
         //互动面板
         let liveBoard;
