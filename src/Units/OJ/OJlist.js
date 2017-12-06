@@ -10,7 +10,6 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
-import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
@@ -102,18 +101,18 @@ class com extends Component {
 
     getOJList = async function(page, searchStr) {
         let that = this;
-        page = page || that.state.page;
+        page = page === undefined ? that.state.page : page;
         let api = 'http://oj.xmgc360.com/problem/lists';
         let opt = searchStr ? { search: searchStr } : { page: page };
         Request.post(api)
             .send(opt)
+            .type('form')
             .end((err, res) => {
                 if(!err && res.text) {
                     let obj = JSON.parse(res.text);
-                    console.log('>getOJList', obj);
+                    console.log('>getOJList', page, searchStr, obj);
                     if(obj.code === 1) {
                         let data = obj.data;
-                        global.$store('OJlist', 'page', that.state.page);
                         that.setState(searchStr ? { data: data } : { searchData: data });
                     } else {
                         global.$snackbar.fn.show(`获取题目失败:${obj.text}`);

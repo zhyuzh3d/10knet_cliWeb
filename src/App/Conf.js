@@ -2,6 +2,9 @@ let ConfBase = {
     hostName: '',
     hostUrl: '',
     uploadDomain: 'up.10knet.com',
+    browser: {
+        defaultAddr: 'http://localhost:3000/WelcomePage',
+    },
     api: (apiPath) => {
         if(window.location.hostname === 'localhost') {
             return `http://localhost:3100${apiPath}`;

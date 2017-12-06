@@ -12,7 +12,6 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
-import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
@@ -61,8 +60,8 @@ const style = theme => ({
     res: {
         fontSize: 16,
         fontWeight: 600,
-        color: '#000',
         marginBottom: 4,
+        color: '#888',
     },
 });
 
@@ -82,16 +81,25 @@ class com extends Component {
         this.getOJdetails();
     };
 
-    componentWillUnmount = async function() {};
+    componentWillUnmount = async function() {
+        this.judgeTmr && clearInterval(this.judgeTmr);
+    };
 
     getOJdetails = async function(page) {
         let that = this;
         let api = `http://oj.xmgc360.com/problem/detail`;
         Request.post(api)
             .send({ problem_id: that.props.id })
+            .type('form')
             .end((err, res) => {
                 if(!err) {
-                    console.log('>OJdetails', err, res);
+                    let data = JSON.parse(res.text);
+                    console.log('>OJdetails', data);
+                    if(data && data.code === 1) {
+                        that.setState({ data: data.data });
+                    } else {
+                        global.$snackbar.fn.show(`读取题目详情失败:${data.text}`);
+                    }
                 } else {
                     global.$snackbar.fn.show(`获取题目详情失败:${err}`);
                 };
@@ -113,24 +121,40 @@ class com extends Component {
             return;
         };
 
+        code = code || that.props.code;
+        if(!code) {
+            global.$alert.fn.show('代码不能为空', `提交判题的代码不能为空`);
+            return;
+        }
+
         let api = 'http://oj.xmgc360.com/problem/submitcode';
-        Request.get(api)
-            .send({
-                problem_id: that.state.id,
-                language: langId,
-                source: code,
-            })
+        let payload = {
+            problem_id: that.state.id,
+            language: langId,
+            source: code,
+        };
+        Request.post(api)
+            .send(payload)
+            .type('form')
             .end((err, res) => {
-                if(!err && res.code === 1 && res.data && res.data.solution_id) {
-                    console.log('>>>get solutionid', err, res);
-                    let sid = res.data.solution_id;
-                    that.setState({
-                        result: null,
-                        judging: true,
-                    });
-                    that.judgeTmr = setInterval(() => {
-                        that.getResult(sid);
-                    }, 3000);
+                if(!err) {
+                    let data = JSON.parse(res.text);
+                    if(data && data.code === 1) {
+                        data = data.data;
+                        let sid = data.solution_id;
+                        that.setState({
+                            result: {
+                                state: '排队中...'
+                            },
+                            judging: true,
+                        });
+                        that.judgeTmr = setInterval(() => {
+                            that.getResult(sid);
+                        }, 3000);
+                    } else {
+                        global.$snackbar.fn.show(`提交判题请求失败:${data.text}`);
+                    };
+
                 } else {
                     global.$snackbar.fn.show(`提交判题失败:${err}`);
                 };
@@ -141,27 +165,43 @@ class com extends Component {
     getResult = (solutionId) => {
         let that = this;
         let api = 'http://oj.xmgc360.com/solution/result';
-        Request.get(api)
+
+        Request.post(api)
             .send({
                 solution_id: solutionId,
             })
+            .type('form')
             .end((err, res) => {
-                if(!err && res.data && res.data.solution_id) {
-                    console.log('>>>get result', err, res);
-                    if(res && res.code === 1) {
-                        clearInterval(that.judgeTmr);
-                        that.setState({
-                            judging: false,
-                            result: res.data.result_text,
-                        });
+                if(!err) {
+                    let data = JSON.parse(res.text);
+                    console.log('>getResult data', data);
+                    if(data && data.code === 1) {
+                        let result = data.data;
+                        that.setState({ result: result }); //更新判题状态
+                        if(result && result.state === 'finished') {
+                            that.cancelJudge();
+                        }
+                    } else {
+                        global.$snackbar.fn.show(`判题处理错误:${data.text}`);
                     };
                 } else {
                     that.setState({
                         judging: false,
                     });
-                    global.$snackbar.fn.show(`提交判题失败:${err}`);
+                    global.$snackbar.fn.show(`判题处理失败:${err}`);
                 };
             });
+    };
+
+
+    //取消当前的判题,停止轮询,重置结果
+    cancelJudge = () => {
+        let that = this;
+        that.judgeTmr && clearInterval(that.judgeTmr);
+        that.setState({
+            judging: false,
+            result: null,
+        });
     };
 
     render() {
@@ -169,6 +209,7 @@ class com extends Component {
         const css = that.props.classes;
 
         let data = that.state.data || {};
+        let result = that.state.result;
 
         return h('div', {
             className: css.comBox,
@@ -191,7 +232,10 @@ class com extends Component {
             h('div', {
                 className: css.itemBox,
             }, [
-                h('div', { className: css.desc }, `${data.description}`),
+                h('div', {
+                    className: css.desc,
+                    dangerouslySetInnerHTML: { __html: data.description },
+                }),
             ]),
             h('div', {
                 className: css.itemBox,
@@ -199,17 +243,29 @@ class com extends Component {
                 h('div', { className: css.tip }, `时间限定:[ ${data.time_limit} ]`),
                 h('div', { className: css.tip }, `内存限定:[ ${data.memory_limit} ]`),
             ]),
-            h(Button, {
+            h('div', {
                 style: { margin: 16 },
-                color: 'primary',
-                raised: true,
-                onClick: () => { that.startJudge() },
-                disabled: that.state.judging,
-            }, '开始判题'),
+            }, [
+                h(Button, {
+                    color: 'primary',
+                    raised: true,
+                    onClick: () => { that.startJudge() },
+                    disabled: that.state.judging,
+                }, '开始判题'),
+                !that.state.judging ? h(Button, {
+                    style: { marginLeft: 16 },
+                    color: 'primary',
+                    onClick: () => { that.cancelJudge() },
+                }, '取消') : null,
+            ]),
             that.state.result ? h('div', {
                 className: css.itemBox,
             }, [
-                h('div', { className: css.res }, `判题结果:[ ${that.state.result} ]`),
+                h('div', { className: css.res }, `判题状态:[ ${that.state.result.state} ]`),
+                h('div', {
+                    className: css.res,
+                    style: { color: result.result_text === 'Accepted' ? '#00a371' : '#888' }
+                }, `判题结果:[ ${result.result_text||"..."} ]`),
             ]) : null,
             h('div', { style: { height: 200 } }),
         ]);

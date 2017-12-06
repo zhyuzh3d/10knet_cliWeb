@@ -1,3 +1,9 @@
+/*
+APP入口，
+根据url路径的pageName载入页面
+根据url路径的useSlavePart或global.$electron判读是否使用左侧部分
+*/
+
 import { Component } from 'react';
 import wilddog from 'wilddog';
 import h from 'react-hyperscript';
@@ -22,7 +28,6 @@ import MyIpc from '../Utils/MyIpc'; //electron窗口进程通信ipc处理
 
 import Grid from 'material-ui/Grid';
 import style from './_style';
-import FontA from 'react-fa';
 
 import LivePanel from '../Units/Live/LivePanel';
 
@@ -58,13 +63,18 @@ class App extends Component {
         liveHei: 128,
         viewerHei: window.innerHeight - 128,
         viewerUrl: 'http://www.10knet.com',
+        useSlavePart: false, //是否使用实时面板
     };
 
-    //初始化ipc窗口和msg监听
+    //初始化ipc窗口和msg监听,根据地址栏确定是否显示实时部分
     componentWillMount = () => {
+        let that = this;
         if(global.$ipc) {
             global.$ipc.init(global.$winName);
         };
+        let urlObj = urlParser.parse(window.location.href);
+        let useSlavePart = urlObj.query ? urlObj.query.params['useSlavePart'] : undefined;
+        that.setState({ useSlavePart: useSlavePart });
     };
 
     //每分钟自动记录一次登录状态
@@ -94,6 +104,7 @@ class App extends Component {
 
     //初始化页面，自动根据地址栏路径判断切换到首页
     componentDidMount = async function() {
+        let that = this;
         global.$router.init(this, Pages);
         let urlObj = urlParser.parse(window.location.href);
         let pName = urlObj.path ? urlObj.path.base : 'MainHomePage';
@@ -107,20 +118,7 @@ class App extends Component {
             that.setState({ viewerHei: window.innerHeight - 97 });
         });
 
-        //替换window.open命令
-        /*
-        window.open = (url) => {
-            this.setState({ viewerUrl: url });
-            let wd = window.screen.availWidth;
-            let hei = window.screen.availHeight;
-            global.$ipc.run(`mainWindow.setSize(${wd},${hei})`);
-            global.$ipc.run(`mainWindow.setPosition(0,0)`);
-        };
-        */
-
-
         //野狗自动登录，自动定时签到
-        let that = this;
         global.$currentUser = global.$wd.auth().currentUser;
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             var cuser = global.$wd.auth().currentUser;
@@ -143,20 +141,24 @@ class App extends Component {
         this.setState(obj);
     };
 
+    //全局使用打开右侧面板
+    toggleMainPart = global.$app.toggleMainPart = (toggle) => {
+        if(toggle === undefined) toggle = !this.state.mainVis;
+        this.setState({ mainVis: toggle });
+    };
+
     //渲染实现
     render() {
         let that = this;
         document.getElementsByTagName('title')[0].innerHTML = '10knet - 拾课网';
         const css = this.props.classes;
 
-        //当前地址
-        //let urlObj = urlParser.parse(window.location.href);
-        //console.log('>app render', urlObj);
+        let useSlavePart = global.$electron || that.state.useSlavePart ? true : false;
 
         //可折叠右侧资源栏360宽
         let mainPart = h(Grid, {
             item: true,
-            className: css.mainPart,
+            className: useSlavePart ? css.mainPart : css.mainPartFull,
             style: { display: that.state.mainVis ? 'flex' : 'none' },
         }, [
             h(that.state.currentPage),
@@ -165,47 +167,29 @@ class App extends Component {
             h(MyConfirm),
             h(MySelector),
         ]);
-        let mainVisbar = h('div', {
-            className: css.mainVisBar,
-            onClick: () => {
-                that.setState({ mainVis: !that.state.mainVis });
-            },
-        }, h(FontA, {
-            name: that.state.mainVis ? 'caret-right' : 'caret-left',
-            className: css.visBarArr,
-        }));
 
-        let slavePart = h(Grid, {
-            item: true,
-            className: css.slavePart,
-        }, h(Grid, {
-            container: true,
-            className: css.slaveBox,
-        }, [
+        let slavePart;
+        if(useSlavePart) {
+            slavePart = h(Grid, {
+                item: true,
+                className: css.slavePart,
+            }, h(Grid, {
+                container: true,
+                className: css.slaveBox,
+            }, [
             that.state.liveVis ? h(Grid, {
-                item: true,
-                style: {
-                    margin: 0,
-                    padding: 0,
-                },
-                className: css.live,
-            }, h(LivePanel, {
-                open: true,
-                roomId: 0,
-            })) : null,
-            /*
-            h(Grid, {
-                item: true,
-                className: css.viewer,
-                style: { padding: 0 },
-            }, h('webview', {
-                className: css.webview,
-                style: { height: that.state.viewerHei },
-                src: that.state.viewerUrl,
-            })),
-            */
-        ]));
-
+                    item: true,
+                    style: {
+                        margin: 0,
+                        padding: 0,
+                    },
+                    className: css.live,
+                }, h(LivePanel, {
+                    open: true,
+                    roomId: 0,
+                })) : null,
+            ]));
+        };
 
         //最终拼合
         return h(MuiThemeProvider, {
@@ -216,7 +200,6 @@ class App extends Component {
             className: css.partsContainer,
         }, [
             slavePart,
-            mainVisbar,
             mainPart,
         ]));
     };
