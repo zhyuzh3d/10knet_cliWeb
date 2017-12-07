@@ -503,7 +503,7 @@ class com extends Component {
 
         let roomInfo = that.state.roomInfo;
         let onChair = cuser && roomInfo && roomInfo.chairMan === cuser.uid ? true : false;
-        let type = onChair ? that.state.boardType : (roomInfo ? roomInfo.boardType : 'slider');
+        let type = onChair ? that.state.boardType : (roomInfo ? roomInfo.boardType : 'coder');
 
         //开启或退出按钮
         let exitBtn = h(Tooltip, { title: '退出房间' }, h('div', {}, h(Button, {
@@ -656,29 +656,27 @@ class com extends Component {
 
         //互动面板
         let liveBoard;
-        if(roomInfo) {
-            let roomId = roomInfo.roomId;
-            if(type === 'slider') {
-                liveBoard = h(LiveSlider, {
-                    onChair: onChair,
-                    wdRef: roomId ? `islider/${roomId}` : undefined,
-                })
-            } else if(type === 'coder') {
-                liveBoard = h(LiveCoder, {
-                    onChair: onChair,
-                    wdRef: roomId ? `icoder/${roomId}` : undefined,
-                    roomId: roomId,
-                });
-            } else if(type === 'viewer') {
-                liveBoard = h(LiveViewer, {
-                    onChair: onChair,
-                    wdRef: roomId ? `iviewer/${roomId}` : undefined,
-                });
-            } else {
-                liveBoard = h('div', {
-                    className: css.empty,
-                }, '...没有开启任何同步内容...');
-            };
+        let roomId = roomInfo ? roomInfo.roomId : undefined;
+        if(type === 'coder') {
+            liveBoard = h(LiveCoder, {
+                onChair: onChair,
+                wdRef: roomId ? `icoder/${roomId}` : undefined,
+                roomId: roomId,
+            });
+        } else if(type === 'slider' && roomId) {
+            liveBoard = h(LiveSlider, {
+                onChair: onChair,
+                wdRef: roomId ? `islider/${roomId}` : undefined,
+            })
+        } else if(type === 'viewer' && roomId) {
+            liveBoard = h(LiveViewer, {
+                onChair: onChair,
+                wdRef: roomId ? `iviewer/${roomId}` : undefined,
+            });
+        } else {
+            liveBoard = h('div', {
+                className: css.empty,
+            }, '...没有开启任何同步内容...');
         };
 
 
@@ -725,13 +723,13 @@ class com extends Component {
                 roomInfo ? liveRoomBtn : null,
                 roomInfo ? liveChatBtn : null,
                 onChair ? barDivider : null,
-                onChair ? liveCodeBtn : null,
+                onChair || !roomInfo ? liveCodeBtn : null,
                 onChair ? liveSliderBtn : null,
                 onChair ? liveViewerBtn : null,
                 onChair ? barDivider : null,
-                onChair ? liveBrowserBtn : null,
-                (roomInfo && that.state.useBrowser) || !roomInfo ? browserBtnGrp : null,
-                barDivider,
+                //onChair ? liveBrowserBtn : null,
+                //(roomInfo && that.state.useBrowser) || !roomInfo ? browserBtnGrp : null,
+                //barDivider,
                 mainPartBtn,
             ]),
 
@@ -739,8 +737,8 @@ class com extends Component {
             h('div', {
                 className: css.boardPanel,
             }, [
-                roomInfo ? liveBoard : null,
-                h(LiveBrowser, {
+                true ? liveBoard : null,
+                false && h(LiveBrowser, {
                     url: that.state.browserAddr,
                     wdPath: roomInfo ? `ibrowser/${roomInfo.roomId}` : null,
                     onChair: onChair || !roomInfo, //不进房间等同于主持人

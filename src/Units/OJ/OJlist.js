@@ -20,7 +20,7 @@ import FontA from 'react-fa';
 const style = theme => ({
     comBox: {
         width: '100%',
-        background: '#DDD',
+        background: '#E0E0E0',
         height: '100%',
         position: 'absolute',
         right: 0,
@@ -93,41 +93,60 @@ class com extends Component {
         searchData: null, //搜索结果列表
         page: 0,
         pageIpt: 0,
+        roomId: null,
     };
 
     wdRefArr = [];
     oldProps = {};
     componentDidMount = () => {
-        this.autoSync();
+        let that = this;
+        if(!that.props.onChair && that.props.roomId) { //进入房间且非主持人
+            this.startGuestSync();
+        } else {
+            let storePage = global.$store('OJlist', 'page');
+            that.setState({ page: storePage, pageIpt: storePage });
+            this.getOJList(storePage);
+        }
     };
 
     componentWillReceiveProps = (newProps) => {
-        this.autoSync(newProps);
+        let that = this;
+        if(that.state.roomId !== newProps.roomId) { //换房间
+            that.state.roomId = newProps.roomId;
+            console.log('start sync', that.state.page, newProps);
+            if(newProps.onChair) {
+                that.updateSync(that.state.page, newProps); //主持人更新数据库同步其他用户
+            } else {
+                that.startGuestSync(newProps || {});
+            };
+        };
     };
 
-    //优先从wdPath读取-props读取-store读取，不同步search结果
-    autoSync = (newProps) => {
+    //同步存储page页码
+    updateSync = (page, props) => {
         let that = this;
-        newProps = newProps || {};
-        if(that.oldProps && (newProps.onChair === that.oldProps.onChair)) return;
-        that.oldProps = newProps;
+        props = props || that.props;
+        if(!props.onChair) return;
+        if(!props.wdPath) return;
 
-        let storePage = global.$store('OJlist', 'page');
-        if(that.props.wdPath && !that.props.onChair) {
-            let ref = global.$wd.sync().ref(`${that.props.wdPath}`);
-            that.wdRefArr.push(ref);
-            ref.off();
-            ref.on('value', (shot) => {
-                let data = shot.val() || {};
-                let page = data.page ? data.page : (storePage || 0);
-                that.setState({ page: page, pageIpt: page });
-                this.getOJList(page);
-            });
-        } else {
-            let page = that.props.page || storePage || 0;
+        global.$store('OJlist', 'page', page);
+        global.$wd.sync().ref(`${props.wdPath}`).update({ page: page });
+        global.$wd.sync().ref(`icoder/${props.roomId}`).update({ OJpage: 'list' });
+    };
+
+    //被动客人同步数据
+    startGuestSync = (newProps) => {
+        let that = this;
+        if(!newProps.wdPath || !newProps.roomId) return;
+        let ref = global.$wd.sync().ref(`${newProps.wdPath}`);
+        that.wdRefArr.push(ref);
+        ref.off();
+        ref.on('value', (shot) => {
+            let data = shot.val() || {};
+            let page = data.page ? data.page : 0;
             that.setState({ page: page, pageIpt: page });
             this.getOJList(page);
-        }
+        });
     };
 
     componentWillUnmount = async function() {
@@ -203,14 +222,7 @@ class com extends Component {
     goPage = () => {
         this.getOJList(this.state.pageIpt || 0);
     };
-    //同步存储page页码
-    updateSync = (page, searchStr) => {
-        let that = this;
-        if(!that.props.onChair) return;
-        if(!that.props.wdPath) return;
-        global.$wd.sync().ref(`${that.props.wdPath}`).update({ page: page });
-        global.$wd.sync().ref(`icoder/${that.props.roomId}`).update({ OJpage: 'list' });
-    };
+
 
     render() {
         let that = this;
@@ -248,7 +260,8 @@ class com extends Component {
                 disabled: !that.props.onChair,
             }, h(FontA, { name: 'caret-left' })),
             h('input', {
-                value: that.state.pageIpt,
+                value: that.state.pageIpt || '0',
+                type: 'text',
                 className: css.pageIpt,
                 onChange: (e) => {
                     var pageIpt = Math.floor(e.target.value);
@@ -280,6 +293,7 @@ class com extends Component {
             }, [
                 h('input', {
                     className: css.searchIpt,
+                    type: 'text',
                     disabled: !that.props.onChair,
                     ref: (searchIpt) => { this.searchIpt = searchIpt },
                 }),

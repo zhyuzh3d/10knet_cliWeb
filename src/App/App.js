@@ -153,7 +153,8 @@ class App extends Component {
         document.getElementsByTagName('title')[0].innerHTML = '10knet - 拾课网';
         const css = this.props.classes;
 
-        let useSlavePart = global.$electron || that.state.useSlavePart ? true : false;
+        //let useSlavePart = global.$electron || that.state.useSlavePart ? true : false;
+        let useSlavePart = true;
 
         //可折叠右侧资源栏360宽
         let mainPart = h(Grid, {

@@ -13,6 +13,9 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
+import Button from 'material-ui/Button';
+import FontA from 'react-fa';
+
 
 import MyCoder from '../../Utils/MyCoder';
 import OJlist from '../../Units/OJ/OJlist';
@@ -23,16 +26,27 @@ const style = theme => ({
     comBox: {
         margin: 0,
         padding: 0,
+        position: 'relative',
     },
     coderBox: {
         position: 'relative',
         height: '100%',
-        width: '60%',
+        width: '40%',
     },
     OJbox: {
         position: 'relative',
-        width: '40%',
+        width: '60%',
     },
+    OJbtn: {
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        minWidth: 24,
+        minHeight: 24,
+        height: 32,
+        width: 36,
+        zIndex: 10,
+    }
 });
 
 //元件
@@ -43,12 +57,11 @@ class com extends Component {
         editorMode: 'text/x-c++src',
         OJpage: 'list', //显示OJ的页面
         OJid: null, //OJ详细页面的ID，
+        lastOJpage: 'list', //上一个OJ页面，用于开关按钮恢复
     };
 
     wdRefArr = [];
     componentWillMount = async function() {};
-
-    setContentSize = () => {};
 
     componentDidMount = async function() {
         if(!this.props.onChair) {
@@ -58,6 +71,22 @@ class com extends Component {
         }
     };
 
+    //切换onChair的时候调整
+    oldProps = {};
+    componentWillReceiveProps = (newProps) => {
+        let that = this;
+        newProps = newProps || {};
+        let sameRoom = newProps.roomId !== that.oldProps.roomId; //换房间
+        let sameChair = newProps.onChair !== that.oldProps.onChair; //换主持
+        if(sameRoom || sameChair) {
+            //停止旧的监听
+            let oldRef = global.$wd.sync().ref(`${that.oldProps.roomId}`);
+            oldRef.off();
+            //开启新的监听
+            that.startSync();
+        };
+    };
+
     componentWillUnmount = async function() {
         this.stopSync();
     };
@@ -65,13 +94,17 @@ class com extends Component {
     //开始同步代码，同步oj页面类型
     startSync = () => {
         let that = this;
+        if(!that.props.wdRef) return;
         let ref = global.$wd.sync().ref(`${that.props.wdRef}`);
         that.wdRefArr.push(ref);
         ref.on('value', (shot) => {
             let data = shot.val();
             let value = data ? data.value : null;
-            let OJpage = data ? data.OJpage : null;
             let sel = data ? data.sel : null;
+
+            let OJpage = data ? data.OJpage : null;
+            if(that.props.onChair) OJpage = that.state.OJpage; //主持人不变OJpage
+
             if(that.state.editorPublic) {
                 that.state.editorPublic.setValue(value || '');
                 that.setState({ value: value, OJpage: OJpage });
@@ -87,11 +120,13 @@ class com extends Component {
         global.$wd.sync().ref(`${that.props.wdRef}`).off();
     }
 
-    //代码变化回调函数，同步到野狗数据库
+    //代码变化回调函数，没进房间直接设置value，其他同步到野狗数据库
     onChange = (editor, metadata, value) => {
         let that = this;
-        if(!that.props.wdRef || !that.props.onChair) return;
-        that.setState({ value: value });
+        if(!that.props.roomId) {
+            that.setState({ value: value });
+        };
+        if(!that.props.onChair) return;
         global.$wd.sync().ref(`${that.props.wdRef}/value`).set(value);
     }
 
@@ -124,6 +159,7 @@ class com extends Component {
         }
     };
 
+
     //渲染实现
     render() {
         let that = this;
@@ -139,13 +175,17 @@ class com extends Component {
             }
         };
         that.onChair = that.props.onChair;
+        let roomId = that.props.roomId;
 
         return h(Grid, {
             container: true,
             className: css.comBox,
         }, [
             h('div', {
-                className: css.coderBox
+                className: css.coderBox,
+                style: {
+                    width: that.state.showOJ ? '100%' : '40%',
+                },
             }, h(MyCoder, {
                 fontSize: 16,
                 value: that.state.value,
@@ -154,26 +194,37 @@ class com extends Component {
                 public: that.state.editorPublic,
                 options: {
                     mode: that.state.editorMode,
-                }
+                },
             })),
             h('div', {
-                className: css.OJbox
+                className: css.OJbox,
+                style: {
+                    display: that.state.showOJ ? 'none' : 'block',
+                },
             }, [
-                that.state.OJpage === 'list' ? h(OJlist, {
+                that.state.OJpage !== 'details' ? h(OJlist, {
                     showDetails: that.showOJdetails,
-                    wdPath: `ioj/${that.props.roomId}`,
-                    onChair: that.props.onChair,
-                    roomId: that.props.roomId,
+                    wdPath: roomId ? `ioj/${roomId}` : undefined,
+                    onChair: that.props.onChair || !roomId,
+                    roomId: roomId,
                 }) : null,
                 that.state.OJpage === 'details' ? h(OJdetails, {
-                    wdPath: `ioj/${that.props.roomId}`,
+                    wdPath: roomId ? `ioj/${roomId}` : undefined,
                     id: that.state.OJid,
                     code: that.state.value,
                     back: that.showOJlist,
-                    onChair: that.props.onChair,
-                    roomId: that.props.roomId,
+                    onChair: that.props.onChair || !roomId,
+                    roomId: roomId,
                 }) : null,
-            ]),
+            ]): null,
+            that.props.onChair || !roomId ? h(Button, {
+                className: css.OJbtn,
+                raised: true,
+                color: 'default',
+                onClick: () => { that.setState({ showOJ: !that.state.showOJ }) },
+            }, h(FontA, {
+                name: that.state.showOJ ? 'close' : 'balance-scale'
+            })) : null,
         ]);
 
 
