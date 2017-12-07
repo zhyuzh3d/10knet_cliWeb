@@ -5,6 +5,7 @@ props:{
     id,题目的id
     wdPath,同步的路径
     back(),返回函数
+    roomId,用于更新icoder的OJpage
 }
 */
 import { Component } from 'react';
@@ -75,14 +76,32 @@ class com extends Component {
         judging: false, //正在判题，冻结判题按钮
     };
 
-    componentDidMount = async function() {
+    wdRefArr = [];
+    oldProps = {};
+    componentDidMount = () => {
+        this.autoSync();
+    };
+
+    componentWillReceiveProps = (newProps) => {
+        this.autoSync(newProps);
+    };
+
+    autoSync = (newProps) => {
         let that = this;
-        if(that.props.wdPath) {
-            global.$wd.sync().ref(`${that.props.wdPath}/id`).on('value', (shot) => {
+        newProps = newProps || {};
+
+        if(newProps.onChair === that.oldProps.onChair) return;
+        that.oldProps = newProps;
+
+        if(that.props.wdPath && !that.props.onChair) {
+            let ref = global.$wd.sync().ref(`${that.props.wdPath}/id`);
+            that.wdRefArr.push(ref);
+            ref.off();
+            ref.on('value', (shot) => {
                 let id = shot ? shot.val() : null;
                 if(!id) return;
                 that.setState({ id: id });
-                this.getOJdetails();
+                this.getOJdetails(id);
             });
         } else {
             let id = that.props.id || global.$store('OJdetails', 'id') || 0
@@ -93,13 +112,17 @@ class com extends Component {
 
     componentWillUnmount = async function() {
         this.judgeTmr && clearInterval(this.judgeTmr);
+        this.wdRefArr.forEach((item, n) => {
+            item.off();
+        });
     };
 
-    getOJdetails = async function(page) {
+    getOJdetails = async function(id) {
         let that = this;
+
         let api = `http://oj.xmgc360.com/problem/detail`;
         Request.post(api)
-            .send({ problem_id: that.props.id })
+            .send({ problem_id: id || that.props.id })
             .type('form')
             .end((err, res) => {
                 if(!err) {
@@ -107,6 +130,7 @@ class com extends Component {
                     console.log('>OJdetails', data);
                     if(data && data.code === 1) {
                         that.setState({ data: data.data });
+                        that.updateId();
                     } else {
                         global.$snackbar.fn.show(`读取题目详情失败:${data.text}`);
                     }
@@ -116,10 +140,21 @@ class com extends Component {
             });
     };
 
+    //更新同步数据库的id
+    updateId = (id) => {
+        let that = this;
+        if(!that.props.onChair) return;
+        if(!that.props.wdPath) return;
+        global.$wd.sync().ref(`${that.props.wdPath}`).update({ id: that.props.id });
+        global.$wd.sync().ref(`icoder/${that.props.roomId}`).update({ OJpage: 'details' });
+    };
+
     //开始判题命令,接收外部传来的代码
     judgeTmr = null;
     startJudge = (code) => {
         let that = this;
+        if(!that.props.onChair) return;
+
         if(!that.state.data || !that.state.data) return;
         let langId;
         let langs = that.state.data.language;
@@ -237,23 +272,23 @@ class com extends Component {
             h('div', {
                 className: css.itemBox,
             }, [
-                h('div', { className: css.title }, `[${data.origin_oj}]${data.title}`),
+                h('div', { className: css.title }, `[${data.origin_oj||"NAN"}]${data.title||"题目载入中..."}`),
             ]),
-            h('div', {
+            data ? h('div', {
                 className: css.itemBox,
             }, [
                 h('div', {
                     className: css.desc,
-                    dangerouslySetInnerHTML: { __html: data.description },
+                    dangerouslySetInnerHTML: { __html: data.description || '...' },
                 }),
-            ]),
-            h('div', {
+            ]) : null,
+            data ? h('div', {
                 className: css.itemBox,
             }, [
                 h('div', { className: css.tip }, `时间限定:[ ${data.time_limit} ]`),
                 h('div', { className: css.tip }, `内存限定:[ ${data.memory_limit} ]`),
-            ]),
-            h('div', {
+            ]) : null,
+            that.props.onChair ? h('div', {
                 style: { margin: 16 },
             }, [
                 h(Button, {
@@ -267,7 +302,7 @@ class com extends Component {
                     color: 'primary',
                     onClick: () => { that.cancelJudge() },
                 }, '取消') : null,
-            ]),
+            ]) : null,
             that.state.result ? h('div', {
                 className: css.itemBox,
             }, [

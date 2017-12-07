@@ -45,6 +45,7 @@ class com extends Component {
         OJid: null, //OJ详细页面的ID，
     };
 
+    wdRefArr = [];
     componentWillMount = async function() {};
 
     setContentSize = () => {};
@@ -61,18 +62,21 @@ class com extends Component {
         this.stopSync();
     };
 
-    //开始同步代码
+    //开始同步代码，同步oj页面类型
     startSync = () => {
         let that = this;
         let ref = global.$wd.sync().ref(`${that.props.wdRef}`);
+        that.wdRefArr.push(ref);
         ref.on('value', (shot) => {
-            let value = shot.val().value;
-            let sel = shot.val().sel;
+            let data = shot.val();
+            let value = data ? data.value : null;
+            let OJpage = data ? data.OJpage : null;
+            let sel = data ? data.sel : null;
             if(that.state.editorPublic) {
                 that.state.editorPublic.setValue(value || '');
-                that.setState({ value: value });
-                let selObj = shot.val ? JSON.parse(sel) : {};
-                that.state.editorPublic.setSelection(selObj);
+                that.setState({ value: value, OJpage: OJpage });
+                let selObj = sel ? JSON.parse(sel) : {};
+                that.state.editorPublic.setSelection(selObj || {});
             }
         });
     }
@@ -106,8 +110,8 @@ class com extends Component {
         that.setState({ OJid: id });
         that.setState({ OJpage: 'details' });
         if(that.props.roomId) {
-            global.$wd.sync().ref(`${that.props.wdRef}/OJpage`).update('details');
-            global.$wd.sync().ref(`ioj/${that.props.wdRef}/details/id`).update(id);
+            global.$wd.sync().ref(`${that.props.wdRef}`).update({ OJpage: 'details' });
+            global.$wd.sync().ref(`ioj/${that.props.wdRef}/details`).update({ id: id });
         }
     };
 
@@ -116,7 +120,7 @@ class com extends Component {
         let that = this;
         this.setState({ OJpage: 'list' });
         if(that.props.roomId) {
-            global.$wd.sync().ref(`${that.props.wdRef}/OJpage`).update('list');
+            global.$wd.sync().ref(`${that.props.wdRef}`).update({ OJpage: 'list' });
         }
     };
 
@@ -158,12 +162,16 @@ class com extends Component {
                 that.state.OJpage === 'list' ? h(OJlist, {
                     showDetails: that.showOJdetails,
                     wdPath: `ioj/${that.props.roomId}`,
+                    onChair: that.props.onChair,
+                    roomId: that.props.roomId,
                 }) : null,
                 that.state.OJpage === 'details' ? h(OJdetails, {
                     wdPath: `ioj/${that.props.roomId}`,
                     id: that.state.OJid,
                     code: that.state.value,
                     back: that.showOJlist,
+                    onChair: that.props.onChair,
+                    roomId: that.props.roomId,
                 }) : null,
             ]),
         ]);

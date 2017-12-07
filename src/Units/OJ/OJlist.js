@@ -4,6 +4,8 @@ props:{
     page,当前页码
     wdPath,如果有那么自动从这里读取页码
     showDetails(item),显示OJ详情的方法
+    onChair,是否主持人（可以设置同步)
+    roomId,用于更新icoder的OJpage
 }
 */
 import { Component } from 'react';
@@ -90,31 +92,53 @@ class com extends Component {
         data: null,
         searchData: null, //搜索结果列表
         page: 0,
+        pageIpt: 0,
+    };
+
+    wdRefArr = [];
+    oldProps = {};
+    componentDidMount = () => {
+        this.autoSync();
+    };
+
+    componentWillReceiveProps = (newProps) => {
+        this.autoSync(newProps);
     };
 
     //优先从wdPath读取-props读取-store读取
-    componentDidMount = async function() {
+    autoSync = (newProps) => {
         let that = this;
+        newProps = newProps || {};
+        if(that.oldProps && (newProps.onChair === that.oldProps.onChair)) return;
+        that.oldProps = newProps;
+
         let storePage = global.$store('OJlist', 'page');
-        if(that.props.wdPath) {
-            global.$wd.sync().ref(`${that.props.wdPath}/page`).on('value', (shot) => {
+        if(that.props.wdPath && !that.props.onChair) {
+            let ref = global.$wd.sync().ref(`${that.props.wdPath}/page`);
+            that.wdRefArr.push(ref);
+            ref.off();
+            ref.on('value', (shot) => {
                 let page = shot ? shot.val() : (storePage || 0);
-                that.setState({ page: page });
+                that.setState({ page: page, pageIpt: page });
                 this.getOJList();
             });
         } else {
             let page = that.props.page || storePage || 0;
-            that.setState({ page: page });
+            that.setState({ page: page, pageIpt: page });
             this.getOJList();
         }
     };
 
-    componentWillUnmount = async function() {};
+    componentWillUnmount = async function() {
+        this.wdRefArr.forEach((item, n) => {
+            item.off();
+        });
+    };
 
     getOJList = async function(page, searchStr) {
         let that = this;
         page = page === undefined ? that.state.page : page;
-        that.updateSync();
+        that.updateSync(page);
 
         let api = 'http://oj.xmgc360.com/problem/lists';
         let opt = searchStr ? { search: searchStr } : { page: page };
@@ -124,10 +148,10 @@ class com extends Component {
             .end((err, res) => {
                 if(!err && res.text) {
                     let obj = JSON.parse(res.text);
-                    console.log('>getOJList', page, searchStr, obj);
                     if(obj.code === 1) {
                         let data = obj.data;
                         that.setState(!searchStr ? { data: data } : { searchData: data });
+                        that.setState({ pageIpt: page, page: page });
                     } else {
                         global.$snackbar.fn.show(`获取题目失败:${obj.text}`);
                     };
@@ -176,13 +200,15 @@ class com extends Component {
     };
     //页面跳转
     goPage = () => {
-        this.getOJList(this.state.page || 0);
+        this.getOJList(this.state.pageIpt || 0);
     };
     //同步存储page页码
-    updateSync = () => {
+    updateSync = (page) => {
         let that = this;
+        if(!that.props.onChair) return;
         if(!that.props.wdPath) return;
-        global.$wd.sync().ref(`${that.props.wdPath}`).update({ page: that.state.page });
+        global.$wd.sync().ref(`${that.props.wdPath}`).update({ page: page });
+        global.$wd.sync().ref(`icoder/${that.props.roomId}`).update({ OJpage: 'list' });
     };
 
 
@@ -211,7 +237,7 @@ class com extends Component {
 
         //分页符
         let pageCount = data ? Math.ceil(data.pages / 50) : 0;
-        let pageNavGrp = h('div', {
+        let pageNavGrp = that.props.onChair ? h('div', {
             className: css.pageNavGrp,
         }, [
             h(Button, {
@@ -221,17 +247,17 @@ class com extends Component {
                 onClick: () => { that.prevPage() },
             }, h(FontA, { name: 'caret-left' })),
             h('input', {
+                value: that.state.pageIpt,
                 className: css.pageIpt,
-                value: that.state.page + 1,
                 onChange: (e) => {
-                    var page = Math.floor(e.target.value);
-                    that.setState({
-                        page: page,
-                    });
-                    global.$store('OJlist', 'page', page);
+                    var pageIpt = Math.floor(e.target.value);
+                    that.setState({ pageIpt: pageIpt });
                 },
-                onBlur: (event) => {
-                    that.goPage();
+                onKeyDown: (e) => {
+                    if(e.keyCode === 13) {
+                        global.$store('OJlist', 'page', that.state.pageIpt);
+                        that.goPage();
+                    }
                 },
             }),
             h(Button, {
@@ -240,7 +266,7 @@ class com extends Component {
                 color: 'primary',
                 onClick: () => { that.nextPage() },
             }, h(FontA, { name: 'caret-right' })),
-        ])
+        ]) : null;
 
 
         return h('div', {
