@@ -1,8 +1,9 @@
 /*
-动态元件，单个OJ题目的详情
+动态元件，单个OJ题目的详情，id优先从wdPath读取
 props:{
     code,外部传来的代码
     id,题目的id
+    wdPath,同步的路径
     back(),返回函数
 }
 */
@@ -76,9 +77,18 @@ class com extends Component {
 
     componentDidMount = async function() {
         let that = this;
-        let id = that.props.id || global.$store('OJdetails', 'id') || 0
-        that.setState({ id: id });
-        this.getOJdetails();
+        if(that.props.wdPath) {
+            global.$wd.sync().ref(`${that.props.wdPath}/id`).on('value', (shot) => {
+                let id = shot ? shot.val() : null;
+                if(!id) return;
+                that.setState({ id: id });
+                this.getOJdetails();
+            });
+        } else {
+            let id = that.props.id || global.$store('OJdetails', 'id') || 0
+            that.setState({ id: id });
+            this.getOJdetails();
+        };
     };
 
     componentWillUnmount = async function() {

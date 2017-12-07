@@ -2,6 +2,7 @@
 共用编辑器界面，代码、设置、动作都指向同一个路径
 props:{
     wdRef,同步设置的路径,未指定路径时候整个编辑器禁用
+    roomId,聊天室同步id，可以包含在wdRef中，这里只是方便使用
     onChair,是否主持当前代码编写
 }
 */
@@ -99,16 +100,24 @@ class com extends Component {
 
     onChair = false;
 
-    //切换到显示详细信息页面
+    //切换到显示详细信息页面，同步到ioj
     showOJdetails = (id) => {
         let that = this;
         that.setState({ OJid: id });
         that.setState({ OJpage: 'details' });
+        if(that.props.roomId) {
+            global.$wd.sync().ref(`${that.props.wdRef}/OJpage`).update('details');
+            global.$wd.sync().ref(`ioj/${that.props.wdRef}/details/id`).update(id);
+        }
     };
 
-    //显示到OJ列表
+    //显示到OJ列表，page页码会由list内部自动同步到ioj
     showOJlist = () => {
+        let that = this;
         this.setState({ OJpage: 'list' });
+        if(that.props.roomId) {
+            global.$wd.sync().ref(`${that.props.wdRef}/OJpage`).update('list');
+        }
     };
 
     //渲染实现
@@ -148,8 +157,10 @@ class com extends Component {
             }, [
                 that.state.OJpage === 'list' ? h(OJlist, {
                     showDetails: that.showOJdetails,
+                    wdPath: `ioj/${that.props.roomId}`,
                 }) : null,
                 that.state.OJpage === 'details' ? h(OJdetails, {
+                    wdPath: `ioj/${that.props.roomId}`,
                     id: that.state.OJid,
                     code: that.state.value,
                     back: that.showOJlist,

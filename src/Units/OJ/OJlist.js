@@ -1,6 +1,8 @@
 /*
 动态固定元件，OJ题目列表
 props:{
+    page,当前页码
+    wdPath,如果有那么自动从这里读取页码
     showDetails(item),显示OJ详情的方法
 }
 */
@@ -90,11 +92,21 @@ class com extends Component {
         page: 0,
     };
 
+    //优先从wdPath读取-props读取-store读取
     componentDidMount = async function() {
         let that = this;
-        let page = global.$store('OJlist', 'page') || 0;
-        that.setState({ page: page });
-        this.getOJList();
+        let storePage = global.$store('OJlist', 'page');
+        if(that.props.wdPath) {
+            global.$wd.sync().ref(`${that.props.wdPath}/page`).on('value', (shot) => {
+                let page = shot ? shot.val() : (storePage || 0);
+                that.setState({ page: page });
+                this.getOJList();
+            });
+        } else {
+            let page = that.props.page || storePage || 0;
+            that.setState({ page: page });
+            this.getOJList();
+        }
     };
 
     componentWillUnmount = async function() {};
@@ -102,6 +114,8 @@ class com extends Component {
     getOJList = async function(page, searchStr) {
         let that = this;
         page = page === undefined ? that.state.page : page;
+        that.updateSync();
+
         let api = 'http://oj.xmgc360.com/problem/lists';
         let opt = searchStr ? { search: searchStr } : { page: page };
         Request.post(api)
@@ -113,7 +127,7 @@ class com extends Component {
                     console.log('>getOJList', page, searchStr, obj);
                     if(obj.code === 1) {
                         let data = obj.data;
-                        that.setState(searchStr ? { data: data } : { searchData: data });
+                        that.setState(!searchStr ? { data: data } : { searchData: data });
                     } else {
                         global.$snackbar.fn.show(`获取题目失败:${obj.text}`);
                     };
@@ -164,6 +178,13 @@ class com extends Component {
     goPage = () => {
         this.getOJList(this.state.page || 0);
     };
+    //同步存储page页码
+    updateSync = () => {
+        let that = this;
+        if(!that.props.wdPath) return;
+        global.$wd.sync().ref(`${that.props.wdPath}`).update({ page: that.state.page });
+    };
+
 
     render() {
         let that = this;
@@ -245,7 +266,7 @@ class com extends Component {
                 that.state.searchData ? h(Button, {
                     color: 'primary',
                     className: css.searchBtn,
-                    onClick: () => { that.clearSeach() },
+                    onClick: () => { that.clearSearch() },
                 }, '返回列表') : null,
             ]),
             pageCount > 1 ? pageNavGrp : null,

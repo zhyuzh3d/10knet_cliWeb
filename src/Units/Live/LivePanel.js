@@ -667,6 +667,7 @@ class com extends Component {
                 liveBoard = h(LiveCoder, {
                     onChair: onChair,
                     wdRef: roomId ? `icoder/${roomId}` : undefined,
+                    roomId: roomId,
                 });
             } else if(type === 'viewer') {
                 liveBoard = h(LiveViewer, {
