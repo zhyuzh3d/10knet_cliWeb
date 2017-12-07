@@ -113,7 +113,6 @@ class com extends Component {
         let that = this;
         if(that.state.roomId !== newProps.roomId) { //换房间
             that.state.roomId = newProps.roomId;
-            console.log('start sync', that.state.page, newProps);
             if(newProps.onChair) {
                 that.updateSync(that.state.page, newProps); //主持人更新数据库同步其他用户
             } else {

@@ -83,7 +83,7 @@ class com extends Component {
             let oldRef = global.$wd.sync().ref(`${that.oldProps.roomId}`);
             oldRef.off();
             //开启新的监听
-            that.startSync();
+            that.startSync(newProps);
         };
     };
 
@@ -92,23 +92,26 @@ class com extends Component {
     };
 
     //开始同步代码，同步oj页面类型
-    startSync = () => {
+    startSync = (props) => {
         let that = this;
-        if(!that.props.wdRef) return;
-        let ref = global.$wd.sync().ref(`${that.props.wdRef}`);
+        props = props || that.props;
+        if(!props.wdRef) return;
+        let ref = global.$wd.sync().ref(`${props.wdRef}`);
         that.wdRefArr.push(ref);
         ref.on('value', (shot) => {
             let data = shot.val();
             let value = data ? data.value : null;
             let sel = data ? data.sel : null;
 
-            let OJpage = data ? data.OJpage : null;
-            if(that.props.onChair) OJpage = that.state.OJpage; //主持人不变OJpage
+            let OJpage = data ? data.OJpage : 'list';
+            if(!props.onChair || !props.roomId) {
+                that.setState({ OJpage: OJpage });
+            };
 
             if(that.state.editorPublic) {
-                that.state.editorPublic.setValue(value || '');
-                that.setState({ value: value, OJpage: OJpage });
                 let selObj = sel ? JSON.parse(sel) : {};
+                that.setState({ value: value });
+                that.state.editorPublic.setValue(value || '');
                 that.state.editorPublic.setSelection(selObj || {});
             }
         });
