@@ -281,13 +281,13 @@ class com extends Component {
                     dangerouslySetInnerHTML: { __html: data.description || '...' },
                 }),
             ]) : null,
-            data ? h('div', {
+            data && data.time_limit ? h('div', {
                 className: css.itemBox,
             }, [
                 h('div', { className: css.tip }, `时间限定:[ ${data.time_limit} ]`),
                 h('div', { className: css.tip }, `内存限定:[ ${data.memory_limit} ]`),
             ]) : null,
-            that.props.onChair ? h('div', {
+            h('div', {
                 style: { margin: 16 },
             }, [
                 h(Button, {
@@ -301,15 +301,15 @@ class com extends Component {
                     color: 'primary',
                     onClick: () => { that.cancelJudge(true) },
                 }, '取消') : null,
-            ]) : null,
-            that.state.result ? h('div', {
+            ]): null,
+            result ? h('div', {
                 className: css.itemBox,
             }, [
-                h('div', { className: css.res }, `判题状态:[ ${that.state.result.state} ]`),
+                h('div', { className: css.res }, '判题状态:' + that.state.result.state),
                 h('div', {
                     className: css.res,
-                    style: { color: result.result_text === 'Accepted' ? '#00a371' : '#888' }
-                }, `判题结果:[ ${result.result_text||"..."} ]`),
+                    style: { color: result.result_text === 'Accepted' ? '#00a371' : '#888' },
+                }, '判题结果:' + (result.result_text || "...")),
             ]) : null,
             h('div', { style: { height: 200 } }),
         ]);
