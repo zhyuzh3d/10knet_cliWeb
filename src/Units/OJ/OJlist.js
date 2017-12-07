@@ -105,7 +105,7 @@ class com extends Component {
         this.autoSync(newProps);
     };
 
-    //优先从wdPath读取-props读取-store读取
+    //优先从wdPath读取-props读取-store读取，不同步search结果
     autoSync = (newProps) => {
         let that = this;
         newProps = newProps || {};
@@ -114,18 +114,19 @@ class com extends Component {
 
         let storePage = global.$store('OJlist', 'page');
         if(that.props.wdPath && !that.props.onChair) {
-            let ref = global.$wd.sync().ref(`${that.props.wdPath}/page`);
+            let ref = global.$wd.sync().ref(`${that.props.wdPath}`);
             that.wdRefArr.push(ref);
             ref.off();
             ref.on('value', (shot) => {
-                let page = shot ? shot.val() : (storePage || 0);
+                let data = shot.val() || {};
+                let page = data.page ? data.page : (storePage || 0);
                 that.setState({ page: page, pageIpt: page });
-                this.getOJList();
+                this.getOJList(page);
             });
         } else {
             let page = that.props.page || storePage || 0;
             that.setState({ page: page, pageIpt: page });
-            this.getOJList();
+            this.getOJList(page);
         }
     };
 
@@ -138,7 +139,7 @@ class com extends Component {
     getOJList = async function(page, searchStr) {
         let that = this;
         page = page === undefined ? that.state.page : page;
-        that.updateSync(page);
+        that.updateSync(page, searchStr);
 
         let api = 'http://oj.xmgc360.com/problem/lists';
         let opt = searchStr ? { search: searchStr } : { page: page };
@@ -203,14 +204,13 @@ class com extends Component {
         this.getOJList(this.state.pageIpt || 0);
     };
     //同步存储page页码
-    updateSync = (page) => {
+    updateSync = (page, searchStr) => {
         let that = this;
         if(!that.props.onChair) return;
         if(!that.props.wdPath) return;
         global.$wd.sync().ref(`${that.props.wdPath}`).update({ page: page });
         global.$wd.sync().ref(`icoder/${that.props.roomId}`).update({ OJpage: 'list' });
     };
-
 
     render() {
         let that = this;
@@ -237,7 +237,7 @@ class com extends Component {
 
         //分页符
         let pageCount = data ? Math.ceil(data.pages / 50) : 0;
-        let pageNavGrp = that.props.onChair ? h('div', {
+        let pageNavGrp = h('div', {
             className: css.pageNavGrp,
         }, [
             h(Button, {
@@ -245,6 +245,7 @@ class com extends Component {
                 raised: true,
                 color: 'primary',
                 onClick: () => { that.prevPage() },
+                disabled: !that.props.onChair,
             }, h(FontA, { name: 'caret-left' })),
             h('input', {
                 value: that.state.pageIpt,
@@ -259,14 +260,16 @@ class com extends Component {
                         that.goPage();
                     }
                 },
+                disabled: !that.props.onChair,
             }),
             h(Button, {
                 className: css.pageBtn,
                 raised: true,
                 color: 'primary',
                 onClick: () => { that.nextPage() },
+                disabled: !that.props.onChair,
             }, h(FontA, { name: 'caret-right' })),
-        ]) : null;
+        ]);
 
 
         return h('div', {
@@ -277,12 +280,14 @@ class com extends Component {
             }, [
                 h('input', {
                     className: css.searchIpt,
+                    disabled: !that.props.onChair,
                     ref: (searchIpt) => { this.searchIpt = searchIpt },
                 }),
                 h(Button, {
                     color: 'primary',
                     className: css.searchBtn,
                     onClick: () => { that.doSearch() },
+                    disabled: !that.props.onChair,
                 }, h(FontA, { name: 'search' })),
             ]),
             h('div', {

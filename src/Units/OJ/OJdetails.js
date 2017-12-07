@@ -240,13 +240,11 @@ class com extends Component {
 
 
     //取消当前的判题,停止轮询,重置结果
-    cancelJudge = () => {
+    cancelJudge = (reset) => {
         let that = this;
         that.judgeTmr && clearInterval(that.judgeTmr);
-        that.setState({
-            judging: false,
-            result: null,
-        });
+        that.setState({ judging: false });
+        if(reset) that.setState({ result: null });
     };
 
     render() {
@@ -262,6 +260,7 @@ class com extends Component {
             h(Button, {
                 color: 'primary',
                 style: { marginTop: 12 },
+                disabled: !that.props.onChair,
                 onClick: () => {
                     that.props.back && that.props.back();
                 },
@@ -297,10 +296,10 @@ class com extends Component {
                     onClick: () => { that.startJudge() },
                     disabled: that.state.judging,
                 }, '开始判题'),
-                !that.state.judging ? h(Button, {
+                that.state.judging ? h(Button, {
                     style: { marginLeft: 16 },
                     color: 'primary',
-                    onClick: () => { that.cancelJudge() },
+                    onClick: () => { that.cancelJudge(true) },
                 }, '取消') : null,
             ]) : null,
             that.state.result ? h('div', {
