@@ -58,6 +58,7 @@ class com extends Component {
         OJpage: 'list', //显示OJ的页面
         OJid: null, //OJ详细页面的ID，
         lastOJpage: 'list', //上一个OJ页面，用于开关按钮恢复
+        showOJ: true,
     };
 
     wdRefArr = [];
@@ -90,7 +91,11 @@ class com extends Component {
             if(!newProps.onChair && newProps.roomId) {
                 that.startSync(newProps); //开启新的监听
             } else {
-                that.stopSync();
+                //理解把代码推送到同步数据库
+                let value = that.state.value || '';
+                global.$wd.sync().ref(`${newProps.wdRef}/value`).set(value);
+                global.$wd.sync().ref(`${newProps.wdRef}/showOJ`).set(that.state.showOJ);
+                that.stopSync(); //停止同步
             }
         };
     };
@@ -103,6 +108,7 @@ class com extends Component {
     startSync = (props) => {
         let that = this;
         props = props || that.props;
+
         if(!props.wdRef) return;
         let ref = global.$wd.sync().ref(`${props.wdRef}`);
         that.wdRefArr.push(ref);
@@ -112,8 +118,10 @@ class com extends Component {
             let sel = data ? data.sel : null;
 
             let OJpage = data ? data.OJpage : 'list';
+            let showOJ = data ? data.showOJ : true;
             if(!props.onChair || !props.roomId) {
                 that.setState({ OJpage: OJpage });
+                that.setState({ showOJ: showOJ });
             };
 
             if(that.state.editorPublic) {
@@ -171,6 +179,17 @@ class com extends Component {
         }
     };
 
+    //主持人打开和关闭OJ部分,同步控制访客
+    toggleOJ = () => {
+        let that = this;
+        let showOJ = that.state.showOJ === undefined ? true : that.state.showOJ;
+        showOJ = !showOJ;
+        that.setState({ showOJ: showOJ });
+        if(that.props.roomId) {
+            global.$wd.sync().ref(`${that.props.wdRef}/showOJ`).set(showOJ);
+        }
+    };
+
 
     //渲染实现
     render() {
@@ -185,7 +204,7 @@ class com extends Component {
             h('div', {
                 className: css.coderBox,
                 style: {
-                    width: that.state.showOJ ? '100%' : '40%',
+                    width: that.state.showOJ ? '40%' : '100%',
                 },
             }, h(MyCoder, {
                 fontSize: 16,
@@ -200,7 +219,7 @@ class com extends Component {
             h('div', {
                 className: css.OJbox,
                 style: {
-                    display: that.state.showOJ ? 'none' : 'block',
+                    display: that.state.showOJ ? 'block' : 'none',
                 },
             }, [
                 that.state.OJpage !== 'details' ? h(OJlist, {
@@ -222,7 +241,7 @@ class com extends Component {
                 className: css.OJbtn,
                 raised: true,
                 color: 'default',
-                onClick: () => { that.setState({ showOJ: !that.state.showOJ }) },
+                onClick: () => { that.toggleOJ() },
             }, h(FontA, {
                 name: that.state.showOJ ? 'close' : 'balance-scale'
             })) : null,
