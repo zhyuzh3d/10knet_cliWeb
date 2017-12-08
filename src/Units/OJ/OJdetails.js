@@ -74,40 +74,59 @@ class com extends Component {
         data: null,
         result: null, //判题结果
         judging: false, //正在判题，冻结判题按钮
+        id: null, //题目的id
     };
 
     wdRefArr = [];
     oldProps = {};
     componentDidMount = () => {
-        this.autoSync();
+        let that = this;
+        if(!that.props.onChair && that.props.roomId) { //进入房间且非主持人
+            this.startGuestSync();
+        } else {
+            let id = global.$store('OJdetails', 'id');
+            that.setState({ id: id });
+            this.getOJdetails();
+        }
     };
 
     componentWillReceiveProps = (newProps) => {
-        this.autoSync(newProps);
+        let that = this;
+        let changeRoom = newProps.roomId !== that.oldProps.roomId; //换房间
+        let changeChair = newProps.onChair !== that.oldProps.onChair; //换主持
+        if(changeRoom || changeChair) {
+            that.oldProps.roomId = newProps.roomId;
+            that.oldProps.onChair = newProps.onChair;
+            let oldRef = global.$wd.sync().ref(`${that.oldProps.wdPath}`);
+            oldRef.off(); //停止旧的监听
+            if(!that.props.onChair) {
+                that.startGuestSync(newProps); //开启新的监听
+            };
+        };
     };
 
-    autoSync = (newProps) => {
+    //访客同步开始,同步id和判题状态
+    startGuestSync = (props) => {
         let that = this;
-        newProps = newProps || {};
+        props = props || that.props;
+        if(!props || !props.wdPath || props.onChair) return;
+        let ref = global.$wd.sync().ref(`${props.wdPath}`);
+        that.wdRefArr.push(ref);
+        ref.off();
+        ref.on('value', (shot) => {
+            let data = shot ? shot.val() : null;
+            let id = data ? data.id : null;
+            if(!id) return;
 
-        if(newProps.onChair === that.oldProps.onChair) return;
-        that.oldProps = newProps;
-
-        if(that.props.wdPath && !that.props.onChair) {
-            let ref = global.$wd.sync().ref(`${that.props.wdPath}/id`);
-            that.wdRefArr.push(ref);
-            ref.off();
-            ref.on('value', (shot) => {
-                let id = shot ? shot.val() : null;
-                if(!id) return;
-                that.setState({ id: id });
-                this.getOJdetails(id);
+            let judging = data ? data.judging : null;
+            let result = data ? data.result : null;
+            that.setState({
+                id: id,
+                judging: judging,
+                result: result,
             });
-        } else {
-            let id = that.props.id || global.$store('OJdetails', 'id') || 0
-            that.setState({ id: id });
-            this.getOJdetails();
-        };
+            this.getOJdetails(id);
+        });
     };
 
     componentWillUnmount = async function() {
@@ -196,10 +215,18 @@ class com extends Component {
                         that.judgeTmr = setInterval(() => {
                             that.getResult(sid);
                         }, 3000);
+
+                        if(that.props.roomId && that.props.onChair) { //更新状态到数据库
+                            let ref = global.$wd.sync().ref(`${that.props.wdPath}`);
+                            ref.update({
+                                state: '排队中...',
+                                judging: true,
+                                result: false,
+                            });
+                        };
                     } else {
                         global.$snackbar.fn.show(`提交判题请求失败:${data.text}`);
                     };
-
                 } else {
                     global.$snackbar.fn.show(`提交判题失败:${err}`);
                 };
@@ -225,7 +252,11 @@ class com extends Component {
                         that.setState({ result: result }); //更新判题状态
                         if(result && result.state === 'finished') {
                             that.cancelJudge();
-                        }
+                        };
+                        if(result && that.props.roomId && that.props.onChair) { //更新状态到数据库
+                            let ref = global.$wd.sync().ref(`${that.props.wdPath}/result`);
+                            ref.update(result);
+                        };
                     } else {
                         global.$snackbar.fn.show(`判题处理错误:${data.text}`);
                     };
@@ -294,11 +325,12 @@ class com extends Component {
                     color: 'primary',
                     raised: true,
                     onClick: () => { that.startJudge() },
-                    disabled: that.state.judging,
+                    disabled: that.state.judging || (!that.props.onChair && that.props.roomId),
                 }, '开始判题'),
                 that.state.judging ? h(Button, {
                     style: { marginLeft: 16 },
                     color: 'primary',
+                    disabled: !that.props.onChair && that.props.roomId,
                     onClick: () => { that.cancelJudge(true) },
                 }, '取消') : null,
             ]): null,

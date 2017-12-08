@@ -129,14 +129,14 @@ class com extends Component {
         if(!props.wdPath) return;
 
         global.$store('OJlist', 'page', page);
-        global.$wd.sync().ref(`${props.wdPath}`).update({ page: page });
+        global.$wd.sync().ref(`${props.wdPath}`).update({ page: page || '' });
         global.$wd.sync().ref(`icoder/${props.roomId}`).update({ OJpage: 'list' });
     };
 
     //被动客人同步数据
     startGuestSync = (newProps) => {
         let that = this;
-        if(!newProps.wdPath || !newProps.roomId) return;
+        if(!newProps || !newProps.wdPath || !newProps.roomId) return;
         let ref = global.$wd.sync().ref(`${newProps.wdPath}`);
         that.wdRefArr.push(ref);
         ref.off();
@@ -238,6 +238,7 @@ class com extends Component {
                     onClick: () => {
                         that.showDetails(item);
                     },
+                    disabled: !that.props.onChair || that.props.roomId,
                 }, [
                    h('span', { className: css.index }, `${index+1}.`),
                    h('span', { className: css.origin }, `[${item.origin_oj}]`),

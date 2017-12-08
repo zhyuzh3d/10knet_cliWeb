@@ -76,14 +76,12 @@ class com extends Component {
     componentWillReceiveProps = (newProps) => {
         let that = this;
         newProps = newProps || {};
-        let sameRoom = newProps.roomId !== that.oldProps.roomId; //换房间
-        let sameChair = newProps.onChair !== that.oldProps.onChair; //换主持
-        if(sameRoom || sameChair) {
-            //停止旧的监听
-            let oldRef = global.$wd.sync().ref(`${that.oldProps.roomId}`);
-            oldRef.off();
-            //开启新的监听
-            that.startSync(newProps);
+        let changeRoom = newProps.roomId !== that.oldProps.roomId; //换房间
+        let changeChair = newProps.onChair !== that.oldProps.onChair; //换主持
+        if(changeRoom || changeChair) {
+            let oldRef = global.$wd.sync().ref(`${that.oldProps.wdRef}`);
+            oldRef.off(); //停止旧的监听
+            that.startSync(newProps); //开启新的监听
         };
     };
 
