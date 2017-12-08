@@ -50,6 +50,7 @@ class com extends Component {
         browser: null, //由LiveBrowser设定的webview对象
         browserCanBack: false, //浏览器是否可以后退
         browserCanForward: false, //浏览器是否可以前进
+        showOJ: true, //coder的OJ开关状态
     };
 
     //初始化邀请提示
@@ -495,6 +496,21 @@ class com extends Component {
         }
     };
 
+    //开关OJ面板
+    toggleOJ = () => {
+        let that = this;
+        let showOJ = that.liveCoderPub.toggleOJ ? that.liveCoderPub.toggleOJ() : false;
+        console.log('>>>', showOJ);
+        that.setState({ showOJ: showOJ });
+    };
+
+    //传递到coder内的函数
+    setShowOJ = (toggle) => {
+        this.setState({ showOJ: toggle });
+    };
+
+    //编码元件输出的命令,获取toggleOJ方法
+    liveCoderPub = {};
 
     render() {
         let that = this;
@@ -624,6 +640,16 @@ class com extends Component {
             disabled: !onChair,
         }, h(FontA, { name: 'code' }))));
 
+        //使用OJ模块按钮
+        let coderOJBtn = h(Tooltip, { title: '开关解题面板' }, h('div', {}, h(Button, {
+            className: css.btn,
+            style: {
+                color: that.state.showOJ ? '#f50057' : '#AAA',
+            },
+            onClick: () => { that.toggleOJ() },
+            disabled: !onChair && roomInfo,
+        }, h(FontA, { name: 'balance-scale' }))));
+
         //使用PPT演示模块按钮
         let liveSliderBtn = h(Tooltip, { title: '实时演示' }, h('div', {}, h(Button, {
             className: css.btn,
@@ -661,6 +687,8 @@ class com extends Component {
             liveBoard = h(LiveCoder, {
                 onChair: onChair,
                 wdRef: roomId ? `icoder/${roomId}` : undefined,
+                public: that.liveCoderPub,
+                setShowOJ: that.setShowOJ,
                 roomId: roomId,
             });
         } else if(type === 'slider' && roomId) {
@@ -724,6 +752,7 @@ class com extends Component {
                 roomInfo ? liveChatBtn : null,
                 onChair ? barDivider : null,
                 onChair || !roomInfo ? liveCodeBtn : null,
+                (onChair || !roomInfo) && that.state.boardType === 'coder' ? coderOJBtn : null,
                 onChair ? liveSliderBtn : null,
                 onChair ? liveViewerBtn : null,
                 onChair ? barDivider : null,

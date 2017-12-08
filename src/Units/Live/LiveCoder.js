@@ -4,6 +4,8 @@ props:{
     wdRef,同步设置的路径,未指定路径时候整个编辑器禁用
     roomId,聊天室同步id，可以包含在wdRef中，这里只是方便使用
     onChair,是否主持当前代码编写
+    public:{toggleOJ(),},输出控制OJ开关的函数
+    setShowOJ(bool),设置外面的showOJ状态
 }
 */
 
@@ -65,11 +67,15 @@ class com extends Component {
     componentWillMount = async function() {};
 
     componentDidMount = async function() {
+        if(this.props.public) {
+            this.props.public.toggleOJ = this.toggleOJ;
+        }
         if(!this.props.onChair) {
             this.startSync();
         } else {
             this.stopSync();
         }
+        this.setShowOJ && this.setShowOJ(this.state.showOJ);
     };
 
     //切换onChair的时候调整
@@ -81,7 +87,7 @@ class com extends Component {
         let changeChair = newProps.onChair !== that.oldProps.onChair; //换主持
         if(changeRoom || changeChair) {
             if(that.oldProps.wdRef) { //停止旧的监听
-                global.$wd.sync().ref(`${that.oldProps.wdRef}`).off();
+                global.$wd.sync().ref(that.oldProps.wdRef).off();
             };
             that.oldProps = newProps ? { //更新oldProps
                 roomId: newProps.roomId,
@@ -110,7 +116,7 @@ class com extends Component {
         props = props || that.props;
 
         if(!props.wdRef) return;
-        let ref = global.$wd.sync().ref(`${props.wdRef}`);
+        let ref = global.$wd.sync().ref(props.wdRef);
         that.wdRefArr.push(ref);
         ref.on('value', (shot) => {
             let data = shot.val();
@@ -122,6 +128,7 @@ class com extends Component {
             if(!props.onChair || !props.roomId) {
                 that.setState({ OJpage: OJpage });
                 that.setState({ showOJ: showOJ });
+                that.setShowOJ && that.setShowOJ(showOJ);
             };
 
             if(that.state.editorPublic) {
@@ -131,7 +138,7 @@ class com extends Component {
                 that.state.editorPublic.setSelection(selObj || {});
             }
         });
-    }
+    };
 
     //停止同步代码
     stopSync = () => {
@@ -187,7 +194,8 @@ class com extends Component {
         that.setState({ showOJ: showOJ });
         if(that.props.roomId) {
             global.$wd.sync().ref(`${that.props.wdRef}/showOJ`).set(showOJ);
-        }
+        };
+        return showOJ;
     };
 
 
@@ -237,7 +245,7 @@ class com extends Component {
                     roomId: roomId,
                 }) : null,
             ]): null,
-            that.props.onChair || !roomId ? h(Button, {
+            false && that.props.onChair || !roomId ? h(Button, {
                 className: css.OJbtn,
                 raised: true,
                 color: 'default',
