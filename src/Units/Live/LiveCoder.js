@@ -79,9 +79,19 @@ class com extends Component {
         let changeRoom = newProps.roomId !== that.oldProps.roomId; //换房间
         let changeChair = newProps.onChair !== that.oldProps.onChair; //换主持
         if(changeRoom || changeChair) {
-            let oldRef = global.$wd.sync().ref(`${that.oldProps.wdRef}`);
-            oldRef.off(); //停止旧的监听
-            that.startSync(newProps); //开启新的监听
+            if(that.oldProps.wdRef) { //停止旧的监听
+                global.$wd.sync().ref(`${that.oldProps.wdRef}`).off();
+            };
+            that.oldProps = newProps ? { //更新oldProps
+                roomId: newProps.roomId,
+                onChair: newProps.onChair,
+            } : {};
+
+            if(!newProps.onChair && newProps.roomId) {
+                that.startSync(newProps); //开启新的监听
+            } else {
+                that.stopSync();
+            }
         };
     };
 
@@ -124,17 +134,18 @@ class com extends Component {
     //代码变化回调函数，没进房间直接设置value，其他同步到野狗数据库
     onChange = (editor, metadata, value) => {
         let that = this;
-        if(!that.props.roomId) {
+        if(!that.props.roomId || !that.onChair) {
             that.setState({ value: value });
         };
-        if(!that.props.onChair) return;
-        global.$wd.sync().ref(`${that.props.wdRef}/value`).set(value);
+        if(that.props.onChair) {
+            global.$wd.sync().ref(`${that.props.wdRef}/value`).set(value);
+        }
     }
 
     //选择变化回调函数，同步到野狗数据库，不叠加保存
     onSelection = (editor, data) => {
         let that = this;
-        if(!that.props.wdRef || !that.props.onChair) return;
+        if(!that.props.roomId || !that.props.wdRef || !that.props.onChair) return;
         global.$wd.sync().ref(`${that.props.wdRef}/sel`).set(JSON.stringify(data));
     }
 
@@ -165,17 +176,6 @@ class com extends Component {
     render() {
         let that = this;
         const css = that.props.classes;
-
-        //如果主持身份发生变化，那么启动或者暂停代码同步
-        if(that.onChair !== that.props.onChair) {
-            if(that.props.onChair) {
-                that.stopSync();
-            } else {
-                that.stopSync();
-                that.startSync();
-            }
-        };
-        that.onChair = that.props.onChair;
         let roomId = that.props.roomId;
 
         return h(Grid, {

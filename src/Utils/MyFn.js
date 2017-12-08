@@ -26,6 +26,7 @@ const sortObjByKey = (obj, key) => {
     return arr;
 }
 
+
 //把字符串变为dom
 var str2dom = function(html) {
     var wrapMap = {

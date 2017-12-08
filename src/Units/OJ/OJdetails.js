@@ -14,6 +14,8 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
+import compare from 'just-compare';
+
 import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
@@ -78,18 +80,17 @@ class com extends Component {
     };
 
     wdRefArr = [];
-    oldProps = {};
     componentDidMount = () => {
         let that = this;
         if(!that.props.onChair && that.props.roomId) { //进入房间且非主持人
             this.startGuestSync();
         } else {
             let id = global.$store('OJdetails', 'id');
-            that.setState({ id: id });
             this.getOJdetails();
         }
     };
 
+    oldProps = {};
     componentWillReceiveProps = (newProps) => {
         let that = this;
         let changeRoom = newProps.roomId !== that.oldProps.roomId; //换房间
@@ -109,6 +110,7 @@ class com extends Component {
     startGuestSync = (props) => {
         let that = this;
         props = props || that.props;
+
         if(!props || !props.wdPath || props.onChair) return;
         let ref = global.$wd.sync().ref(`${props.wdPath}`);
         that.wdRefArr.push(ref);
@@ -116,16 +118,18 @@ class com extends Component {
         ref.on('value', (shot) => {
             let data = shot ? shot.val() : null;
             let id = data ? data.id : null;
+
             if(!id) return;
+            if(id !== that.state.id) {
+                that.setState({ id: id });
+                this.getOJdetails(id);
+            };
 
             let judging = data ? data.judging : null;
+            if(judging !== that.state.judging) that.setState({ judging: judging });
+
             let result = data ? data.result : null;
-            that.setState({
-                id: id,
-                judging: judging,
-                result: result,
-            });
-            this.getOJdetails(id);
+            if(!compare(that.state.result, result)) that.setState({ result: result });
         });
     };
 
@@ -134,10 +138,13 @@ class com extends Component {
         this.wdRefArr.forEach((item, n) => {
             item.off();
         });
+        this.resetSyncResult();
     };
 
     getOJdetails = async function(id) {
         let that = this;
+        id = id || that.props.id;
+        that.setState({ id: id });
 
         let api = `http://oj.xmgc360.com/problem/detail`;
         Request.post(api)
@@ -146,7 +153,6 @@ class com extends Component {
             .end((err, res) => {
                 if(!err) {
                     let data = JSON.parse(res.text);
-                    console.log('>OJdetails', data);
                     if(data && data.code === 1) {
                         that.setState({ data: data.data });
                         that.updateId();
@@ -167,6 +173,16 @@ class com extends Component {
         global.$wd.sync().ref(`${that.props.wdPath}`).update({ id: that.props.id });
         global.$wd.sync().ref(`icoder/${that.props.roomId}`).update({ OJpage: 'details' });
     };
+
+    //主持人离开的时候重置判题同步数据
+    resetSyncResult = () => {
+        let that = this;
+        if(!that.props.onChair) return;
+        if(!that.props.wdPath) return;
+        let ref = global.$wd.sync().ref(`${that.props.wdPath}/result`);
+        ref.remove();
+    };
+
 
     //开始判题命令,接收外部传来的代码
     judgeTmr = null;
@@ -197,6 +213,8 @@ class com extends Component {
             language: langId,
             source: code,
         };
+
+        console.log('>>>startJudge payload', payload);
         Request.post(api)
             .send(payload)
             .type('form')
