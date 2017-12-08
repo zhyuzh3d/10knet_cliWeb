@@ -245,7 +245,7 @@ class com extends Component {
                     roomId: roomId,
                 }) : null,
             ]): null,
-            false && that.props.onChair || !roomId ? h(Button, {
+            false && (that.props.onChair || !roomId) ? h(Button, {
                 className: css.OJbtn,
                 raised: true,
                 color: 'default',

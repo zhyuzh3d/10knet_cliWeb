@@ -500,7 +500,6 @@ class com extends Component {
     toggleOJ = () => {
         let that = this;
         let showOJ = that.liveCoderPub.toggleOJ ? that.liveCoderPub.toggleOJ() : false;
-        console.log('>>>', showOJ);
         that.setState({ showOJ: showOJ });
     };
 

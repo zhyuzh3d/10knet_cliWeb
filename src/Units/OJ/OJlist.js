@@ -20,7 +20,7 @@ import FontA from 'react-fa';
 const style = theme => ({
     comBox: {
         width: '100%',
-        background: '#E0E0E0',
+        background: '#F0F0F0',
         height: '100%',
         position: 'absolute',
         right: 0,
