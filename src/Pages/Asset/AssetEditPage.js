@@ -5,6 +5,7 @@ store:{
     basketId,
     assetId,
     appBarTitle: 页面标题,
+    data,预填充{title,url,desc,sliderId,problemId,type,ver}
 }
 */
 import { Component } from 'react';
@@ -75,8 +76,7 @@ class com extends Component {
         asset: null,
         assetId: null,
         title: '新建素材',
-        contentHeight: window.innerHeight - 48,
-        curType: global.$conf.assetTypes.slider,
+        curType: global.$conf.assetTypes.oj,
         sliderPublic: {},
         file: null,
         assetUrl: '', //http开头的完整地址
@@ -87,8 +87,11 @@ class com extends Component {
         baksetArr: null,
         curBasket: null,
         basketLock: false,
+        sliderId: null,
+        problemId: null,
         src: null,
         srcArr: [],
+        contentHeight: window.innerHeight - 48,
     };
 
 
@@ -106,7 +109,7 @@ class com extends Component {
             return;
         };
 
-        if(that.state.curType !== global.$conf.assetTypes.slider && !global.$conf.regx.assetUrl.test(that.state.assetUrl)) {
+        if(that.state.curType !== global.$conf.assetTypes.slider && that.state.curType !== global.$conf.assetTypes.oj && !global.$conf.regx.assetUrl.test(that.state.assetUrl)) {
             global.$alert.fn.show('链接格式错误', '请检查确认以http开头的完整链接');
             return;
         };
@@ -124,11 +127,14 @@ class com extends Component {
             return;
         };
 
+        if(that.state.curType === global.$conf.assetTypes.oj && !that.state.problemId) {
+            global.$alert.fn.show('题目ID不能为空', '请正确输入题目ID');
+            return;
+        };
+
         let curUser = global.$wd.auth().currentUser;
         let userId = curUser.uid;
         let newAsset = {
-            url: that.state.assetUrl,
-            sliderId: that.state.sliderPublic.sliderId,
             title: that.state.assetTitle,
             desc: that.state.assetDesc,
             author: curUser.uid,
@@ -138,6 +144,14 @@ class com extends Component {
             picker: userId,
             ts: global.$wd.sync().ServerValue.TIMESTAMP,
             pos: global.$wd.sync().ServerValue.TIMESTAMP,
+        };
+
+        if(that.state.curType === global.$conf.assetTypes.oj) {
+            newAsset.problemId = that.state.problemId;
+        } else if(that.state.curType === global.$conf.assetTypes.slider) {
+            newAsset.sliderId = that.state.sliderPublic.sliderId;
+        } else {
+            newAsset.url = that.state.assetUrl;
         };
 
 
@@ -215,6 +229,7 @@ class com extends Component {
 
         that.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             let cuser = global.$wd.auth().currentUser;
+            let data = that.props.data;
             if(cuser) {
                 that.setState({
                     hasLogin: true,
@@ -229,6 +244,9 @@ class com extends Component {
                         assetId: assetId,
                         basketId: basketId,
                     });
+                } else { //预填充
+                    const data = global.$store('AssetEditPage', 'data');
+                    if(data) that.setAssetIpt(data);
                 };
             };
         });
@@ -274,12 +292,14 @@ class com extends Component {
     setAssetIpt = (asset) => {
         let that = this;
         that.setState({
-            assetTitle: asset.title || that.state.assetTitle,
-            assetUrl: asset.url || that.state.assetUrl,
-            assetDesc: asset.desc || that.state.assetDesc,
+            assetTitle: asset.title || that.state.assetTitle || '',
+            assetUrl: asset.url || that.state.assetUrl || '',
+            assetDesc: asset.desc || that.state.assetDesc || '',
+            sliderId: asset.sliderId || that.state.sliderId || '',
+            problemId: asset.problemId || that.state.problemId || '',
             curType: global.$conf.assetTypes[asset.type || 'link'],
-            assetVer: asset.ver,
-            file: { name: asset.url },
+            assetVer: asset.ver || '',
+            file: { name: asset.url || '' },
         });
     };
 
@@ -294,8 +314,6 @@ class com extends Component {
             };
         });
     };
-
-
 
 
     //获取用户的所有篮筐信息
@@ -323,7 +341,7 @@ class com extends Component {
 
 
     //显示弹窗添加项目
-    showAdItemDialog = () => {
+    showAddItemDialog = () => {
         let that = this;
         let cuser = global.$wd.auth().currentUser;
         let userId = cuser ? cuser.uid : undefined;
@@ -513,12 +531,12 @@ class com extends Component {
 
                 !that.state.basketLock ? h(Button, {
                     raised: true,
+                    style: { minWidth: 36 },
                     onClick: (evt) => {
-                        that.showAdItemDialog();
+                        that.showAddItemDialog();
                     }
                 }, [
-                    h(FontA, { name: 'shopping-basket', style: { marginRight: 8 } }),
-                    h('span', '新建'),
+                    h(FontA, { name: 'plus' }),
                 ]) : undefined,
 
                 //源下拉
@@ -549,7 +567,7 @@ class com extends Component {
                     label: '链接',
                     placeholder: '粘贴链接',
                     helperText: '请输入完整的http开头的链接地址',
-                    value: that.state.assetUrl,
+                    value: that.state.assetUrl || '',
                     onChange: (e) => { that.setState({ assetUrl: e.target.value }) },
                 }),
             ]) : undefined,
@@ -623,6 +641,18 @@ class com extends Component {
                 }, that.state.assetUrl) : undefined,
             ]) : undefined,
 
+            //OJ题目
+            that.state.curType === AssetTypes.oj ? h(Grid, { item: true, xs: 12 }, [
+                h(TextField, {
+                    className: css.textField,
+                    label: '题目ID',
+                    placeholder: '粘贴ID数字',
+                    helperText: '在题目详情页面顶部标题下面',
+                    value: that.state.problemId || '',
+                    onChange: (e) => { that.setState({ problemId: e.target.value }) },
+                }),
+            ]) : undefined,
+
             //标题
             h(Grid, { item: true, xs: 12 }, [
                 h(TextField, {
@@ -630,7 +660,7 @@ class com extends Component {
                     label: '标题',
                     placeholder: '为您的素材设定标题',
                     helperText: '不超过64个字符',
-                    value: that.state.assetTitle,
+                    value: that.state.assetTitle || '',
                     onChange: (e) => { that.setState({ assetTitle: e.target.value }) },
                 }),
             ]),
@@ -643,7 +673,7 @@ class com extends Component {
                     multiline: true,
                     placeholder: '简单介绍此素材的内容、作用或特征',
                     helperText: '不超过256个字符',
-                    value: that.state.assetDesc,
+                    value: that.state.assetDesc || '',
                     onChange: (e) => { that.setState({ assetDesc: e.target.value }) },
                 }),
             ]),

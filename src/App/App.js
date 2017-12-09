@@ -200,8 +200,8 @@ class App extends Component {
             spacing: 0,
             className: css.partsContainer,
         }, [
-            slavePart,
             mainPart,
+            slavePart,
         ]));
     };
 };

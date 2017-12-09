@@ -64,7 +64,7 @@ const style = theme => ({
         minWidth: 32,
     },
     pageNavGrp: {
-        textAlign: 'right',
+        textAlign: 'left',
         width: '100%',
         margin: '8px 0',
     },

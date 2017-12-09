@@ -14,6 +14,7 @@ import UserDetailPage from '../Pages/User/UserDetailPage';
 import FollowListPage from '../Pages/User/FollowListPage';
 import GroupDetailPage from '../Pages/User/GroupDetailPage';
 import WelcomePage from '../Pages/Welcome/WelcomePage';
+import BlankPage from '../Pages/Blank/BlankPage';
 
 import TestPage from '../Pages/Temp/TestPage.jsx';
 
@@ -32,6 +33,7 @@ const pages = {
     FollowListPage,
     GroupDetailPage,
     WelcomePage,
+    BlankPage,
     TestPage,
 };
 

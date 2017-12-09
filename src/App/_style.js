@@ -1,11 +1,19 @@
 //公用样式表
 const styles = theme => ({
     mainPart: {
-        flexGrow: 'initial',
+        display: 'block',
+        position: 'absolute',
+        top: 0,
+        right: 0,
         width: 360,
+        height: '100%',
+        background: '#FFF',
+        flexGrow: 'initial',
+        zIndex: 21,
         minWidth: 360,
         margin: 0,
         padding: 0,
+        boxShadow: '0px 0 24px #AAA',
     },
     mainPartFull: {
         flexGrow: 'initial',
@@ -21,10 +29,12 @@ const styles = theme => ({
         margin: 0,
         padding: 0,
         height: '100%',
-        width: 'calc(100% - 372px)',
+        width: '100%',
         overflowX: 'auto',
     },
     partsContainer: {
+        display: 'block',
+        width: '100%',
         flexWrap: 'nowrap',
         justifyContent: 'flex-end',
         margin: 0,

@@ -50,6 +50,11 @@ const style = theme => ({
         fontSize: 18,
         fontWeight: 800,
     },
+    id: {
+        fontSize: 12,
+        fontWeight: 800,
+        marginTop: 8,
+    },
     desc: {
         fontSize: 14,
         fontWeight: 300,
@@ -67,6 +72,9 @@ const style = theme => ({
         marginBottom: 4,
         color: '#888',
     },
+    topBtnBar: {
+        marginTop: 12,
+    }
 });
 
 
@@ -296,6 +304,87 @@ class com extends Component {
         if(reset) that.setState({ result: null });
     };
 
+    //收集一个题目
+    pickAsAsset = () => {
+        let that = this;
+        let cuser = global.$wd.auth().currentUser;
+
+        console.log('>>>>xx', global.$router.getCurrentPage());
+
+        if(!cuser) {
+            global.$snackbar.fn.show(`您还没有登录，不能创建素材`, 3000);
+            return;
+        };
+
+        let userId = cuser.uid;
+        global.$wd.sync().ref(`ubasket/${userId}`).once('value', (shot) => {
+            let baskets = shot.val();
+            if(!baskets) {
+                //创建新篮子
+                let bref = global.$wd.sync().ref(`basket`);
+                bref.push({ author: userId }).then((res) => {
+                    let basketId = res.key();
+                    let asset = {
+                        title: '临时收集篮',
+                        picker: userId,
+                        ts: global.$wd.sync().ServerValue.TIMESTAMP,
+                        top: false,
+                    };
+                    global.$wd.sync().ref(`ubasket/${userId}`).update({
+                        [basketId]: asset,
+                    }).then((res) => {
+                        that.openAssetEditPage(basketId);
+                    });
+                }).catch((err) => {
+                    global.$snackbar.fn.show(`采集失败:${err.message}`, 3000);
+                });
+            } else {
+                //提示用户选择
+                let arr = [];
+                for(let key in baskets) {
+                    baskets[key].id = key;
+                    arr.push(baskets[key]);
+                };
+                global.$selector.fn.show({
+                    title: '请选择收集篮',
+                    itemArr: arr,
+                    okHandler: (basket) => {
+                        that.openAssetEditPage(basket.id);
+                    },
+                });
+            };
+        });
+
+    };
+
+
+    openAssetEditPage = (basketId) => {
+        let that = this;
+        global.$app.toggleMainPart(true); //显示主面板
+        global.$storeRemove('AssetEditPage', 'assetId'); //清理旧ID
+
+        let problemId = that.state.data ? that.state.data.problemId : null;
+        problemId = problemId || that.props.id;
+
+        let title = that.state.data ? that.state.data.title : '未命名题目';
+        let opt = {
+            basketId: basketId,
+            appBarTitle: '新建题目素材',
+            data: {
+                problemId: problemId,
+                type: 'oj',
+                title: title,
+                desc: '采集自10knet.com判题库的题目',
+            },
+        };
+        if(global.$router.getCurrentPage() == 'AssetEditPage') {
+            global.$router.goPage('BlankPage');
+        };
+        setTimeout(() => {
+            global.$router.changePage('AssetEditPage', opt);
+        }, 100);
+    }
+
     render() {
         let that = this;
         const css = that.props.classes;
@@ -303,13 +392,13 @@ class com extends Component {
         let data = that.state.data || {};
         let result = that.state.result;
 
-        return h('div', {
-            className: css.comBox,
+        let topBtnGrp = h('div', {
+            className: css.topBtnBar,
         }, [
             h(Button, {
                 color: 'primary',
-                style: { marginTop: 12 },
-                disabled: !that.props.onChair,
+                disabled: !that.props.onChair && that.props.rooId,
+                style: { marginLeft: 16 },
                 onClick: () => {
                     that.props.back && that.props.back();
                 },
@@ -317,10 +406,26 @@ class com extends Component {
                 h(FontA, { name: 'caret-left', style: { marginRight: 8 } }),
                 h('span', '返回')
             ]),
+            data ? h(Button, {
+                color: 'accent',
+                raised: true,
+                disabled: !that.props.onChair,
+                onClick: () => { that.pickAsAsset() },
+            }, [
+                h(FontA, { name: 'leaf', style: { marginLef: 8 } }),
+                h('span', '采集'),
+            ]) : null,
+        ]);
+
+        return h('div', {
+            className: css.comBox,
+        }, [
+            topBtnGrp,
             h('div', {
                 className: css.itemBox,
             }, [
                 h('div', { className: css.title }, `[${data.origin_oj||"NAN"}]${data.title||"题目载入中..."}`),
+                h('div', { className: css.id }, `ID:${data.problem_id}`),
             ]),
             data ? h('div', {
                 className: css.itemBox,
@@ -361,7 +466,7 @@ class com extends Component {
                     style: { color: result.result_text === 'Accepted' ? '#00a371' : '#888' },
                 }, '判题结果:' + (result.result_text || "...")),
             ]) : null,
-            h('div', { style: { height: 200 } }),
+            h('div', { style: { height: 100 } }),
         ]);
     }
 };

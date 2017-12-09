@@ -34,6 +34,11 @@ let ConfBase = {
         upDomain: /^https?:\/\/up.10knet.com/,
     },
     assetTypes: {
+        oj: {
+            id: 'oj',
+            name: '题目',
+            icon: 'balance-scale',
+        },
         slider: {
             id: 'slider',
             name: '演示',
