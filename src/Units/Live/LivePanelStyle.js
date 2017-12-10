@@ -7,6 +7,7 @@ const styles = theme => ({
         flexWrap: 'nowrap',
         height: '100%',
         position: 'relative',
+        overflowY: 'hidden',
     },
     liveRoomBox: {
         height: 120,
@@ -18,6 +19,7 @@ const styles = theme => ({
         padding: 4,
         margin: 0,
         height: 40,
+        minHeight: 40,
         borderBottom: '1px solid #EEE',
         background: '#FFF',
         display: 'flex',
@@ -40,7 +42,7 @@ const styles = theme => ({
         background: 'inherit',
         border: 'none',
         fontSize: '12px',
-        maxWidth:'calc(100% - 115px)',
+        maxWidth: 'calc(100% - 115px)',
     },
     browserBtnGrp: {
         background: '#DFDFDF',
@@ -66,6 +68,7 @@ const styles = theme => ({
         padding: 0,
         flexGrow: 1,
         display: 'flex',
+        overflow: 'hidden',
     },
     empty: {
         width: '100%',

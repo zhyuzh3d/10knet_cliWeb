@@ -205,17 +205,17 @@ class com extends Component {
     };
 
     //打开素材,
-    openAsset = (asset) => {
-        switch(asset.type) {
-            case 'slider':
-                //在liveSlider中打开slider
-                if(global.$live && global.$live.setIslider) {
-                    global.$live.setIslider(asset.sliderId);
-                };
-                break;
-            default:
-                break;
-        }
+    openAsset = async function(asset) {
+        if(asset.type === 'slider') {
+            global.$live.setIslider(asset.sliderId);
+        } else if(asset.type === 'oj') {
+            global.$live.toggleCoderOJ(true);
+            setTimeout(() => {
+                global.$live.showOJdetails(asset.problemId);
+            }, 100);
+        } else {
+
+        };
     };
 
 
@@ -271,7 +271,7 @@ class com extends Component {
                     },
                 }, [
                     h(FontA, { name: 'leaf', style: { marginRight: 8 } }),
-                    h('span', '拾取'),
+                    h('span', '副本'),
                 ]),
 
                 //当前用户编辑菜单

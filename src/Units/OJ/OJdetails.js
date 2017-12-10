@@ -88,14 +88,14 @@ class com extends Component {
     };
 
     wdRefArr = [];
-    componentDidMount = () => {
+    componentWillMount = () => {
         let that = this;
         if(!that.props.onChair && that.props.roomId) { //进入房间且非主持人
             this.startGuestSync();
         } else {
             let id = global.$store('OJdetails', 'id');
-            this.getOJdetails();
-        }
+            this.getOJdetails(id);
+        };
     };
 
     oldProps = {};
@@ -103,13 +103,17 @@ class com extends Component {
         let that = this;
         let changeRoom = newProps.roomId !== that.oldProps.roomId; //换房间
         let changeChair = newProps.onChair !== that.oldProps.onChair; //换主持
-        if(changeRoom || changeChair) {
+        let changeId = newProps.id !== that.oldProps.id; //换主持
+        if(changeRoom || changeChair || changeId) {
             that.oldProps.roomId = newProps.roomId;
             that.oldProps.onChair = newProps.onChair;
+            that.oldProps.id = newProps.id;
             let oldRef = global.$wd.sync().ref(`${that.oldProps.wdPath}`);
             oldRef.off(); //停止旧的监听
             if(!that.props.onChair) {
                 that.startGuestSync(newProps); //开启新的监听
+            } else {
+                this.getOJdetails(newProps.id);
             };
         };
     };
@@ -141,12 +145,14 @@ class com extends Component {
         });
     };
 
+    hasUnmounted = false;
     componentWillUnmount = async function() {
         this.judgeTmr && clearInterval(this.judgeTmr);
         this.wdRefArr.forEach((item, n) => {
             item.off();
         });
         this.resetSyncResult();
+        this.hasUnmounted = true;
     };
 
     getOJdetails = async function(id) {
@@ -161,9 +167,9 @@ class com extends Component {
             .end((err, res) => {
                 if(!err) {
                     let data = JSON.parse(res.text);
-                    if(data && data.code === 1) {
+                    if(data && data.code === 1 && !that.hasUnmounted) {
                         that.setState({ data: data.data });
-                        that.updateId();
+                        that.updateId(id);
                     } else {
                         global.$snackbar.fn.show(`读取题目详情失败:${data.text}`);
                     }
@@ -176,6 +182,7 @@ class com extends Component {
     //更新同步数据库的id
     updateId = (id) => {
         let that = this;
+        global.$store('OJdetails', { id: id });
         if(!that.props.onChair) return;
         if(!that.props.wdPath) return;
         global.$wd.sync().ref(`${that.props.wdPath}`).update({ id: that.props.id });
@@ -308,9 +315,6 @@ class com extends Component {
     pickAsAsset = () => {
         let that = this;
         let cuser = global.$wd.auth().currentUser;
-
-        console.log('>>>>xx', global.$router.getCurrentPage());
-
         if(!cuser) {
             global.$snackbar.fn.show(`您还没有登录，不能创建素材`, 3000);
             return;
@@ -361,7 +365,7 @@ class com extends Component {
     openAssetEditPage = (basketId) => {
         let that = this;
         global.$app.toggleMainPart(true); //显示主面板
-        global.$storeRemove('AssetEditPage', 'assetId'); //清理旧ID
+        global.$store('AssetEditPage', { assetId: undefined }); //清理旧ID
 
         let problemId = that.state.data ? that.state.data.problemId : null;
         problemId = problemId || that.props.id;
@@ -409,10 +413,11 @@ class com extends Component {
             data ? h(Button, {
                 color: 'accent',
                 raised: true,
+                style: { marginLeft: 16 },
                 disabled: !that.props.onChair,
                 onClick: () => { that.pickAsAsset() },
             }, [
-                h(FontA, { name: 'leaf', style: { marginLef: 8 } }),
+                h(FontA, { name: 'leaf', style: { marginRight: 8 } }),
                 h('span', '采集'),
             ]) : null,
         ]);

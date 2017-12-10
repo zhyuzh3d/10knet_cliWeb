@@ -24,6 +24,7 @@ const style = theme => ({
         padding: 0,
         width: '100%',
         background: '#000',
+        overflow:'hidden',
     },
     empty: {
         width: '100%',

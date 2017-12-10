@@ -25,6 +25,8 @@ const style = theme => ({
         marginTop: 16,
         boxShadow: '8px 0 16px #EEE',
         border: '1px solid #AAA',
+        height: '100%',
+        overflow: 'auto',
     },
     page: {
         padding: 16,

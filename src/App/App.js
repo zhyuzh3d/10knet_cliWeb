@@ -36,7 +36,6 @@ import LivePanel from '../Units/Live/LivePanel';
 global.$fn = MyFn;
 global.$router = MyRouter;
 global.$store = MyStore.store;
-global.$storeRemove = MyStore.storeRemove;
 global.$alert = MyAlert;
 global.$confirm = MyConfirm;
 global.$selector = MySelector;

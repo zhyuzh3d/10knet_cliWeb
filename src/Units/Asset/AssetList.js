@@ -325,7 +325,7 @@ class com extends Component {
                     color: 'accent',
                     className: css.addFab,
                     onClick: () => {
-                        global.$storeRemove('AssetEditPage', 'assetId');
+                        global.$store('AssetEditPage', { assetId: undefined });
                         let opt = basketId ? { basketId: basketId } : {};
                         global.$router.changePage('AssetEditPage', opt);
                     },

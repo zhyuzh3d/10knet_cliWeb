@@ -64,19 +64,42 @@ class com extends Component {
     };
 
     wdRefArr = [];
-    componentWillMount = async function() {};
-
-    componentDidMount = async function() {
+    componentWillMount = async function() {
         if(this.props.public) {
             this.props.public.toggleOJ = this.toggleOJ;
         }
-        if(!this.props.onChair) {
-            this.startSync();
-        } else {
+        if(this.props.onChair || !this.props.roomId) {
             this.stopSync();
-        }
+            this.getStore();
+            this.setState({ showOJ: this.state.showOJ });
+        } else {
+            this.startSync();
+        };
         this.setShowOJ && this.setShowOJ(this.state.showOJ);
     };
+
+    //尝试从本地存储自动恢复数据
+    getStore = () => {
+        this.setState(global.$store('LiveCoder', null) || {});
+    };
+
+    //保存到本地数据以便恢复
+    saveStore = () => {
+        global.$store('LiveCoder', this.setStore(this.state));
+    };
+
+    //设置store存储与恢复，只有这里的字段会被恢复
+    setStore = (obj) => {
+        return {
+            value: obj.value,
+            editorMode: obj.editorMode,
+            OJpage: obj.OJpage,
+            OJid: obj.OJid,
+            lastOJpage: obj.lastOJpage,
+            showOJ: obj.showOJ,
+        }
+    };
+
 
     //切换onChair的时候调整
     oldProps = {};
@@ -106,8 +129,11 @@ class com extends Component {
         };
     };
 
+    hasUnmounted = false;
     componentWillUnmount = async function() {
+        this.saveStore();
         this.stopSync();
+        this.hasUnmounted = true;
     };
 
     //开始同步代码，同步oj页面类型
@@ -151,6 +177,7 @@ class com extends Component {
         let that = this;
         if(!that.props.roomId || !that.onChair) {
             that.setState({ value: value });
+            global.$store('LiveCoder', { value: value });
         };
         if(that.props.onChair) {
             global.$wd.sync().ref(`${that.props.wdRef}/value`).set(value);
@@ -167,10 +194,11 @@ class com extends Component {
     onChair = false;
 
     //切换到显示详细信息页面，同步到ioj
-    showOJdetails = (id) => {
+    showOJdetails = global.$live.showOJdetails = (id) => {
         let that = this;
-        that.setState({ OJid: id });
         that.setState({ OJpage: 'details' });
+        global.$store('LiveCoder', { OJpage: 'details' });
+        that.setState({ OJid: id });
         if(that.props.roomId) {
             global.$wd.sync().ref(`${that.props.wdRef}`).update({ OJpage: 'details' });
             global.$wd.sync().ref(`ioj/${that.props.wdRef}/details`).update({ id: id });
@@ -181,22 +209,23 @@ class com extends Component {
     showOJlist = () => {
         let that = this;
         this.setState({ OJpage: 'list' });
+        global.$store('LiveCoder', { OJpage: 'list' });
         if(that.props.roomId) {
             global.$wd.sync().ref(`${that.props.wdRef}`).update({ OJpage: 'list' });
         }
     };
 
     //主持人打开和关闭OJ部分,同步控制访客
-    toggleOJ = () => {
+    toggleOJ = global.$live.toggleOJ = (toggle) => {
         let that = this;
-        let showOJ = that.state.showOJ === undefined ? true : that.state.showOJ;
-        showOJ = !showOJ;
-        that.setState({ showOJ: showOJ });
+        toggle = toggle === undefined ? !that.state.showOJ : toggle;
+        if(!that.hasUnmounted) that.setState({ showOJ: toggle });
         if(that.props.roomId) {
-            global.$wd.sync().ref(`${that.props.wdRef}/showOJ`).set(showOJ);
+            global.$wd.sync().ref(`${that.props.wdRef}/showOJ`).set(toggle);
         };
-        return showOJ;
+        return toggle;
     };
+
 
 
     //渲染实现

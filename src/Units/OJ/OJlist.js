@@ -67,6 +67,7 @@ const style = theme => ({
         textAlign: 'left',
         width: '100%',
         margin: '8px 0',
+        marginLeft: 8,
     },
     pageBtn: {
         minHeight: 32,
@@ -98,7 +99,7 @@ class com extends Component {
 
     wdRefArr = [];
     oldProps = {};
-    componentDidMount = () => {
+    componentWillMount = () => {
         let that = this;
         if(!that.props.onChair && that.props.roomId) { //进入房间且非主持人
             this.startGuestSync();
@@ -125,10 +126,10 @@ class com extends Component {
     updateSync = (page, props) => {
         let that = this;
         props = props || that.props;
+        global.$store('OJlist', { page: page });
         if(!props.onChair) return;
         if(!props.wdPath) return;
 
-        global.$store('OJlist', 'page', page);
         global.$wd.sync().ref(`${props.wdPath}`).update({ page: page || '' });
         global.$wd.sync().ref(`icoder/${props.roomId}`).update({ OJpage: 'list' });
     };
@@ -150,14 +151,17 @@ class com extends Component {
         });
     };
 
+    hasUnmounted = false;
     componentWillUnmount = async function() {
         this.wdRefArr.forEach((item, n) => {
             item.off();
         });
+        this.hasUnmounted = true;
     };
 
     getOJList = async function(page, searchStr) {
         let that = this;
+        console.log('>>>getOJList page', page);
         page = page === undefined ? that.state.page : page;
         that.updateSync(page, searchStr);
 
@@ -171,8 +175,10 @@ class com extends Component {
                     let obj = JSON.parse(res.text);
                     if(obj.code === 1) {
                         let data = obj.data;
-                        that.setState(!searchStr ? { data: data } : { searchData: data });
-                        that.setState({ pageIpt: page, page: page });
+                        if(!that.hasUnmounted) {
+                            that.setState(!searchStr ? { data: data } : { searchData: data });
+                            that.setState({ pageIpt: page, page: page });
+                        }
                     } else {
                         global.$snackbar.fn.show(`获取题目失败:${obj.text}`);
                     };
@@ -271,7 +277,6 @@ class com extends Component {
                 },
                 onKeyDown: (e) => {
                     if(e.keyCode === 13) {
-                        global.$store('OJlist', 'page', that.state.pageIpt);
                         that.goPage();
                     }
                 },
@@ -285,7 +290,6 @@ class com extends Component {
                 disabled: !that.props.onChair,
             }, h(FontA, { name: 'caret-right' })),
         ]);
-
 
         return h('div', {
             className: css.comBox,

@@ -496,11 +496,20 @@ class com extends Component {
         }
     };
 
-    //开关OJ面板
-    toggleOJ = () => {
+    //开关OJ面板,先打开coder，然后打开code的oj
+    toggleCoderOJ = global.$live.toggleCoderOJ = (toggle) => {
         let that = this;
-        let showOJ = that.liveCoderPub.toggleOJ ? that.liveCoderPub.toggleOJ() : false;
-        that.setState({ showOJ: showOJ });
+        toggle = toggle === undefined ? !that.state.showOJ : toggle;
+        that.toggleCoder(toggle);
+        global.$live.toggleOJ && global.$live.toggleOJ(toggle);
+        that.setState({ showOJ: toggle });
+    };
+
+    //开关coder面板
+    toggleCoder = global.$live.toggleCoder = (toggle) => {
+        let that = this;
+        toggle = toggle === undefined ? !that.state.showOJ : toggle;
+        if(toggle) that.setState({ boardType: 'coder' });
     };
 
     //传递到coder内的函数
@@ -645,7 +654,7 @@ class com extends Component {
             style: {
                 color: that.state.showOJ ? '#f50057' : '#AAA',
             },
-            onClick: () => { that.toggleOJ() },
+            onClick: () => { that.toggleCoderOJ() },
             disabled: !onChair && roomInfo,
         }, h(FontA, { name: 'balance-scale' }))));
 
