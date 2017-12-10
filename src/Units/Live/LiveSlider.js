@@ -34,9 +34,9 @@ const style = theme => ({
         textAlign: 'center',
     },
     btnGrp: {
-        float: 'right',
+        float: 'left',
         position: 'absolute',
-        right: 0,
+        left: 0,
         top: 0,
         zIndex: 10,
         opacity: 0.66,
@@ -83,7 +83,6 @@ class com extends Component {
         that.wdRefArr.push(ref);
 
         ref.on('value', (shot) => {
-
             let islider = shot.val();
             if(!islider || !islider.sliderId) return;
             islider.curPos = islider.curPos || 0;

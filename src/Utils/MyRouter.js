@@ -87,6 +87,7 @@ const getPages = () => {
 const MyRouter = {
     init,
     app,
+    getPages,
     goPage,
     changePage,
     getCurrentPage,

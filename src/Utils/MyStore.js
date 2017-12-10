@@ -8,18 +8,19 @@ import merge from 'deepmerge';
 //清理子属性store('key',{'subkey':undefined})；
 const store = (targetKey, objOrKey) => {
     if(!targetKey || targetKey.constructor !== String) return;
+    let lsdata, res;
 
     if(objOrKey === undefined) {
         localStorage.removeItem(targetKey);
         return;
     } else if(objOrKey === null) {
-        var lsdata = localStorage.getItem(targetKey);
-        let res = lsdata ? JSON.parse(lsdata) : undefined;
+        lsdata = localStorage.getItem(targetKey);
+        res = lsdata ? JSON.parse(lsdata) : undefined;
         return res;
     }
 
-    var lsdata = localStorage.getItem(targetKey);
-    let res = lsdata ? JSON.parse(lsdata) : undefined;
+    lsdata = localStorage.getItem(targetKey);
+    res = lsdata ? JSON.parse(lsdata) : undefined;
 
     if(objOrKey && objOrKey.constructor === String) {
         res = res ? res[objOrKey] : undefined;

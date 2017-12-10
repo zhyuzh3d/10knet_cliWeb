@@ -145,7 +145,7 @@ class com extends Component {
                     className: css.linkBtn,
                     style: {
                         margin: '4px 0',
-                        minHeight: 24,
+                        minHeight: 32,
                         height: 24,
                         padding: 6,
                     },

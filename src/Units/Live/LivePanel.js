@@ -3,8 +3,11 @@
 global.$live.setRoom(roomId);
 global.$live.leaveRoom(callback);
 global.$live.setIslider(sliderId);
-global.$live.setIslider(sliderId);
 global.$live.setBrowserAddr(url);
+global.$live.toggleCoderOJ(toggle);
+global.$live.toggleCoder(toggle);
+global.$live.getRoomInfo();
+global.$live.showUrl(authorid,url);
 props:{
     roomId,如果没有指定那么只能等待手工创建
     open,
@@ -372,7 +375,12 @@ class com extends Component {
         });
     };
 
-    //全局设置islider的方法,设置为当前房间
+    //获取房间信息，公用
+    getRoomInfo = global.$live.getRoomInfo = () => {
+        return this.state.roomInfo;
+    };
+
+    //全局设置islider的方法,打开islider，设定id
     setIslider = global.$live.setIslider = (sliderId) => {
         let that = this;
         let roomId = that.state.roomInfo ? that.state.roomInfo.roomId : null;
@@ -380,6 +388,8 @@ class com extends Component {
             global.$snackbar.fn.show('请先开启直播，然后才能打开实时演示');
             return;
         };
+
+        that.setBoardType('slider');
         let ref = global.$wd.sync().ref(`islider/${roomId}`);
         ref.update({
             sliderId: sliderId,
@@ -392,7 +402,6 @@ class com extends Component {
         let that = this;
         let roomId = that.state.roomInfo ? that.state.roomInfo.roomId : null;
         if(!roomId) return;
-
         let ref = global.$wd.sync().ref(`iroom/${roomId}`);
         ref.update({
             boardType: type || 'slider',
@@ -519,6 +528,34 @@ class com extends Component {
 
     //编码元件输出的命令,获取toggleOJ方法
     liveCoderPub = {};
+
+    //显示URL到viewer，字段打开viewer
+    showUrl = global.$live.showUrl = (author, url) => {
+        let that = this;
+        let roomInfo = that.state.roomInfo;
+        if(!roomInfo) {
+            global.$snackbar.fn.show('直播间还没就绪，请稍后重试');
+            return;
+        };
+
+        let cuser = global.$wd.auth().currentUser;
+        let onChair = cuser && roomInfo && roomInfo.chairMan === cuser.uid ? true : false;
+        if(!onChair) {
+            global.$snackbar.fn.show('你不是主持人，不能显示链接');
+            return;
+        };
+
+        that.setBoardType('viewer');
+        setTimeout(() => {
+            if(global.$live.showUrlInViewer) {
+                global.$live.showUrlInViewer({
+                    author: author,
+                    url: url,
+                });
+            };
+        }, 100);
+    };
+
 
     render() {
         let that = this;
@@ -665,7 +702,7 @@ class com extends Component {
                 color: that.state.boardType === 'slider' ? '#f50057' : '#AAA',
             },
             onClick: () => { that.setBoardType('slider') },
-            disabled: !onChair,
+            disabled: !onChair && roomInfo,
         }, h(FontA, { name: 'caret-square-o-right' }))));
 
         //使用PPT演示模块按钮
@@ -699,10 +736,11 @@ class com extends Component {
                 setShowOJ: that.setShowOJ,
                 roomId: roomId,
             });
-        } else if(type === 'slider' && roomId) {
+        } else if(type === 'slider') {
             liveBoard = h(LiveSlider, {
                 onChair: onChair,
                 wdRef: roomId ? `islider/${roomId}` : undefined,
+                roomId: roomId,
             })
         } else if(type === 'viewer' && roomId) {
             liveBoard = h(LiveViewer, {
@@ -714,6 +752,7 @@ class com extends Component {
                 className: css.empty,
             }, '...没有开启任何同步内容...');
         };
+
 
 
         //显示右侧面板开关
@@ -761,12 +800,12 @@ class com extends Component {
                 onChair ? barDivider : null,
                 onChair || !roomInfo ? liveCodeBtn : null,
                 (onChair || !roomInfo) && that.state.boardType === 'coder' ? coderOJBtn : null,
-                onChair ? liveSliderBtn : null,
+                onChair || !roomInfo ? liveSliderBtn : null,
                 onChair ? liveViewerBtn : null,
                 onChair ? barDivider : null,
-                //onChair ? liveBrowserBtn : null,
-                //(roomInfo && that.state.useBrowser) || !roomInfo ? browserBtnGrp : null,
-                //barDivider,
+                false && onChair ? liveBrowserBtn : null,
+                false && ((roomInfo && that.state.useBrowser) || !roomInfo) ? browserBtnGrp : null,
+                false && barDivider,
                 mainPartBtn,
             ]),
 
@@ -795,13 +834,9 @@ class com extends Component {
                 className: css.liveChatBox,
             }, h(ChatList, {
                 wdRef: `chats/${roomInfo.roomId}`,
-                showChat: roomInfo && onChair && type === 'viewer' ? (chat) => {
-                    if(!chat || !LiveViewer.fn || !LiveViewer.fn.showUrl) return;
-                    LiveViewer.fn.showUrl({
-                        author: chat.author,
-                        url: chat.text,
-                    });
-                } : undefined,
+                showChat: (chat) => {
+                    that.showUrl(chat.author, chat.text);
+                },
             })) : undefined,
 
         ]) : null;

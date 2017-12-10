@@ -144,7 +144,7 @@ class com extends Component {
         ref.on('value', (shot) => {
             let data = shot.val() || {};
             let page = data.page ? data.page : 0;
-            if(page != that.state.page) {
+            if(page !== that.state.page) {
                 that.setState({ page: page, pageIpt: page });
                 this.getOJList(page);
             }

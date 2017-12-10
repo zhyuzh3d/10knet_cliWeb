@@ -2,7 +2,6 @@
 浏览器默认打开页面
 */
 import { Component } from 'react';
-import Request from 'superagent';
 import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';

@@ -158,6 +158,7 @@ class com extends Component {
     getOJdetails = async function(id) {
         let that = this;
         id = id || that.props.id;
+        if(!id) return;
         that.setState({ id: id });
 
         let api = `http://oj.xmgc360.com/problem/detail`;
@@ -381,7 +382,7 @@ class com extends Component {
                 desc: '采集自10knet.com判题库的题目',
             },
         };
-        if(global.$router.getCurrentPage() == 'AssetEditPage') {
+        if(global.$router.getCurrentPage() === 'AssetEditPage') {
             global.$router.goPage('BlankPage');
         };
         setTimeout(() => {

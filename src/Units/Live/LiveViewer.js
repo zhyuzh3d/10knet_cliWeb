@@ -12,6 +12,7 @@ import { Component } from 'react';
 import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
+import compare from 'just-compare';
 
 import Button from 'material-ui/Button';
 import FontA from 'react-fa';
@@ -24,7 +25,7 @@ const style = theme => ({
         padding: 0,
         width: '100%',
         background: '#000',
-        overflow:'hidden',
+        overflow: 'hidden',
     },
     empty: {
         width: '100%',
@@ -38,19 +39,20 @@ const style = theme => ({
         textAlign: 'center',
         margin: 0,
         padding: 0,
-        height: 'calc(100% - 48px)',
+        height: 'calc(100% - 0px)',
         overflowY: 'auto',
+        fontSize: 0,
     },
     linkView: {
-        marginTop: '20%',
+        marginTop: '10%',
+        zIndex: 5,
     },
     imgView: {
         width: '100%',
     },
     btnGrp: {
-        float: 'right',
         position: 'absolute',
-        right: 0,
+        left: 0,
         top: 0,
         zIndex: 10,
         opacity: 0.66,
@@ -68,22 +70,20 @@ const style = theme => ({
 });
 
 //元件
-var $fn = {};
+global.$live = global.$live || {};
 class com extends Component {
     state = {
         data: null,
         curPos: 0,
-        hisArr: [],
+        his: null,
         type: 'text',
     };
 
     wdRefArr = [];
 
-    componentWillReceiveProps = async function() {
-        this.checkContentType();
-    };
+    componentWillReceiveProps = async function(newProps) {};
 
-    componentDidMount = async function() {
+    componentWillMount = async function() {
         this.startSync();
     };
 
@@ -93,22 +93,32 @@ class com extends Component {
         });
     };
 
-    //开始同步
+    //开始同步,全部数据从远程读取
     startSync = global.$live.test = () => {
         let that = this;
-        let ref = global.$wd.sync().ref(`${that.props.wdRef}/conf`);
+        let ref = global.$wd.sync().ref(`${that.props.wdRef}`);
         that.wdRefArr.push(ref);
 
         ref.on('value', (shot) => {
             if(!shot || !shot.val()) return;
             let data = shot.val();
-            let hisArr = that.state.hisArr;
-            hisArr.push(data);
+            if(!data.his || data.his.length < 1) return;
+
+            let hisArr = [];
+            if(data.his) {
+                for(let key in data.his) hisArr.push(data.his[key]);
+            };
+
+            let curPos = data.curPos || hisArr.length - 1;
+            if(curPos < 0) curPos = 0;
+            if(curPos > hisArr.length - 1) curPos = hisArr.length - 1;
+            let curData = hisArr[curPos];
+
             that.setState({
-                data: data,
-                hisArr: hisArr,
-                curPos: hisArr.length - 1,
-                type: this.checkContentType(data.url),
+                data: curData,
+                his: hisArr,
+                curPos: curPos,
+                type: curData ? this.checkContentType(curData.url) : 'text',
             });
         });
     }
@@ -116,27 +126,31 @@ class com extends Component {
     //停止同步
     stopSync = () => {
         let that = this;
-        global.$wd.sync().ref(`${that.props.wdRef}/conf`).off();
+        global.$wd.sync().ref(`${that.props.wdRef}`).off();
     }
 
     //上一页
     prevPage = () => {
         let that = this;
         let curPos = that.state.curPos;
+        curPos = isNaN(curPos) ? 0 : curPos;
         let newPos = curPos - 1;
         if(newPos < 0) newPos = 0;
-        if(newPos >= that.state.hisArr.length - 1) newPos = that.state.hisArr.length - 1;
+        if(newPos >= that.state.his.length - 1) newPos = that.state.his.length - 1;
         that.setState({ curPos: newPos });
+        global.$wd.sync().ref(`${that.props.wdRef}`).update({ curPos: newPos });
     }
 
     //下一页
     nextPage = () => {
         let that = this;
         let curPos = that.state.curPos;
+        curPos = isNaN(curPos) ? 0 : curPos;
         let newPos = curPos + 1;
         if(newPos < 0) newPos = 0;
-        if(newPos >= that.state.hisArr.length - 1) newPos = that.state.hisArr.length - 1;
+        if(newPos >= that.state.his.length - 1) newPos = that.state.his.length - 1;
         that.setState({ curPos: newPos });
+        global.$wd.sync().ref(`${that.props.wdRef}`).update({ curPos: newPos });
     }
 
     //判断内容的格式，data.type=text,image,link
@@ -154,9 +168,15 @@ class com extends Component {
     };
 
     //向外输出函数({author,url})
-    showUrl = $fn.showUrl = (opt) => {
-        let ref = global.$wd.sync().ref(`${this.props.wdRef}/conf`);
-        ref.update({
+    showUrlInViewer = global.$live.showUrlInViewer = (opt) => {
+        let that = this;
+        if(compare(that.state.data, opt)) return;
+
+        let curPos = that.state.his && that.state.his ? (that.state.his.length || 0) : 0;
+        curPos !== undefined && global.$wd.sync().ref(`${this.props.wdRef}`).update({
+            curPos: curPos,
+        });
+        global.$wd.sync().ref(`${this.props.wdRef}/his`).push({
             author: opt.author || '',
             url: opt.url || '',
         });
@@ -168,12 +188,12 @@ class com extends Component {
         let that = this;
         const css = that.props.classes;
 
-        let hisArr = that.state.hisArr;
-        let curPos = that.state.curPos;
-        let data = that.state.hisArr[curPos];
+        let his = that.state.his;
+        let curPos = that.state.curPos || 0;
+        let data = that.state.his ? that.state.his[curPos] : null;
         let type = data ? this.checkContentType(data.url) : 'none';
 
-        let btnGrp = h('div', {
+        let btnGrp = data ? h('div', {
             className: css.btnGrp,
         }, [
             h(Button, {
@@ -195,18 +215,18 @@ class com extends Component {
                 },
                 raised: true,
                 disabled: true,
-            }, `${curPos+1}/${hisArr.length}`),
+            }, `${curPos+1}/${his.length}`),
             h(Button, {
                 className: css.arrBtn,
                 raised: true,
-                disbaled: String(curPos >= hisArr.length - 1),
+                disbaled: String(curPos >= his.length - 1),
                 onClick: () => {
                     that.nextPage();
                 },
             }, [
                 h(FontA, { name: 'arrow-right' })
             ])
-        ]);
+        ]) : null;
 
         //显示内容，自动根据type适配
         let viewEl;
@@ -217,16 +237,21 @@ class com extends Component {
                     src: data.url,
                 });
             } else {
-                viewEl = h(Button, {
+                viewEl = h('a', {
+                    href: data.url,
+                    target: '_blank',
+                }, h(Button, {
+                    raised: true,
+                    color: 'primary',
                     className: css.linkView,
-                }, `链接：${data.url}`);
+                }, `链接：${data.url}`));
             };
-        }
+        };
 
         return h('div', {
             className: css.comBox,
         }, [
-            hisArr.length > 1 && that.props.onChair ? btnGrp : undefined,
+            his && his.length > 1 && that.props.onChair ? btnGrp : undefined,
             data ? h('div', {
                 className: css.viewBox,
             }, viewEl) : h('div', {
@@ -240,6 +265,5 @@ class com extends Component {
 com.propTypes = {
     classes: PropTypes.object.isRequired,
 };
-com.fn = $fn;
 
 export default withStyles(style)(com);

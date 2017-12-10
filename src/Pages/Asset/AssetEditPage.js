@@ -229,7 +229,6 @@ class com extends Component {
 
         that.wdAuthListen = global.$wd.auth().onAuthStateChanged(function(user) {
             let cuser = global.$wd.auth().currentUser;
-            let data = that.props.data;
             if(cuser) {
                 that.setState({
                     hasLogin: true,

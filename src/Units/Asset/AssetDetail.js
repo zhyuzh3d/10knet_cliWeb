@@ -50,6 +50,7 @@ const style = theme => ({
         width: 56,
         minWidth: 56,
         textAlign: 'center',
+        verticalAlign: 'middle',
     },
 });
 
@@ -206,15 +207,24 @@ class com extends Component {
 
     //打开素材,
     openAsset = async function(asset) {
+        let roomInfo = global.$live && global.$live.getRoomInfo ? global.$live.getRoomInfo() : null;
         if(asset.type === 'slider') {
-            global.$live.setIslider(asset.sliderId);
+            if(roomInfo) {
+                global.$live.setIslider(asset.sliderId);
+            } else {
+                global.$alert.fn.show('你还没有开启直播', '幻灯片只能在直播中打开，请点击左上角闪电按钮开启直播');
+            };
         } else if(asset.type === 'oj') {
             global.$live.toggleCoderOJ(true);
             setTimeout(() => {
                 global.$live.showOJdetails(asset.problemId);
             }, 100);
         } else {
-
+            if(roomInfo) {
+                global.$live.showUrl(asset.picker, asset.url);
+            } else {
+                global.$alert.fn.show('你还没有开启直播', '素材只能在直播中打开，请点击左上角闪电按钮开启直播');
+            };
         };
     };
 
