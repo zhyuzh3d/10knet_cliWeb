@@ -57,7 +57,6 @@ const style = theme => ({
     },
     label: {
         background: '#FFF',
-        width: '100%',
         height: 24,
         paddingLeft: 24,
         marginTop: 16,
@@ -65,6 +64,7 @@ const style = theme => ({
         color: '#AAA',
     },
     userGrp: {
+        margin: 0,
         marginBottom: 16,
     }
 });
@@ -167,8 +167,14 @@ class com extends Component {
         const css = this.props.classes;
         var uPhoto = that.state.user.photoURL ? `http://${that.state.user.photoURL}-thumb128` : global.$conf.defaultIcon;
 
-        let content = h('div', {}, [
-            h(Grid, { container: true, justify: 'flex-start', className: css.userGrp }, [
+        let content = h('div', {
+            style: { height: '100%' },
+        }, [
+            h(Grid, {
+                container: true,
+                justify: 'flex-start',
+                className: css.userGrp,
+            }, [
                 h(Grid, { item: true, className: css.uBox }, [
                     h('img', {
                         className: css.uImg,
@@ -199,22 +205,15 @@ class com extends Component {
             ]),
             h('div', { className: css.label }, 'TA收集的素材'),
             h(BasketList, {
+                height: 'calc(100% - 148px)',
                 userId: that.state.user ? that.state.user.uid : undefined,
             }, 'hh'),
         ]);
 
         //最终拼合
-        let contentStyle = {
-            padding: '24px 8px',
-            height: that.state.contentHeight,
-            overflowY: 'auto',
-            paddingBottom: 128,
-        };
-        return h('div', {}, [
+        return h('div', { style: { height: '100%' } }, [
             h(NavBar, { title: that.state.title }),
-            h(Grid, { container: true, justify: 'center' },
-                h(Grid, { item: true, xs: 12, style: contentStyle }, content),
-            ),
+            h('div', { style: { height: 'calc(100% - 48px)' } }, content),
         ]);
     }
 };

@@ -12,8 +12,6 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
-import Grid from 'material-ui/Grid';
-
 import NavBar from '../../Units/MainAppBar/NavBar';
 import AssetList from '../../Units/Asset/AssetList';
 
@@ -54,17 +52,9 @@ class com extends Component {
             basketId: basketId,
         });
 
-        let contentStyle = {
-            padding: 8,
-            height: that.state.contentHeight,
-            overflowY: 'auto',
-            paddingBottom: 128,
-        };
-        return h('div', {}, [
+        return h('div', { style: { height: '100%' } }, [
             h(NavBar, { title: `[ ${appBarTitle||that.state.appBarTitle} ]` }),
-            h(Grid, { container: true, justify: 'center' },
-                h(Grid, { item: true, xs: 12, style: contentStyle }, content),
-            ),
+            h('div', { style: { margin: 0, height: 'calc(100% - 48px)' } }, content),
         ]);
     }
 };

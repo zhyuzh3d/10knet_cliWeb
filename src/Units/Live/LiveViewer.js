@@ -17,6 +17,8 @@ import compare from 'just-compare';
 import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
+import AssetPickBtn from '../../Units/Asset/AssetPickBtn';
+
 
 const style = theme => ({
     comBox: {
@@ -55,10 +57,10 @@ const style = theme => ({
         left: 0,
         top: 0,
         zIndex: 10,
-        opacity: 0.66,
+        opacity: 0.8,
     },
     arrBtn: {
-        Height: 24,
+        height: 36,
         minHeight: 24,
         width: 48,
         minWidth: 48,
@@ -66,6 +68,7 @@ const style = theme => ({
         margin: 0,
         fontSize: 12,
         color: '#666',
+        verticalAlign: 'middle',
     },
 });
 
@@ -193,10 +196,13 @@ class com extends Component {
         let data = that.state.his ? that.state.his[curPos] : null;
         let type = data ? this.checkContentType(data.url) : 'none';
 
+        let usePageBtns = his && his.length > 1 && that.props.onChair;
+        usePageBtns = true;
+
         let btnGrp = data ? h('div', {
             className: css.btnGrp,
         }, [
-            h(Button, {
+            usePageBtns ? h(Button, {
                 className: css.arrBtn,
                 raised: true,
                 disbaled: String(curPos <= 0),
@@ -205,8 +211,8 @@ class com extends Component {
                 },
             }, [
                 h(FontA, { name: 'arrow-left' }),
-            ]),
-            h(Button, {
+            ]) : null,
+            usePageBtns ? h(Button, {
                 className: css.arrBtn,
                 style: {
                     borderLeft: '1px solid #AAA',
@@ -215,8 +221,8 @@ class com extends Component {
                 },
                 raised: true,
                 disabled: true,
-            }, `${curPos+1}/${his.length}`),
-            h(Button, {
+            }, `${curPos+1}/${his.length}`) : null,
+            usePageBtns ? h(Button, {
                 className: css.arrBtn,
                 raised: true,
                 disbaled: String(curPos >= his.length - 1),
@@ -225,7 +231,20 @@ class com extends Component {
                 },
             }, [
                 h(FontA, { name: 'arrow-right' })
-            ])
+            ]) : null,
+            data ? h(AssetPickBtn, {
+                style: {
+                    fontSize: 12,
+                },
+                raised: true,
+                color: 'accent',
+                data: {
+                    type: type === 'image' ? 'image' : 'link',
+                    title: `随堂${type === 'image' ? '图片' : '链接'}素材`,
+                    desc: `来自10knet.com的随堂${type === 'image' ? '图片' : '链接'}素材`,
+                    url: data ? data.url : null,
+                }
+            }) : null,
         ]) : null;
 
         //显示内容，自动根据type适配
@@ -251,7 +270,7 @@ class com extends Component {
         return h('div', {
             className: css.comBox,
         }, [
-            his && his.length > 1 && that.props.onChair ? btnGrp : undefined,
+            btnGrp,
             data ? h('div', {
                 className: css.viewBox,
             }, viewEl) : h('div', {

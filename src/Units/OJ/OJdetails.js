@@ -230,7 +230,6 @@ class com extends Component {
             source: code,
         };
 
-        console.log('>>>startJudge payload', payload);
         Request.post(api)
             .send(payload)
             .type('form')

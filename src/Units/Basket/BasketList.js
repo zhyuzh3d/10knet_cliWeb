@@ -14,7 +14,6 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import AddIcon from 'material-ui-icons/Add';
-import List from 'material-ui/List';
 import FontA from 'react-fa';
 
 import BasketItem from '../../Units/Basket/BasketItem';
@@ -204,7 +203,11 @@ class com extends Component {
             );
         };
 
-        return h(List, { style: { padding: 0 } }, itemElArr);
+        return h('div', {
+            style: {
+                padding: 0,
+            }
+        }, itemElArr);
     }
 };
 

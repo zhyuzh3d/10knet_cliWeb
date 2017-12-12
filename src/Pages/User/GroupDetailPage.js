@@ -303,7 +303,7 @@ class com extends Component {
             ])
         ]);
 
-        let content = h('div', { style: { margin: -8 } }, [
+        let content = [
             h('div', {
                 className: css.title,
             }, info ? info.title : '未命名小组'),
@@ -311,23 +311,20 @@ class com extends Component {
             h('div', {
                 className: css.label,
             }, `共${itemElArr.length}成员`),
-            h(List, {}, itemElArrBox),
-        ]);
+            h(List, {
+                style: {
+                    height: 'calc(100% - 150px)',
+                    overflowY: 'auto'
+                }
+            }, itemElArrBox),
+        ];
 
         //最终拼合
-        let contentStyle = {
-            padding: 16,
-            height: that.state.contentHeight,
-            overflowY: 'auto',
-            paddingBottom: 128,
-        };
-
-        return h('div', {}, [
+        return h('div', { style: { height: '100%' } }, [
             h(NavBar, { title: that.state.title }),
-            h(Grid, { container: true, justify: 'center' },
-                h(Grid, { item: true, xs: 12, style: contentStyle }, content),
-            ),
+            h('div', { style: { margin: 0, height: 'calc(100% - 48px)' } }, content),
         ]);
+
     }
 };
 

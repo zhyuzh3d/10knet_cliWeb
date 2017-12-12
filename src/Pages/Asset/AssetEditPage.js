@@ -5,7 +5,7 @@ store:{
     basketId,
     assetId,
     appBarTitle: 页面标题,
-    data,预填充{title,url,desc,sliderId,problemId,type,ver}
+    data,预填充{title,url,desc,sliderId,problemId,type,ver,editSlider}
 }
 */
 import { Component } from 'react';
@@ -192,7 +192,18 @@ class com extends Component {
                     let assetRef = global.$wd.sync().ref(`basket/${basketId}/arr/${assetId}`);
                     assetRef.update(newAsset).then((res) => {
                         global.$snackbar.fn.show('新增成功', 2000);
-                        global.$router.prevPage();
+
+                        //跳转到预定网页或者后退
+                        let successPage = global.$store('AssetEditPage', 'successPage');
+                        if(successPage === 'AssetListPage') {
+                            global.$router.changePage(successPage, {
+                                wdRef: `basket/${basketId}`,
+                                basketId: basketId,
+                                appBarTitle: that.state.curBasket ? that.state.curBasket.title : '',
+                            });
+                        } else {
+                            global.$router.prevPage();
+                        };
                     });
                 });
             }).catch((err) => {
@@ -299,6 +310,9 @@ class com extends Component {
             curType: global.$conf.assetTypes[asset.type || 'link'],
             assetVer: asset.ver || '',
             file: { name: asset.url || '' },
+        });
+        that.setState({
+            sliderPublic: { sliderId: asset.sliderId || that.state.sliderId || '' },
         });
     };
 
@@ -698,7 +712,7 @@ class com extends Component {
 
 
             //编辑创建幻灯片
-            that.state.curType === AssetTypes.slider ? h(SliderEditor, {
+            that.state.curType === that.editSlider && AssetTypes.slider ? h(SliderEditor, {
                 sliderId: that.state.asset ? that.state.asset.sliderId : null,
                 public: that.state.sliderPublic,
             }) : undefined,

@@ -316,7 +316,7 @@ class com extends Component {
             });
         };
 
-        return h(List, { style: { padding: 0 } }, [
+        return h(List, { style: { padding: 0, height: '100%', overflowY: 'auto' } }, [
             h('div', {}, assetElArr),
             h('div', { className: css.fabGrp }, [
                 //新增按钮

@@ -50,7 +50,7 @@ const varSize = {
     },
     lg: {
         img: 32,
-        font: 16,
+        font: 14,
     },
     xlg: {
         img: 48,

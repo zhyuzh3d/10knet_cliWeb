@@ -16,6 +16,8 @@ import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
 import SliderPage from '../../Units/Slider/SliderPage';
+import AssetPickBtn from '../../Units/Asset/AssetPickBtn';
+
 
 
 const style = theme => ({
@@ -42,7 +44,7 @@ const style = theme => ({
         opacity: 0.66,
     },
     arrBtn: {
-        Height: 24,
+        height: 36,
         minHeight: 24,
         width: 48,
         minWidth: 48,
@@ -50,6 +52,7 @@ const style = theme => ({
         margin: 0,
         fontSize: 12,
         color: '#666',
+        verticalAlign: 'middle',
     },
 });
 
@@ -194,7 +197,21 @@ class com extends Component {
                 },
             }, [
                 h(FontA, { name: 'arrow-right' })
-            ])
+            ]),
+            h(AssetPickBtn, {
+                style: {
+                    fontSize: 12,
+                },
+                raised: true,
+                color: 'accent',
+                data: {
+                    type: 'slider',
+                    title: `随堂演示素材`,
+                    desc: `来自10knet.com的随堂演示素材`,
+                    sliderId: that.state.sliderId,
+                    editSlider: false,
+                }
+            }): null,
         ]);
 
         return h('div', {

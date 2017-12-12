@@ -9,7 +9,6 @@ import h from 'react-hyperscript';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
-import Grid from 'material-ui/Grid';
 import AppBar from 'material-ui/AppBar';
 import Tabs, { Tab } from 'material-ui/Tabs';
 import FontA from 'react-fa';
@@ -21,13 +20,21 @@ import UserList from '../../Units/User/UserList';
 import GroupList from '../../Units/Group/GroupList';
 
 const style = theme => ({
+    pageBox: {
+        width: '100%',
+        height: '100%',
+    },
     tabBar: {
         boxShadow: 'none',
         position: 'relative',
         borderBottom: '1px solid #CCC',
+        height: 48,
+        width: 'calc(100% - 32px)',
+        marginLeft: -32,
     },
     listBox: {
         width: '100%',
+        height: '100%',
     },
     tabIcon: {
         marginRight: 8,
@@ -94,8 +101,16 @@ class com extends Component {
         let cuser = that.state.currentUser;
 
         //内容区
-        let content = h(Grid, { container: true, justify: 'center', className: css.myBox }, [
-            h(AppBar, { className: css.tabBar, color: 'default' }, [
+        let content = [
+            h(AppBar, {
+                style: {
+                    boxShadow: 'none',
+                    position: 'relative',
+                    borderBottom: '1px solid #CCC',
+                    height: 48,
+                },
+                color: 'default'
+            }, [
                 h(Tabs, {
                     fullWidth: true,
                     className: css.tabs,
@@ -136,9 +151,15 @@ class com extends Component {
                     }),
                 ])
             ]),
-            h('div', { className: css.listBox }, [
+            h('div', {
+                style: {
+                    width: '100%',
+                    height: 'calc(100% - 96px)',
+                    overflowY: 'auto',
+                },
+            }, [
                 this.state.tabValue === 0 ? h(BasketList) : undefined,
-                this.state.tabValue === 1 ? h(BasketList, { isFocus: true }) : undefined,
+                this.state.tabValue === 1 ? h(BasketList) : undefined,
                 this.state.tabValue === 2 && cuser ? h(GroupList, {
                     userId: cuser.uid,
                     useMenu: true,
@@ -147,22 +168,18 @@ class com extends Component {
                     wdRefObj: global.$wd.sync().ref(`ufollow/${cuser.uid}`),
                 }) : undefined,
             ]),
-        ]);
+        ];
 
 
         //最终拼合
-        let contentStyle = {
-            padding: 16,
-            height: that.state.contentHeight,
-            overflowY: 'auto',
-            paddingBottom: 128,
-        };
-
-        return h('div', {}, [
+        return h('div', { style: { width: '100%', height: '100%' } }, [
             h(MainAppBar, { title: that.state.title }),
-            h(Grid, { container: true, justify: 'center' },
-                h(Grid, { item: true, xs: 12, style: contentStyle }, content),
-            ),
+            h('div', {
+                style: {
+                    margin: 0,
+                    height: '100%'
+                },
+            }, content),
         ]);
     }
 };

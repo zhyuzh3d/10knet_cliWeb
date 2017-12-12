@@ -12,7 +12,6 @@ import { withStyles } from 'material-ui/styles';
 
 import Button from 'material-ui/Button';
 import AddIcon from 'material-ui-icons/Add';
-import List from 'material-ui/List';
 
 import GroupItem from '../../Units/Group/GroupItem';
 
@@ -150,7 +149,7 @@ class com extends Component {
             }, h(AddIcon, { className: css.addIcon }));
         };
 
-        return h(List, { style: { padding: 0 } }, [
+        return h('div', { style: { padding: 0 } }, [
             h('div', {
                 className: css.itemListBox,
             }, itemElArr),

@@ -211,6 +211,7 @@ class com extends Component {
         if(asset.type === 'slider') {
             if(roomInfo) {
                 global.$live.setIslider(asset.sliderId);
+                console.log('>>>set slider', asset.sliderId);
             } else {
                 global.$alert.fn.show('你还没有开启直播', '幻灯片只能在直播中打开，请点击左上角闪电按钮开启直播');
             };
