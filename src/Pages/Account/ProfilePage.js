@@ -154,7 +154,7 @@ class com extends Component {
         };
         return h('div', {}, [
             h(NavBar, { title: that.state.title }),
-            h(Grid, { container: true, justify: 'center' },
+            h('div', { style: { margin: 0 } },
                 h(Grid, { item: true, xs: 12, style: contentStyle }, content),
             ),
         ]);

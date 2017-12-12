@@ -32,7 +32,8 @@ const style = theme => ({
         width: 360,
     },
     baseButton: {
-        fontSize: '0.9rem',
+        fontSize: 14,
+        width: 32,
     },
     dividerV: {
         marginRight: theme.spacing.unit * 2,
@@ -40,11 +41,11 @@ const style = theme => ({
     },
     flex: {
         flex: 1,
-        fontSize: '0.9rem',
+        fontSize: 14,
     },
     title: {
         flex: 1,
-        fontSize: '0.9rem',
+        fontSize: 14,
         whiteSpace: 'nowrap',
         overflowX: 'hidden',
         textOverflow: 'ellipsis',
@@ -99,17 +100,25 @@ class com extends Component {
         }, [
             h(Toolbar, { className: css.appBar }, [
                 h('div', {}, [
-                    h(IconButton, {
+                    h(ButtonBase, {
+                        className: css.baseButton,
+                        style: { marginLeft: 8 },
                         onClick: (evt) => {
-                            global.$router.prevPage();
+                            global.$app.toggleMainPart(false); //显示主面板
                         }
-                    }, h(FontA, { name: 'angle-left' })),
+                    }, h(FontA, { name: 'close' })),
                     h(ButtonBase, {
                         className: css.baseButton,
                         onClick: (evt) => {
                             global.$router.changePage('MainHomePage');
                         }
-                    }, '首页'),
+                    }, h(FontA, { name: 'home' })),
+                    h(ButtonBase, {
+                        className: css.baseButton,
+                        onClick: (evt) => {
+                            global.$router.prevPage();
+                        }
+                    }, h(FontA, { name: 'arrow-left' })),
                     h('span', { className: css.dividerV }, '|'),
                 ]),
                 h(Typography, { type: 'title', className: css.title }, title),

@@ -74,7 +74,6 @@ class com extends Component {
     state = {
         title: '用户信息',
         user: {},
-        contentHeight: window.innerHeight - 48,
         currentUser: null,
         hasFollowed: true,
     };
@@ -95,14 +94,6 @@ class com extends Component {
         window.addEventListener('resize', this.setContentSize);
         this.state.userId = global.$store('UserDetailPage', 'userId');
         this.state.userId && this.getUserInfo(this.state.userId);
-    };
-
-    setContentSize = () => {
-        this.setState({ contentHeight: window.innerHeight });
-    };
-
-    componentWillUnmount = () => {
-        window.removeEventListener('resize', this.setContentSize);
     };
 
     //检查是否已经关注过了
@@ -204,10 +195,12 @@ class com extends Component {
                 ]),
             ]),
             h('div', { className: css.label }, 'TA收集的素材'),
-            h(BasketList, {
-                height: 'calc(100% - 148px)',
-                userId: that.state.user ? that.state.user.uid : undefined,
-            }, 'hh'),
+            h('div', {
+                    style: { height: 'calc(100% - 148px)', overflowY: 'auto' },
+                },
+                h(BasketList, {
+                    userId: that.state.user ? that.state.user.uid : undefined,
+                })),
         ]);
 
         //最终拼合

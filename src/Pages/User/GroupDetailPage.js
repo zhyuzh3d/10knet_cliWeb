@@ -31,7 +31,7 @@ const style = theme => ({
         flex: 1,
     },
     userRow: {
-        height: 72,
+        height: 56,
         borderBottom: '1px solid #EEE',
         paddingBottom: 0,
         paddingTop: 0,
@@ -67,7 +67,6 @@ const style = theme => ({
 class com extends Component {
     state = {
         title: '小组成员',
-        contentHeight: window.innerHeight - 48,
         data: null, //obj成员列表
         info: null, //obj分组信息
         isAuthor: false,
@@ -91,17 +90,6 @@ class com extends Component {
         });
     };
 
-    componentDidMount = async function() {
-        window.addEventListener('resize', this.setContentSize);
-    };
-
-    setContentSize = () => {
-        this.setState({ contentHeight: window.innerHeight });
-    };
-
-    componentWillUnmount = () => {
-        window.removeEventListener('resize', this.setContentSize);
-    };
 
     //获取用户列表信息
     getItemList = (info) => {

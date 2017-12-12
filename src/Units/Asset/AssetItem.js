@@ -220,6 +220,7 @@ class com extends Component {
 
             let downBtn = h(ButtonBase, {
                 className: css.itemArrow,
+                style: { marginRight: 16 },
                 onClick: (evt) => {
                     that.setState({ cuserMenuOpen: false });
                     that.moveItemDown();

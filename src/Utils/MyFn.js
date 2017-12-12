@@ -7,7 +7,7 @@ const sortByTopTs = (a, b) => {
     } else if(a.top && b.top) {
         return b.top - a.top;
     };
-    return a.ts - b.ts;
+    return b.ts - a.ts;
 }
 
 //把对象的字段根据key（默认pos）数字值排,

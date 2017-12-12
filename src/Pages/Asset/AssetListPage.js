@@ -22,19 +22,6 @@ class com extends Component {
     state = {
         appBarTitle: '素材列表',
         assets: null,
-        contentHeight: window.innerHeight - 48,
-    };
-
-    componentDidMount = async function() {
-        window.addEventListener('resize', this.setContentSize);
-    };
-
-    setContentSize = () => {
-        this.setState({ contentHeight: window.innerHeight });
-    };
-
-    componentWillUnmount = () => {
-        window.removeEventListener('resize', this.setContentSize);
     };
 
 

@@ -144,6 +144,7 @@ class App extends Component {
     toggleMainPart = global.$app.toggleMainPart = (toggle) => {
         if(toggle === undefined) toggle = !this.state.mainVis;
         this.setState({ mainVis: toggle });
+        global.$live.setMainState(toggle);
     };
 
     //渲染实现

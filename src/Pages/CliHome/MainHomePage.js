@@ -65,7 +65,6 @@ class com extends Component {
         snackbarText: '..tip..',
         snackbarOpen: false,
         title: '首页',
-        contentHeight: window.innerHeight - 48,
         currentUser: null,
         tabValue: 0,
     };
@@ -82,17 +81,8 @@ class com extends Component {
         setTimeout(() => {
             this.setState({ tabValue: global.$store('MainHomePage', 'tabsValue') || 0 });
         }, 200);
-
     };
 
-    setContentSize = () => {
-        this.setState({ contentHeight: window.innerHeight });
-    };
-
-    componentWillUnmount = () => {
-        this.wdAuthListen && this.wdAuthListen();
-        window.removeEventListener('resize', this.setContentSize);
-    };
 
     //渲染实现
     render() {
@@ -177,7 +167,8 @@ class com extends Component {
             h('div', {
                 style: {
                     margin: 0,
-                    height: '100%'
+                    height: '100%',
+                    overflow: 'hidden',
                 },
             }, content),
         ]);

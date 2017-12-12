@@ -54,6 +54,7 @@ class com extends Component {
         browserCanBack: false, //浏览器是否可以后退
         browserCanForward: false, //浏览器是否可以前进
         showOJ: true, //coder的OJ开关状态
+        useMainPart: true, //是否显示右侧栏
     };
 
     //初始化邀请提示
@@ -522,8 +523,12 @@ class com extends Component {
     };
 
     //传递到coder内的函数
-    setShowOJ = (toggle) => {
+    setShowOJ = global.$live.setShowOJ = (toggle) => {
         this.setState({ showOJ: toggle });
+    };
+
+    setMainState = global.$live.setMainState = (toggle) => {
+        this.setState({ useMainPart: toggle });
     };
 
     //编码元件输出的命令,获取toggleOJ方法
@@ -760,11 +765,10 @@ class com extends Component {
             className: css.btn,
             style: {
                 background: 'inherit',
-                color: !that.state.useMainPart ? '#f50057' : '#AAA',
+                color: that.state.useMainPart ? '#f50057' : '#AAA',
             },
             onClick: () => {
-                that.setState({ useMainPart: !that.state.useMainPart });
-                global.$app.toggleMainPart && global.$app.toggleMainPart(that.state.useMainPart);
+                global.$app.toggleMainPart && global.$app.toggleMainPart(!that.state.useMainPart);
             },
         }, h(FontA, { name: 'columns' }))]);
 

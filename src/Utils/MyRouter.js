@@ -86,6 +86,7 @@ const getPages = () => {
 
 const MyRouter = {
     init,
+    history,
     app,
     getPages,
     goPage,
@@ -94,4 +95,7 @@ const MyRouter = {
     prevPage: history.goBack,
     nextPage: history.goForward,
 };
+
+
+
 export default MyRouter;

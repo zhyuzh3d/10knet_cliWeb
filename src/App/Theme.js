@@ -50,6 +50,16 @@ const Theme = createMuiTheme({
                 maxWidth: 1000,
             },
         },
+        MuiMenuItem: {
+            root: {
+                fontSize: 14,
+            }
+        },
+        MuiDialogContentText: {
+            root: {
+                fontSize: 14
+            }
+        },
         MuiTab: {
             root: {
                 maxWidth: 1000,

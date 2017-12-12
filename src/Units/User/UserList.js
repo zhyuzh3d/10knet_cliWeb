@@ -11,7 +11,6 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 
 import Grid from 'material-ui/Grid';
-import List from 'material-ui/List';
 import FontA from 'react-fa';
 
 import UserItem from '../../Units/User/UserItem';
@@ -86,7 +85,7 @@ class com extends Component {
             });
         };
 
-        return h(List, { style: { padding: 0 } }, itemElArr);
+        return h('div', { style: { padding: 0 } }, itemElArr);
     }
 };
 
