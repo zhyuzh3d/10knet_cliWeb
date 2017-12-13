@@ -12,6 +12,8 @@
         value,
     },
     hideCancelBtn,禁用取消按钮
+    okBtnTxt,确定按钮上的文字
+    cancelBtnTxt，取消按钮上的文字
 });
 */
 import React from 'react';
@@ -81,7 +83,9 @@ class MyComponent extends Component {
             inputTip: opt.input ? opt.input.tip : '',
             inputValue: opt.input ? opt.input.value : '',
             inputRegx: opt.input ? opt.input.regx : '',
-            btnDisabled: opt.input && opt.input.regx && !opt.input.regx.test(opt.input.value)
+            btnDisabled: opt.input && opt.input.regx && !opt.input.regx.test(opt.input.value),
+            cancelBtnTxt: opt.cancelBtnTxt || '取 x消',
+            okBtnTxt: opt.okBtnTxt || '确 认',
         });
     };
     emptyHandler = () => {};
@@ -101,6 +105,8 @@ class MyComponent extends Component {
             inputValue: '',
             inputRegx: null,
             btnDisabled: true,
+            cancelBtnTxt: '取 消',
+            okBtnTxt: '确 定',
         });
     };
 
@@ -140,7 +146,7 @@ class MyComponent extends Component {
                         that.state.cancelHandler();
                     },
                     className: css.dialogBtn,
-                }, '取 消') : undefined,
+                }, that.state.cancelBtnTxt || '取 消') : undefined,
                 h(Button, {
                     disabled: that.state.useInput && that.state.btnDisabled,
                     raised: true,
@@ -150,7 +156,7 @@ class MyComponent extends Component {
                         that.state.okHandler(that.state.inputValue);
                     },
                     className: css.dialogBtn,
-                }, '确 定'),
+                }, that.state.okBtnTxt || '确 定'),
             ])
         ]);
     };

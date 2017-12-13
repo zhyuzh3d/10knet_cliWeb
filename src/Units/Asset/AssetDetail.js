@@ -207,11 +207,11 @@ class com extends Component {
 
     //打开素材,
     openAsset = async function(asset) {
+        let that = this;
         let roomInfo = global.$live && global.$live.getRoomInfo ? global.$live.getRoomInfo() : null;
         if(asset.type === 'slider') {
             if(roomInfo) {
                 global.$live.setIslider(asset.sliderId);
-                console.log('>>>set slider', asset.sliderId);
             } else {
                 global.$alert.fn.show('你还没有开启直播', '幻灯片只能在直播中打开，请点击左上角闪电按钮开启直播');
             };
@@ -224,9 +224,28 @@ class com extends Component {
             if(roomInfo) {
                 global.$live.showUrl(asset.picker, asset.url);
             } else {
-                global.$alert.fn.show('你还没有开启直播', '素材只能在直播中打开，请点击左上角闪电按钮开启直播');
+                that.openLinkInPop(asset.url);
             };
         };
+    };
+
+    //在新窗口打开素材,弹出提示，如果确认就不再弹出
+    openLinkInPop = (url) => {
+        let hasPop = global.$store('AssetDetail', 'hasPopOpenLink');
+        if(!hasPop) {
+            global.$confirm.fn.show({
+                title: '你还没有开启直播',
+                text: '素材只能在直播中打开，请点击左上角闪电按钮开启直播',
+                okBtnTxt: '我知道了',
+                cancelBtnTxt: '不打开了',
+                okHandler: () => {
+                    window.open(url);
+                    global.$store('AssetDetail', { hasPopOpenLink: true })
+                },
+            });
+        } else {
+            window.open(url);
+        }
     };
 
 

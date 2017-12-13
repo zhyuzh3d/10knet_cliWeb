@@ -12,7 +12,7 @@ const cmds = {
 //初始化主窗口
 const initMain = () => {
     //替换window.open命令，在从窗口中打开
-    window.open = (url) => {
+    /*window.open = (url) => {
         run(`if(!slaveWindow)initSlave();`);
         run(`slaveWindow.restore();`);
         setTimeout(() => {
@@ -21,7 +21,7 @@ const initMain = () => {
                 url: url,
             });
         }, 200);
-    };
+    };*/
 
     renderer.on('msg', (event, arg) => {
         console.log('>[MyIpc:on msg]', global.$winName, arg, event);
