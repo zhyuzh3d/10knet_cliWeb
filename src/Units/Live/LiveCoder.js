@@ -122,6 +122,7 @@ class com extends Component {
             } else {
                 //理解把代码推送到同步数据库
                 let value = that.state.value || '';
+                if(!newProps || !newProps.wdRef) return;
                 global.$wd.sync().ref(`${newProps.wdRef}/value`).set(value);
                 global.$wd.sync().ref(`${newProps.wdRef}/showOJ`).set(that.state.showOJ);
                 that.stopSync(); //停止同步

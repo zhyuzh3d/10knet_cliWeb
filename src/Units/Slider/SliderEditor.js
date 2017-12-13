@@ -90,11 +90,22 @@ class com extends Component {
     //创建空的slider，保存到public和slider
     newSlider = () => {
         let that = this;
+
+        let cuser = global.$wd.auth().currentUser;
+        if(!cuser) {
+            global.$alert.fn.show('您还没有注册和登录', '请在右侧面板登录或注册');
+            global.$app.toggleMainPart(true);
+            return;
+        };
+
         global.$wd.sync().ref(`slider`).push({
+            author: cuser.uid,
             title: '',
             text: '',
         }).then((res) => {
             let key = res.key();
+
+            console.log('>>>newsilder', key);
             if(that.props.public) {
                 that.props.public.sliderId = key
             };
@@ -197,6 +208,7 @@ class com extends Component {
         const css = that.props.classes;
         let slider = that.state.slider;
         let sid = that.props.sliderId || that.props.public.sliderId;
+        console.log('>>slider render', sid);
 
         let pageElArr = [];
         if(slider && slider.pages) {

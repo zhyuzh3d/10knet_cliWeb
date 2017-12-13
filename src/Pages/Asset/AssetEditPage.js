@@ -712,7 +712,7 @@ class com extends Component {
 
 
             //编辑创建幻灯片
-            that.state.curType === that.editSlider && AssetTypes.slider ? h(SliderEditor, {
+            that.state.curType === AssetTypes.slider ? h(SliderEditor, {
                 sliderId: that.state.asset ? that.state.asset.sliderId : null,
                 public: that.state.sliderPublic,
             }) : undefined,
