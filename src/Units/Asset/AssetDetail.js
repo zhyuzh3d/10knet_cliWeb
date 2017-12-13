@@ -234,10 +234,10 @@ class com extends Component {
         let hasPop = global.$store('AssetDetail', 'hasPopOpenLink');
         if(!hasPop) {
             global.$confirm.fn.show({
-                title: '你还没有开启直播',
-                text: '素材只能在直播中打开，请点击左上角闪电按钮开启直播',
-                okBtnTxt: '我知道了',
-                cancelBtnTxt: '不打开了',
+                title: '素材应该在直播中打开',
+                text: '你还没有开启直播，请点击左上角闪电按钮开启直播。您也可以点击下面按钮在新窗口中打开链接',
+                cancelBtnTxt: '暂不打开',
+                okBtnTxt: '仍要打开',
                 okHandler: () => {
                     window.open(url);
                     global.$store('AssetDetail', { hasPopOpenLink: true })
