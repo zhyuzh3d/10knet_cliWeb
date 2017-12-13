@@ -57,7 +57,7 @@ class App extends Component {
     state = {
         currentPage: 'div',
         currentUser: null,
-        mainVis: true,
+        mainVis: false,
         liveVis: true,
         liveHei: 128,
         viewerHei: window.innerHeight - 128,

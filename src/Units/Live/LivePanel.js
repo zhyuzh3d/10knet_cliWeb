@@ -54,7 +54,7 @@ class com extends Component {
         browserCanBack: false, //浏览器是否可以后退
         browserCanForward: false, //浏览器是否可以前进
         showOJ: true, //coder的OJ开关状态
-        useMainPart: true, //是否显示右侧栏
+        useMainPart: false, //是否显示右侧栏
     };
 
     //初始化邀请提示
@@ -694,7 +694,7 @@ class com extends Component {
         let coderOJBtn = h(Tooltip, { title: '开关解题面板' }, h('div', {}, h(Button, {
             className: css.btn,
             style: {
-                color: that.state.showOJ ? '#f50057' : '#AAA',
+                color: that.state.showOJ ? '#009688' : '#AAA',
             },
             onClick: () => { that.toggleCoderOJ() },
             disabled: !onChair && roomInfo,
@@ -802,9 +802,9 @@ class com extends Component {
                 roomInfo ? liveRoomBtn : null,
                 roomInfo ? liveChatBtn : null,
                 onChair ? barDivider : null,
-                onChair || !roomInfo ? liveCodeBtn : null,
+                onChair ? liveCodeBtn : null,
                 (onChair || !roomInfo) && that.state.boardType === 'coder' ? coderOJBtn : null,
-                onChair || !roomInfo ? liveSliderBtn : null,
+                onChair ? liveSliderBtn : null,
                 onChair ? liveViewerBtn : null,
                 onChair ? barDivider : null,
                 false && onChair ? liveBrowserBtn : null,
@@ -832,7 +832,6 @@ class com extends Component {
                 }),
             ]),
 
-
             //文字聊天模块
             roomInfo && that.state.useLiveChat ? h('div', {
                 className: css.liveChatBox,
@@ -846,8 +845,6 @@ class com extends Component {
         ]) : null;
     };
 };
-
-
 
 
 com.propTypes = {
