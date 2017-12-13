@@ -113,7 +113,8 @@ class com extends Component {
             if(!that.props.onChair) {
                 that.startGuestSync(newProps); //开启新的监听
             } else {
-                this.getOJdetails(newProps.id);
+                let localId= global.$store('OJdetails', 'id');
+                this.getOJdetails(newProps.id || localId);
             };
         };
     };
@@ -158,6 +159,7 @@ class com extends Component {
     getOJdetails = async function(id) {
         let that = this;
         id = id || that.props.id;
+
         if(!id) return;
         that.setState({ id: id });
 
@@ -316,7 +318,7 @@ class com extends Component {
         let that = this;
         let cuser = global.$wd.auth().currentUser;
         if(!cuser) {
-            global .$alert.fn.show(`您还没有登录，不能创建素材`, '请先在右侧面板注册和登录然后再使用');
+            global.$alert.fn.show(`您还没有登录，不能创建素材`, '请先在右侧面板注册和登录然后再使用');
             global.$app.toggleMainPart(true);
             global.$router.changePage('LoginPage');
             return;

@@ -74,6 +74,11 @@ class App extends Component {
         let urlObj = urlParser.parse(window.location.href);
         let useSlavePart = urlObj.query ? urlObj.query.params['useSlavePart'] : undefined;
         that.setState({ useSlavePart: useSlavePart });
+
+
+       // global.$wd.sync().ref(`ioj`).remove();
+
+
     };
 
     //每分钟自动记录一次登录状态
