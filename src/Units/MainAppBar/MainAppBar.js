@@ -76,31 +76,6 @@ class com extends Component {
         let that = this;
         const css = that.props.classes;
         const title = that.props.title || that.state.title;
-        //const winTitle = that.props.winTitle || '10knet:拾课网';
-        //document.getElementsByTagName('title')[0].innerHTML = winTitle;
-
-
-        //导航栏下拉菜单
-        let barMenuArr = [h(MenuItem, {
-                disabled: !global.$electron,
-                onClick: () => {
-                    global.$ipc.run(`if(!slaveWindow)initSlave();`);
-                    global.$ipc.run(`slaveWindow.restore();`);
-                    that.setState({
-                        appMenuOpen: false
-                    })
-                },
-            }, '显示资源窗'),
-            h(MenuItem, {
-                disabled: !global.$electron,
-                onClick: () => {
-                    global.$ipc.run(`slaveWindow.hide();`);
-                    that.setState({
-                        appMenuOpen: false
-                    })
-                },
-            }, '隐藏资源窗'),
-        ];
 
         //导航栏
         let topBar = h(AppBar, {
@@ -111,18 +86,9 @@ class com extends Component {
                 h('div', {}, [
                     h(IconButton, {
                         onClick: (evt) => {
-                            //global.$app.xset({ mainVis: false });
-                            that.setState({
-                                appMenuOpen: !that.state.appMenuOpen,
-                                appMenuAnchor: evt.currentTarget,
-                            })
+                            global.$app.toggleMainPart(false); //显示主面板
                         }
-                    }, h(FontA, { name: 'bars' })),
-                    h(Menu, {
-                        open: that.state.appMenuOpen,
-                        anchorEl: that.state.appMenuAnchor,
-                        onRequestClose: () => { that.setState({ appMenuOpen: false }) },
-                    }, barMenuArr),
+                    }, h(FontA, { name: 'close' })),
                 ]),
                 h(Typography, { type: 'title', className: css.flex }, title),
                 h(UserMenu),

@@ -316,7 +316,7 @@ class com extends Component {
         let that = this;
         let cuser = global.$wd.auth().currentUser;
         if(!cuser) {
-            global.$alert.fn.show(`您还没有登录，不能创建素材`, '请先在右侧面板注册和登录然后再使用');
+            global .$alert.fn.show(`您还没有登录，不能创建素材`, '请先在右侧面板注册和登录然后再使用');
             global.$app.toggleMainPart(true);
             global.$router.changePage('LoginPage');
             return;
