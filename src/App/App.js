@@ -31,6 +31,7 @@ import style from './_style';
 
 import LivePanel from '../Units/Live/LivePanel';
 
+const theAppTitle = '10knet.com - 拾课网客户端 - 00.00.01';
 
 //全局使用
 global.$fn = MyFn;
@@ -51,6 +52,7 @@ global.$app = {};
 
 //所有公用函数
 global.$xdata = {}; //穿越
+
 
 //App元素
 class App extends Component {
@@ -151,7 +153,7 @@ class App extends Component {
     //渲染实现
     render() {
         let that = this;
-        document.getElementsByTagName('title')[0].innerHTML = '10knet - 拾课网';
+        document.getElementsByTagName('title')[0].innerHTML = theAppTitle;
         const css = this.props.classes;
 
         //let useSlavePart = global.$electron || that.state.useSlavePart ? true : false;
