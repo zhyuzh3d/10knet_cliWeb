@@ -19,6 +19,8 @@ import compare from 'just-compare';
 import Button from 'material-ui/Button';
 import FontA from 'react-fa';
 
+import AssetPickBtn from '../../Units/Asset/AssetPickBtn';
+
 const style = theme => ({
     comBox: {
         width: '100%',
@@ -113,7 +115,7 @@ class com extends Component {
             if(!that.props.onChair) {
                 that.startGuestSync(newProps); //开启新的监听
             } else {
-                let localId= global.$store('OJdetails', 'id');
+                let localId = global.$store('OJdetails', 'id');
                 this.getOJdetails(newProps.id || localId);
             };
         };
@@ -281,7 +283,6 @@ class com extends Component {
             .end((err, res) => {
                 if(!err) {
                     let data = JSON.parse(res.text);
-                    console.log('>getResult data', data);
                     if(data && data.code === 1) {
                         let result = data.data;
                         that.setState({ result: result }); //更新判题状态
@@ -313,93 +314,15 @@ class com extends Component {
         if(reset) that.setState({ result: null });
     };
 
-    //收集一个题目
-    pickAsAsset = () => {
-        let that = this;
-        let cuser = global.$wd.auth().currentUser;
-        if(!cuser) {
-            global.$alert.fn.show(`您还没有登录，不能创建素材`, '请先在右侧面板注册和登录然后再使用');
-            global.$app.toggleMainPart(true);
-            global.$router.changePage('LoginPage');
-            return;
-        };
-
-        let userId = cuser.uid;
-        global.$wd.sync().ref(`ubasket/${userId}`).once('value', (shot) => {
-            let baskets = shot.val();
-            if(!baskets) {
-                //创建新篮子
-                let bref = global.$wd.sync().ref(`basket`);
-                bref.push({ author: userId }).then((res) => {
-                    let basketId = res.key();
-                    let asset = {
-                        title: '临时收集篮',
-                        picker: userId,
-                        ts: global.$wd.sync().ServerValue.TIMESTAMP,
-                        top: false,
-                    };
-                    global.$wd.sync().ref(`ubasket/${userId}`).update({
-                        [basketId]: asset,
-                    }).then((res) => {
-                        that.openAssetEditPage(basketId);
-                    });
-                }).catch((err) => {
-                    global.$snackbar.fn.show(`采集失败:${err.message}`, 3000);
-                });
-            } else {
-                //提示用户选择
-                let arr = [];
-                for(let key in baskets) {
-                    baskets[key].id = key;
-                    arr.push(baskets[key]);
-                };
-                global.$selector.fn.show({
-                    title: '请选择收集篮',
-                    itemArr: arr,
-                    okHandler: (basket) => {
-                        that.openAssetEditPage(basket.id);
-                    },
-                });
-            };
-        });
-
-    };
-
-
-    openAssetEditPage = (basketId) => {
-        let that = this;
-        global.$app.toggleMainPart(true); //显示主面板
-
-        global.$store('AssetEditPage', { assetId: undefined }); //清理旧ID
-
-        let problemId = that.state.data ? that.state.data.problemId : null;
-        problemId = problemId || that.props.id;
-
-        let title = that.state.data ? that.state.data.title : '未命名题目';
-        let opt = {
-            basketId: basketId,
-            appBarTitle: '新建题目素材',
-            data: {
-                problemId: problemId,
-                type: 'oj',
-                title: title,
-                desc: '采集自10knet.com判题库的题目',
-            },
-        };
-        if(global.$router.getCurrentPage() === 'AssetEditPage') {
-            global.$router.goPage('BlankPage');
-        };
-        setTimeout(() => {
-            global.$router.changePage('AssetEditPage', opt);
-        }, 100);
-    }
-
     render() {
         let that = this;
         const css = that.props.classes;
 
         let data = that.state.data || {};
         let result = that.state.result;
+
+        let problemId = that.state.data ? that.state.data.problem_id : null;
+        problemId = problemId ? problemId : that.props.id;
 
         let topBtnGrp = h('div', {
             className: css.topBtnBar,
@@ -415,16 +338,6 @@ class com extends Component {
                 h(FontA, { name: 'caret-left', style: { marginRight: 8 } }),
                 h('span', '返回')
             ]),
-            data ? h(Button, {
-                color: 'accent',
-                raised: true,
-                style: { marginLeft: 16 },
-                disabled: !that.props.onChair,
-                onClick: () => { that.pickAsAsset() },
-            }, [
-                h(FontA, { name: 'leaf', style: { marginRight: 8 } }),
-                h('span', '采集'),
-            ]) : null,
         ]);
 
         return h('div', {
@@ -437,20 +350,6 @@ class com extends Component {
                 h('div', { className: css.title }, `[${data.origin_oj||"NAN"}]${data.title||"题目载入中..."}`),
                 h('div', { className: css.id }, `ID:${data.problem_id}`),
             ]),
-            data ? h('div', {
-                className: css.itemBox,
-            }, [
-                h('div', {
-                    className: css.desc,
-                    dangerouslySetInnerHTML: { __html: data.description || '...' },
-                }),
-            ]) : null,
-            data && data.time_limit ? h('div', {
-                className: css.itemBox,
-            }, [
-                h('div', { className: css.tip }, `时间限定:[ ${data.time_limit} ]`),
-                h('div', { className: css.tip }, `内存限定:[ ${data.memory_limit} ]`),
-            ]) : null,
             h('div', {
                 style: { margin: 16 },
             }, [
@@ -459,22 +358,54 @@ class com extends Component {
                     raised: true,
                     onClick: () => { that.startJudge() },
                     disabled: that.state.judging || (!that.props.onChair && that.props.roomId),
-                }, '开始判题'),
+                }, [
+                     h(FontA, { name: 'balance-scale', style: { marginRight: 8 } }),
+                    h('span', '测试代码'),
+                ]),
                 that.state.judging ? h(Button, {
-                    style: { marginLeft: 16 },
+                    style: { marginLeft: 8 },
                     color: 'primary',
                     disabled: !that.props.onChair && that.props.roomId,
                     onClick: () => { that.cancelJudge(true) },
                 }, '取消') : null,
+                data ? h(AssetPickBtn, {
+                    style: {
+                        fontSize: 12,
+                        marginLeft: 16,
+                    },
+                    raised: true,
+                    color: 'accent',
+                    data: {
+                        type: 'oj',
+                        title: that.state.data ? that.state.data.title : '未命名题目',
+                        problemId: problemId,
+                        desc: '采集自10knet.com判题库的题目',
+                    }
+                }) : null,
             ]): null,
             result ? h('div', {
                 className: css.itemBox,
             }, [
-                h('div', { className: css.res }, '判题状态:' + that.state.result.state),
+                h('div', { className: css.res }, '测试状态:' + that.state.result.state),
                 h('div', {
                     className: css.res,
                     style: { color: result.result_text === 'Accepted' ? '#00a371' : '#888' },
-                }, '判题结果:' + (result.result_text || "...")),
+                }, '测试结果:' + (result.result_text || "...")),
+            ]) : null,
+            data ? h('div', {
+                className: css.itemBox,
+            }, [
+                h('div', {
+                    className: css.desc,
+                    dangerouslySetInnerHTML: { __html: data.description || '...' },
+                }),
+            ]) : null,
+             h('div', { style: { height: 24 } }),
+            data && data.time_limit ? h('div', {
+                className: css.itemBox,
+            }, [
+                h('div', { className: css.tip }, `时间限定:[ ${data.time_limit} ]`),
+                h('div', { className: css.tip }, `内存限定:[ ${data.memory_limit} ]`),
             ]) : null,
             h('div', { style: { height: 100 } }),
         ]);

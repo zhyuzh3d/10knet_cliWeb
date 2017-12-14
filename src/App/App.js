@@ -75,10 +75,6 @@ class App extends Component {
         let useSlavePart = urlObj.query ? urlObj.query.params['useSlavePart'] : undefined;
         that.setState({ useSlavePart: useSlavePart });
 
-
-       // global.$wd.sync().ref(`ioj`).remove();
-
-
     };
 
     //每分钟自动记录一次登录状态
@@ -190,6 +186,11 @@ class App extends Component {
                         padding: 0,
                     },
                     className: css.live,
+                    onClick: () => {
+                        if(that.state.mainVis) {
+                            that.toggleMainPart(false);
+                        };
+                    },
                 }, h(LivePanel, {
                     open: true,
                     roomId: 0,

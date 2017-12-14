@@ -211,7 +211,7 @@ class com extends Component {
                     sliderId: that.state.sliderId,
                     editSlider: false,
                 }
-            }): null,
+            }),
         ]);
 
         return h('div', {

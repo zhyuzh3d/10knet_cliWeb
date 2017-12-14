@@ -770,7 +770,7 @@ class com extends Component {
             onClick: () => {
                 global.$app.toggleMainPart && global.$app.toggleMainPart(!that.state.useMainPart);
             },
-        }, h(FontA, { name: 'columns' }))]);
+        }, h(FontA, { name: 'leaf' }))]);
 
 
         //分割线

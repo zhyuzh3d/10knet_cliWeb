@@ -161,7 +161,6 @@ class com extends Component {
 
     getOJList = async function(page, searchStr) {
         let that = this;
-        console.log('>>>getOJList page', page);
         page = page === undefined ? that.state.page : page;
         that.updateSync(page, searchStr);
 
