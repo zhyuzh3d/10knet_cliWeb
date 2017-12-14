@@ -99,12 +99,12 @@ class com extends Component {
 
     wdRefArr = [];
     oldProps = {};
-    componentWillMount = () => {
+    componentDidMount = () => {
         let that = this;
         if(!that.props.onChair && that.props.roomId) { //进入房间且非主持人
             this.startGuestSync();
         } else {
-            let storePage = global.$store('OJlist', 'page');
+            let storePage = that.props.page || global.$store('OJlist', 'page');
             that.setState({ page: storePage, pageIpt: storePage });
             this.getOJList(storePage);
         }

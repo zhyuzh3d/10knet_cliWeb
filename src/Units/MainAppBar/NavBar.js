@@ -14,7 +14,6 @@ import merge from 'deepmerge';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import ButtonBase from 'material-ui/ButtonBase';
-import IconButton from 'material-ui/IconButton';
 import FontA from 'react-fa';
 import Typography from 'material-ui/Typography';
 

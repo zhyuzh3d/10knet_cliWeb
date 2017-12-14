@@ -18,7 +18,6 @@ import Toolbar from 'material-ui/Toolbar';
 import IconButton from 'material-ui/IconButton';
 import FontA from 'react-fa';
 import Typography from 'material-ui/Typography';
-import Menu, { MenuItem } from 'material-ui/Menu';
 
 import UserMenu from '../../Units/User/UserMenu';
 

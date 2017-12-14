@@ -90,12 +90,12 @@ class com extends Component {
     };
 
     wdRefArr = [];
-    componentWillMount = () => {
+    componentDidMount = () => {
         let that = this;
         if(!that.props.onChair && that.props.roomId) { //进入房间且非主持人
             this.startGuestSync();
         } else {
-            let id = global.$store('OJdetails', 'id');
+            let id = that.props.id || global.$store('OJdetails', 'id');
             this.getOJdetails(id);
         };
     };
