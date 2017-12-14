@@ -84,7 +84,7 @@ class MyComponent extends Component {
             inputValue: opt.input ? opt.input.value : '',
             inputRegx: opt.input ? opt.input.regx : '',
             btnDisabled: opt.input && opt.input.regx && !opt.input.regx.test(opt.input.value),
-            cancelBtnTxt: opt.cancelBtnTxt || '取 x消',
+            cancelBtnTxt: opt.cancelBtnTxt || '取 消',
             okBtnTxt: opt.okBtnTxt || '确 认',
         });
     };
