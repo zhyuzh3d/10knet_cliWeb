@@ -53,7 +53,7 @@ global.$app = {};
 //所有公用函数
 global.$xdata = {}; //穿越
 
-console.log('>>zhyuzh制作 || QQ 286052520 如有BUG或建议欢迎联络交流！\n--感谢野狗（wilddog.com)大力支持--')
+console.log('>>zhyuzh制作 || QQ 286052520 如有BUG或建议欢迎联络交流！<<\n--感谢野狗（wilddog.com)大力支持--')
 
 //App元素
 class App extends Component {
@@ -77,7 +77,6 @@ class App extends Component {
         let urlObj = urlParser.parse(window.location.href);
         let useSlavePart = urlObj.query ? urlObj.query.params['useSlavePart'] : undefined;
         that.setState({ useSlavePart: useSlavePart });
-
     };
 
     //每分钟自动记录一次登录状态
