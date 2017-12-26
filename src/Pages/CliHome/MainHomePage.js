@@ -74,13 +74,18 @@ class com extends Component {
     componentDidMount = async function() {
         window.addEventListener('resize', this.setContentSize);
         this.wdAuthListen = global.$wd.auth().onAuthStateChanged((user) => {
-            this.setState({ currentUser: user });
+            !this.hasUnmounted && this.setState({ currentUser: user });
         });
 
         //延迟以避免指示条出错
         setTimeout(() => {
-            this.setState({ tabValue: global.$store('MainHomePage', 'tabsValue') || 0 });
+            !this.hasUnmounted && this.setState({ tabValue: global.$store('MainHomePage', 'tabsValue') || 0 });
         }, 200);
+    };
+
+    hasUnmounted = false;
+    componentWillUnmount = function() {
+        this.hasUnmounted = true;
     };
 
 
