@@ -130,6 +130,8 @@ class com extends Component {
                     if(global.$wd.auth().currentUser) {
                         global.$wd.auth().signOut().then(function(user) {
                             global.$snackbar.fn.show('退出成功', 2000);
+                            global.$app.toggleMainPart(true); //跳转到登录页面
+                            global.$router.changePage('LoginPage');
                         }).catch(function(error) {
                             global.$alert.fn.show('退出失败，请重试', error.message);
                         });
