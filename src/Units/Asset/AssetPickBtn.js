@@ -39,7 +39,11 @@ class com extends Component {
         let that = this;
         let cuser = global.$wd.auth().currentUser;
         if(!cuser) {
-            global.$alert.fn.show(`您还没有登录，不能创建素材`, 3000);
+            global.$alert.fn.show(`您还没有登录，不能创建素材`,'请先登录后再试');
+            global.$app.toggleMainPart(true); //显示主面板
+            global.$router.changePage('LoginPage', {
+                successPage: 'MainHomePage',
+            });
             return;
         };
 

@@ -97,6 +97,10 @@ class com extends Component {
         let cuser = global.$wd.auth().currentUser;
         if(!cuser) {
             global.$alert.fn.show('请您先登录', '创建房间功能仅提供给已登录用户使用');
+            global.$app.toggleMainPart(true); //显示主面板
+            global.$router.changePage('LoginPage', {
+                successPage: 'MainHomePage',
+            });
             return;
         };
 
@@ -769,8 +773,13 @@ class com extends Component {
             },
             onClick: () => {
                 global.$app.toggleMainPart && global.$app.toggleMainPart(!that.state.useMainPart);
+                if(!global.$wd.auth().currentUser && !that.state.useMainPart) {
+                    global.$router.changePage('LoginPage', {
+                        successPage: 'MainHomePage',
+                    });
+                }
             },
-        }, h(FontA, { name: 'leaf' }))]);
+        }, h(FontA, { name: 'user-circle-o' }))]);
 
 
         //分割线

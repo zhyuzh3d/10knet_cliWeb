@@ -135,6 +135,11 @@ class App extends Component {
                     that.setState({ currentUser: cuser });
                     global.$currentUser = cuser;
                 });
+            } else {
+                that.toggleMainPart(true);
+                global.$router.changePage('LoginPage', {
+                    successPage: 'MainHomePage',
+                });
             };
         });
     };
